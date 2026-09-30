@@ -544,6 +544,14 @@ When extending production planning (`/uretim`, design in `docs/production-planni
   cron keeps the non-prod Neon database awake
 - a render-time "now" comes from `features/production/shared/hooks/useNow.ts`, not `new Date()`
   in the component body (react-hooks/purity; labels like "sürüyor" must refresh)
+- "we produce it" is decided by ONE flag, `Supplier.isInHouseProduction` (at most one supplier; the admin supplier
+  handlers answer 409 for a second) — never by the supplier NAME. Production reads it only through
+  `inHouseVariantWhere` / `moldAssignableSizeWhere` in `core/helpers/prisma/productionReferences/repository.ts`: orders
+  open only for a variant linked to that supplier (the link's `isActive` is ignored: inactive = not on sale, still
+  producible), and a mold takes only in-house sizes or sizes that already have a mold (so older molds stay editable)
+- the planned cycle has ONE chain, `resolveCycleTimeSec` (`jobScheduling.ts`): order override > mold-machine card >
+  variant cycle (`ProductionVariantProfile`, a 1:1 side table of the catalog variant, in-house variants only) > mold
+  standard × material factor. The material factor applies ONLY to the last step. Do not resolve a cycle anywhere else
 - a job's duration has two meanings; never show one as the other. WORK time (setup + shots × cycle ÷ efficiency)
   is written in hours with `formatWorkMinutes` via `features/production/shared/jobDurations.ts` (same
   `computeProductionMinutes` as the engine). The CALENDAR span (factory days the job covers, nights included) is a

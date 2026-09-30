@@ -69,8 +69,8 @@ const patterns = [
 
 const now = wallTimeToUtc("2026-10-05T08:00")!
 
-const evaluate = (overrides: { dueDate?: string | null; machines?: CandidateMachine[] } = {}) => evaluateOrderCandidates({
-    order: { quantity: 100_000, dueDate: overrides.dueDate ?? null, cycleTimeOverrideSec: null, productSizeId: SIZE },
+const evaluate = (overrides: { dueDate?: string | null; machines?: CandidateMachine[]; variantCycleTimeSec?: number | null; materialFactor?: number | null } = {}) => evaluateOrderCandidates({
+    order: { quantity: 100_000, dueDate: overrides.dueDate ?? null, cycleTimeOverrideSec: null, productSizeId: SIZE, variantCycleTimeSec: overrides.variantCycleTimeSec },
     molds: [k1001],
     machines: overrides.machines ?? [
         machine({}),
@@ -81,7 +81,7 @@ const evaluate = (overrides: { dueDate?: string | null; machines?: CandidateMach
     areaShiftPatternIds: { p1: null },
     exceptions: [],
     downtimes: [],
-    materialFactor: null,
+    materialFactor: overrides.materialFactor ?? null,
     now,
 })
 
@@ -94,6 +94,14 @@ describe("evaluateOrderCandidates", () => {
         expect(m01).toMatchObject({ cycleTimeSec: 17.5, cycleSource: "machineCard", shots: 12_691, setupMinutes: 40, isPreferred: true })
         const m02 = candidates.find((candidate) => candidate.machine.code === "M-02")!
         expect(m02).toMatchObject({ cycleTimeSec: 18, cycleSource: "mold", setupMinutes: 45 })
+    })
+
+    it("varyant çevrimi: kartı olan makinede kart kazanır; kartsız makinede kalıp × katsayının yerini alır", () => {
+        const { candidates } = evaluate({ variantCycleTimeSec: 21, materialFactor: 1.2 })
+
+        expect(candidates.find((candidate) => candidate.machine.code === "M-01")).toMatchObject({ cycleTimeSec: 17.5, cycleSource: "machineCard" })
+        // Katsayı (1,2) varyant çevrimine uygulanmaz: 21 sn kalır (kalıptan gelseydi 18 × 1,2 = 21,6).
+        expect(candidates.find((candidate) => candidate.machine.code === "M-02")).toMatchObject({ cycleTimeSec: 21, cycleSource: "variant" })
     })
 
     it("24 saat çalışan makine önce biter; 12 saatlik düzen günlere yayılır; lotlar vardiya başına", () => {

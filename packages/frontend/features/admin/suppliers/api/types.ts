@@ -7,6 +7,8 @@ export type Supplier = {
     taxNumber?: string | null
     defaultPaymentTermDays?: number | null
     isActive: boolean
+    /** Kendi üretim birimimiz — üretim planlama yalnız bu tedarikçinin varyantlarını üretime alır. */
+    isInHouseProduction?: boolean
     assignedPurchasingSuppliers?: Array<{
         id: string
         email: string

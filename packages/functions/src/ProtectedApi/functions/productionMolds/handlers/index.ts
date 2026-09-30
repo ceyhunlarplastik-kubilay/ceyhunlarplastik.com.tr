@@ -132,6 +132,12 @@ async function assertChildren(
         if (sizeIds.some((id) => !existing.has(id))) {
             throw new createError.NotFound("Seçilen ölçülerden biri bulunamadı; sayfayı yenileyip tekrar seçin.")
         }
+        const assignable = await deps.productionReferenceRepository.findMoldAssignableProductSizeIds(sizeIds)
+        if (sizeIds.some((id) => !assignable.has(id))) {
+            throw new createError.BadRequest(
+                "Seçilen ölçülerden biri iç üretim tedarikçisine bağlı değil; kalıba yalnız kendi ürettiğimiz ölçüler bağlanabilir.",
+            )
+        }
     }
 
     if (machineProfiles) {

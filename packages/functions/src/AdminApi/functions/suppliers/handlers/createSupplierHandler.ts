@@ -2,6 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ISupplierDependencies, ICreateSupplierEvent } from "@/functions/AdminApi/types/suppliers"
+import { assertSingleInHouseProductionSupplier } from "./inHouseProduction"
 
 export const createSupplierHandler = ({ supplierRepository }: ISupplierDependencies) => {
     return async (event: ICreateSupplierEvent) => {
@@ -10,14 +11,16 @@ export const createSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least one body field must be provided");
 
-        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "assignedPurchasingUserIds"] as const
+        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "isInHouseProduction", "assignedPurchasingUserIds"] as const
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
         )
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`)
 
-        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, assignedPurchasingUserIds } = body;
+        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, isInHouseProduction, assignedPurchasingUserIds } = body;
+
+        if (isInHouseProduction) await assertSingleInHouseProductionSupplier(supplierRepository)
 
         try {
             const supplier = await supplierRepository.createSupplier({
@@ -28,6 +31,7 @@ export const createSupplierHandler = ({ supplierRepository }: ISupplierDependenc
                 ...(taxNumber !== undefined ? { taxNumber } : {}),
                 ...(defaultPaymentTermDays !== undefined ? { defaultPaymentTermDays } : {}),
                 ...(isActive !== undefined ? { isActive } : {}),
+                ...(isInHouseProduction !== undefined ? { isInHouseProduction } : {}),
                 ...(assignedPurchasingUserIds?.length
                     ? { assignedPurchasingSuppliers: { connect: assignedPurchasingUserIds.map((id) => ({ id })) } }
                     : {}),

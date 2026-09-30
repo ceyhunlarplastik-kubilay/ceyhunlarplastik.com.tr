@@ -154,7 +154,10 @@ describe("iş koruması (Dilim 2.3)", () => {
         }
         const deps = {
             productionMoldRepository: moldRepository,
-            productionReferenceRepository: { findExistingProductSizeIds: vi.fn().mockResolvedValue(new Set(["s1"])) },
+            productionReferenceRepository: {
+                findExistingProductSizeIds: vi.fn().mockResolvedValue(new Set(["s1"])),
+                findMoldAssignableProductSizeIds: vi.fn().mockResolvedValue(new Set(["s1"])),
+            },
             productionMachineRepository: { findExistingMachineIds: vi.fn().mockResolvedValue(new Set()) },
         }
 

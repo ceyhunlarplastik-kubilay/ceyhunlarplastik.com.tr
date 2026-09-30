@@ -785,6 +785,16 @@ protectedApi.route('PUT /production/material-profiles/{materialId}', {
     ...productionMutationRouteOptions,
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /production/variants', {
+    handler: `${folderPrefix}/productionVariantProfiles/actions.listProductionVariants`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /production/variants/{variantId}/profile', {
+    handler: `${folderPrefix}/productionVariantProfiles/actions.upsertProductionVariantProfile`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /production/operators', {
     handler: `${folderPrefix}/productionOperators/actions.listProductionOperators`,
     ...defaultRouteOptions,

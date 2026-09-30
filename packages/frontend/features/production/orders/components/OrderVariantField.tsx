@@ -35,7 +35,7 @@ export function VersionLabel({ version, code }: { version: ReferenceVariantVersi
 }
 
 /**
- * Ürün modeli → varyant. Yalnız ÜRETİLEBİLİR (kullanılabilir kalıbı olan) ölçüler gelir;
+ * Ürün modeli → varyant. Yalnız ÜRETİLEBİLİR (iç üretim tedarikçisine bağlı + kullanılabilir kalıbı olan) ölçüler gelir;
  * varyantlar ölçüye göre gruplanır, seçilen ölçünün kalıpları altta yazar.
  */
 export function OrderVariantField() {
@@ -73,11 +73,11 @@ export function OrderVariantField() {
                             loading={productsQuery.isLoading}
                             placeholder="Ürün modeli seçin"
                             searchPlaceholder="Kod ya da ad ara"
-                            emptyText="Kalıbı olan ürün modeli bulunamadı"
+                            emptyText="İç üretim ve kalıbı olan ürün modeli bulunamadı"
                             allowClear={false}
                             aria-label="Ürün modeli"
                         />
-                        <FormDescription className="text-xs">Yalnız kalıbı olan ölçüsü bulunan modeller listelenir.</FormDescription>
+                        <FormDescription className="text-xs">Yalnız kendi ürettiğimiz ve kalıbı olan ölçüsü bulunan modeller listelenir.</FormDescription>
                     </FormItem>
                 )}
             />

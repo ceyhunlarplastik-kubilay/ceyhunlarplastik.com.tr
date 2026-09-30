@@ -11098,6 +11098,65 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
 - **Kubi:** Emirler → Öner: kartlar kaydırmasız sığmalı; uyarılı adayda sarı satıra tıklayınca ayrıntı açılmalı;
   "N vardiya lotu" lotları açmalı; Planla eskisi gibi çalışmalı.
 
+## Üretim — iç üretim tedarikçisi işareti (Dilim A) (2026-09-30) *(kullanıcı talebiyle; onaylı plan)*
+
+- **İhtiyaç:** katalogdaki her ürün bizim üretimimiz değil. Yalnız "Ceyhunlar Üretim" tedarikçisinin varyantları üretime
+  alınabilmeli; bunu tedarikçi ADIYLA sorgulamak kırılgan ve verimsiz.
+- **Kararlar (kullanıcı):** yalnız BİR tedarikçi iç üretim olabilir · varyantın o tedarikçideki kaydı pasifse de
+  üretilebilir (pasif = satışa kapalı).
+- **Yapılan:**
+  - Şema: `Supplier.isInHouseProduction` (varsayılan false) · migration `20260930100000_add_supplier_in_house_production`
+    (yalnız sütun ekler; ada göre otomatik işaretleme YOK — admin bir kez işaretler).
+  - Admin tedarikçi uçları: istek + yanıt şemasına alan; ikinci tedarikçi işaretlenirse **409** ("İç üretim tedarikçisi
+    zaten …") — `suppliers/handlers/inHouseProduction.ts`, `supplierRepository.findInHouseProductionSupplier`.
+  - Admin arayüzü: tedarikçi formunda "Kendi üretimimiz (iç üretim)" kutusu, listede "İç üretim" rozeti. Dialog
+    `sm:max-w-lg` + yükseklik sınırı (öneksiz `max-w` tuzağı giderildi).
+  - Üretim sözlüğü (`productionReferences/repository.ts`): `inHouseVariantWhere` ve `moldAssignableSizeWhere` tek kaynak.
+    Emir seçicisi yalnız iç üretim varyantlarını listeler; kalıp ölçü seçicisi iç üretim ölçülerini + zaten kalıbı olan
+    ölçüleri (eski kalıplar düzenlenebilir kalsın) listeler.
+  - Sunucu kontrolü: iç üretim olmayan varyanta emir **400**; iç üretim olmayan (ve kalıbı da olmayan) ölçü kalıba **400**.
+  - Mevcut emirler, işler ve kalıplar değişmedi; kural yeni kayıtlara uygulanır.
+- **Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler core 872 ·
+  functions 612 (5 yeni: tek iç üretim kuralı, emir ve kalıp reddi) · frontend 521 ✓ · `next build` "Compiled
+  successfully". Sorgular gerçek veritabanında ÇALIŞTIRILMADI (yalnız tip + birim test) — kubi'de doğrulanacak.
+- **Kullanıcıda bekleyen (kubi):**
+  1. `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`
+  2. Admin → Tedarikçiler → "Ceyhunlar Üretim" → kutuyu işaretle (o ana kadar üretim seçicileri boş gelir).
+  3. İkinci bir tedarikçiyi işaretlemeyi dene → 409 mesajı.
+  4. Üretim → Emirler → Yeni Emir: yalnız iç üretim + kalıplı modeller; Kalıplar → göz grubu: yalnız iç üretim ölçüleri.
+- **Kalan:** Dilim B (varyanta özel çevrim) PLAN'da.
+
+## Üretim — varyanta özel çevrim süresi + Üretim Varyantları sayfası (Dilim B) (2026-09-30) *(kullanıcı talebiyle; onaylı plan)*
+
+- **İhtiyaç:** çevrim üç yerde tanımlanabiliyordu (emir, kalıbın makine kartı, kalıp standardı). İç üretim
+  varyantlarında varyanta özel çevrim de girilebilmeli; üretim panelinde yalnız kendi ürettiğimiz varyantlar görünmeli.
+- **Karar (kullanıcı):** zincir **emir > makine kartı > varyant > kalıp × hammadde katsayısı**.
+- **Yapılan:**
+  - Şema: `ProductionVariantProfile` (varyant başına tek satır, `cycleTimeSec`; katalog `ProductVariant` değişmedi —
+    hammadde üretim bilgisi deseni) · migration `20260930140000_add_production_variant_profile` (yalnız ekleme).
+  - Motor: `resolveCycleTimeSec`'e `variantSec` + kaynak `variant`. Hammadde katsayısı yalnız kalıp standardına
+    uygulanır. `evaluateOrderCandidates` emrin varyant çevrimini alır; emir DTO'su `productVariant.cycleTimeSec` taşır
+    (Öner, Planla, taşıma ve "sonrakileri kaydır" aynı `placement.ts` yolundan geçtiği için hepsi aynı değeri kullanır).
+  - Uçlar: `GET /production/variants` (yalnız iç üretim, sunucuda sayfalı, kod / ürün adı araması) ·
+    `PUT /production/variants/{variantId}/profile` (`withProductionChange("definitions")` +
+    `productionMutationRouteOptions`; iç üretim olmayan varyant 404).
+  - Arayüz: Tanımlar → **Üretim Varyantları** (`/uretim/varyantlar`): kod, ölçü, versiyon, kalıp sayısı, çevrim;
+    kalemle çevrim gir / sil. Genel bakışa kart. Öner'de çevrim kaynağı "varyanttan".
+- **Doğrulama:** yeni testler — çevrim zinciri (`jobScheduling.test.ts`), motor (`orderCandidates.test.ts`: kartı olan
+  makinede kart, kartsızda varyant; katsayı uygulanmaz), handler (3), response şekli (`responseShapes.test.ts` —
+  emir DTO'suna eklenen alanı şemada unutmayı bu test yakaladı). Sayfa ve pencere esbuild + başsız Chrome'da çizildi
+  (1280 px ve 390 px; telefonda tablo taşıyordu, ilk sütuna satır kaydırma verildi). `typecheck:backend` ✓ · frontend
+  `typecheck` ✓ · lint 0 hata (159 uyarı) · testler core 873 · functions 620 · frontend 521 ✓ · `next build` ✓ ·
+  infra `tsc --noEmit` filtreli ✓. Sorgular gerçek veritabanında ÇALIŞTIRILMADI — kubi'de doğrulanacak.
+- **Ders (CLAUDE.md'ye eklendi):** kök `npx tsc -p tsconfig.json` `--noEmit` olmadan çalıştırılınca kaynak
+  klasörlerine 2.337 `.js` dosyası yazdı (testler iki kez koştu, bayat `.js` yanlış kırmızı verdi). Temizlendi.
+- **Kullanıcıda bekleyen (kubi):**
+  1. `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`
+     (Dilim A ve B migration'ları birlikte uygulanır), sonra `sst dev`'i yeniden başlat (iki yeni rota).
+  2. Üretim → Tanımlar → Üretim Varyantları: yalnız iç üretim varyantları; bir varyanta çevrim gir.
+  3. O varyant için emir → Öner: makine kartı olmayan makinede çevrim "varyanttan", kartı olanda "makine kartından".
+  4. Çevrimi boş kaydet → Öner yeniden "kalıptan".
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

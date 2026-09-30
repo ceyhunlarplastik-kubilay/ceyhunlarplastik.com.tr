@@ -109,6 +109,7 @@ export const ModelName = {
   Mold: 'Mold',
   MoldOutput: 'MoldOutput',
   MoldMachineProfile: 'MoldMachineProfile',
+  ProductionVariantProfile: 'ProductionVariantProfile',
   MaterialProcessProfile: 'MaterialProcessProfile',
   ShiftPattern: 'ShiftPattern',
   ShiftDefinition: 'ShiftDefinition',
@@ -681,6 +682,7 @@ export const SupplierScalarFieldEnum = {
   taxNumber: 'taxNumber',
   defaultPaymentTermDays: 'defaultPaymentTermDays',
   isActive: 'isActive',
+  isInHouseProduction: 'isInHouseProduction',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1182,6 +1184,17 @@ export const MoldMachineProfileScalarFieldEnum = {
 } as const
 
 export type MoldMachineProfileScalarFieldEnum = (typeof MoldMachineProfileScalarFieldEnum)[keyof typeof MoldMachineProfileScalarFieldEnum]
+
+
+export const ProductionVariantProfileScalarFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  cycleTimeSec: 'cycleTimeSec',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionVariantProfileScalarFieldEnum = (typeof ProductionVariantProfileScalarFieldEnum)[keyof typeof ProductionVariantProfileScalarFieldEnum]
 
 
 export const MaterialProcessProfileScalarFieldEnum = {

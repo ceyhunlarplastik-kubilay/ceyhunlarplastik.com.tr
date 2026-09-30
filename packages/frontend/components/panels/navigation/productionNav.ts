@@ -42,6 +42,7 @@ export const productionNavGroups: PanelNavGroup[] = [
         items: [
             { href: "/uretim/makineler", label: "Makineler", icon: "factory" },
             { href: "/uretim/kaliplar", label: "Kalıplar", icon: "boxes" },
+            { href: "/uretim/varyantlar", label: "Üretim Varyantları", icon: "package" },
             { href: "/uretim/uyumluluk", label: "Uyumluluk Matrisi", icon: "grid" },
             { href: "/uretim/alanlar", label: "Parkur ve Alanlar", icon: "warehouse" },
             { href: "/uretim/vardiyalar", label: "Vardiya ve Takvim", icon: "calendar-clock" },

@@ -745,6 +745,7 @@ model ProductVariant {
   customerSpecialPrices CustomerVariantSpecialPrice[]
   campaignItems         ProductVariantCampaignItem[]
   productionOrders      ProductionOrder[]
+  productionProfile     ProductionVariantProfile?
 
   @@unique([productId, productSizeId, variantVersionId])
   @@index([productId])
@@ -1016,6 +1017,9 @@ model Supplier {
   taxNumber                   String?
   defaultPaymentTermDays      Int?
   isActive                    Boolean @default(true)
+  /// Kendi üretim birimimiz ("Ceyhunlar Üretim"). Üretim planlama yalnız bu tedarikçiye bağlı
+  /// varyantları üretime alır. En çok BİR tedarikçi işaretlenebilir (uygulama kuralı, admin uçları).
+  isInHouseProduction         Boolean @default(false)
   assignedPurchasingSuppliers User[]  @relation("SupplierPurchasingAssignments")
 
   variantSuppliers ProductVariantSupplier[]
@@ -2066,6 +2070,22 @@ model MoldMachineProfile {
 /// Hammaddenin üretim bilgisi — katalog `Material`'ın 1:1 yan tablosu. Ayrı tutulur
 /// çünkü `Material` public/portal yanıtlarında dönüyor; üretim alanları oraya
 /// eklenseydi ya yanıtlara sızardı ya da her select ayrıca daraltılmak zorunda kalırdı.
+/// Varyantın ÜRETİM bilgisi (katalog `ProductVariant`'ın 1:1 yan tablosu — hammadde profili deseni).
+/// Yalnız iç üretim varyantlarına girilir; katalog kaydına dokunulmaz.
+model ProductionVariantProfile {
+  id String @id @default(uuid())
+
+  variantId String         @unique
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  /// Varyanta özel çevrim (sn). Zincirde makine kartından SONRA, kalıp × hammadde katsayısından ÖNCE;
+  /// hammadde katsayısıyla çarpılmaz (varyantın hammaddesi bellidir).
+  cycleTimeSec Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model MaterialProcessProfile {
   id String @id @default(uuid())
 

@@ -38,6 +38,8 @@ export interface IPrismaSupplierRepository {
     createSupplier(data: Prisma.SupplierCreateInput): Promise<SupplierWithRelations>
     updateSupplier(id: string, data: Prisma.SupplierUpdateInput): Promise<SupplierWithRelations>
     deleteSupplier(id: string): Promise<SupplierWithRelations>
+    /** İç üretim olarak işaretli tedarikçi (en çok bir tane olmalı); `excludeId` dışındaki. */
+    findInHouseProductionSupplier(excludeId?: string): Promise<{ id: string; name: string } | null>
 }
 
 export const supplierRepository = (): IPrismaSupplierRepository => {
@@ -100,6 +102,12 @@ export const supplierRepository = (): IPrismaSupplierRepository => {
                 where: { id },
                 data,
                 include: supplierInclude,
+            }),
+
+        findInHouseProductionSupplier: (excludeId) =>
+            prisma.supplier.findFirst({
+                where: { isInHouseProduction: true, ...(excludeId ? { id: { not: excludeId } } : {}) },
+                select: { id: true, name: true },
             }),
 
         deleteSupplier: (id) =>

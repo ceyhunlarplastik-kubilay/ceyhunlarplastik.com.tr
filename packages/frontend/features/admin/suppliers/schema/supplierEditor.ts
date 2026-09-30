@@ -12,6 +12,7 @@ export const supplierEditorSchema = z.object({
         "Vade günü 0 veya daha büyük bir tam sayı olmalıdır.",
     ),
     assignedPurchasingUserIds: z.array(z.string()).max(500),
+    isInHouseProduction: z.boolean(),
 })
 
 export type SupplierEditorFormValues = z.infer<typeof supplierEditorSchema>
@@ -26,6 +27,7 @@ export function emptySupplierEditorFormValues(): SupplierEditorFormValues {
         taxNumber: "",
         defaultPaymentTermDays: "",
         assignedPurchasingUserIds: [],
+        isInHouseProduction: false,
     }
 }
 
@@ -42,6 +44,7 @@ export function toSupplierEditorFormValues(supplier: Supplier): SupplierEditorFo
                 ? String(supplier.defaultPaymentTermDays)
                 : "",
         assignedPurchasingUserIds: (supplier.assignedPurchasingSuppliers ?? []).map((user) => user.id),
+        isInHouseProduction: supplier.isInHouseProduction ?? false,
     }
 }
 
@@ -57,6 +60,7 @@ function toSupplierFieldPayload(values: SupplierEditorFormValues) {
             ? Number(values.defaultPaymentTermDays)
             : undefined,
         assignedPurchasingUserIds: values.assignedPurchasingUserIds,
+        isInHouseProduction: values.isInHouseProduction,
     }
 }
 

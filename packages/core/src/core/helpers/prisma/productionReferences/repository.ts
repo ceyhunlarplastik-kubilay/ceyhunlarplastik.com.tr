@@ -76,6 +76,22 @@ export type ReferenceProductSizesDto = {
     }>
 }
 
+/**
+ * İÇ ÜRETİM varyantı: "kendi üretimimiz" işaretli tedarikçiye (`Supplier.isInHouseProduction`) bağlı.
+ * Tedarikçi ADINA bakılmaz. Bağlantının aktifliği aranmaz: pasif = satışa kapalı, üretilebilir.
+ */
+export const inHouseVariantWhere = {
+    variantSuppliers: { some: { supplier: { isInHouseProduction: true } } },
+} satisfies Prisma.ProductVariantWhereInput
+
+/**
+ * Kalıba bağlanabilir ölçü: iç üretim varyantı olan, ya da ZATEN kalıbı olan (işaret gelmeden önce
+ * tanımlanmış kalıplar düzenlenebilir kalsın).
+ */
+export const moldAssignableSizeWhere = {
+    OR: [{ variants: { some: inHouseVariantWhere } }, { moldOutputs: { some: {} } }],
+} satisfies Prisma.ProductSizeWhereInput
+
 /** Kullanım dışı olmayan kalıbın gözü — üretilebilir ölçünün ölçütü. */
 export const usableMoldOutputWhere = {
     mold: { status: { not: "RETIRED" } },
@@ -136,7 +152,14 @@ export type ReferenceProductVariantsDto = {
 }
 
 /** Emir açarken gereken varyant bilgisi: ölçüsü ve üretilebilir kalıp sayısı. */
-export type VariantForOrderDto = { id: string; fullCode: string; productSizeId: string; usableMoldCount: number }
+export type VariantForOrderDto = {
+    id: string
+    fullCode: string
+    productSizeId: string
+    usableMoldCount: number
+    /** İç üretim tedarikçisine bağlı mı — değilse üretim emri açılamaz. */
+    isInHouse: boolean
+}
 
 export type ReferenceCustomerDto = { id: string; name: string }
 
@@ -151,6 +174,8 @@ export interface IPrismaProductionReferenceRepository {
     getProductVariants(productId: string): Promise<ReferenceProductVariantsDto | null>
     getVariantForOrder(variantId: string): Promise<VariantForOrderDto | null>
     findExistingProductSizeIds(ids: string[]): Promise<Set<string>>
+    /** Verilenlerden kalıba bağlanabilir olanlar (`moldAssignableSizeWhere`). */
+    findMoldAssignableProductSizeIds(ids: string[]): Promise<Set<string>>
     /** Gerçek müşteriler (aday değil), ada göre; en fazla 20. */
     searchCustomers(search: string): Promise<ReferenceCustomerDto[]>
     customerExists(id: string): Promise<boolean>
@@ -160,8 +185,8 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
     const listProductsWithSizes = async ({ moldableOnly = false }: { moldableOnly?: boolean } = {}) => {
         const products = await prisma.product.findMany({
             where: moldableOnly
-                ? { sizes: { some: { moldOutputs: { some: usableMoldOutputWhere }, variants: { some: {} } } } }
-                : { sizes: { some: {} } },
+                ? { sizes: { some: { moldOutputs: { some: usableMoldOutputWhere }, variants: { some: inHouseVariantWhere } } } }
+                : { sizes: { some: moldAssignableSizeWhere } },
             orderBy: { code: "asc" },
             select: { id: true, code: true, name: true, _count: { select: { sizes: true } } },
         })
@@ -176,6 +201,7 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
                 code: true,
                 name: true,
                 sizes: {
+                    where: moldAssignableSizeWhere,
                     // Ölçü KODU append-only, sıralı değil — küçükten büyüğe sıra `sortKey` ile.
                     orderBy: { sortKey: "asc" },
                     select: {
@@ -205,7 +231,7 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
                 code: true,
                 name: true,
                 sizes: {
-                    where: { moldOutputs: { some: usableMoldOutputWhere } },
+                    where: { moldOutputs: { some: usableMoldOutputWhere }, variants: { some: inHouseVariantWhere } },
                     orderBy: { sortKey: "asc" },
                     select: {
                         ...productSizeLabelSelect,
@@ -215,6 +241,7 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
                             select: moldOutputSummarySelect,
                         },
                         variants: {
+                            where: inHouseVariantWhere,
                             orderBy: { version: { code: "asc" } },
                             select: { id: true, fullCode: true, version: { select: variantVersionSelect } },
                         },
@@ -246,6 +273,7 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
                 fullCode: true,
                 productSizeId: true,
                 size: { select: { _count: { select: { moldOutputs: { where: usableMoldOutputWhere } } } } },
+                _count: { select: { variantSuppliers: { where: { supplier: { isInHouseProduction: true } } } } },
             },
         })
         if (!variant) return null
@@ -254,6 +282,7 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
             fullCode: variant.fullCode,
             productSizeId: variant.productSizeId,
             usableMoldCount: variant.size._count.moldOutputs,
+            isInHouse: variant._count.variantSuppliers > 0,
         }
     }
 
@@ -289,12 +318,22 @@ export const productionReferenceRepository = (): IPrismaProductionReferenceRepos
         return new Set(rows.map((row) => row.id))
     }
 
+    const findMoldAssignableProductSizeIds = async (ids: string[]) => {
+        if (ids.length === 0) return new Set<string>()
+        const rows = await prisma.productSize.findMany({
+            where: { id: { in: ids }, ...moldAssignableSizeWhere },
+            select: { id: true },
+        })
+        return new Set(rows.map((row) => row.id))
+    }
+
     return {
         listProductsWithSizes,
         getProductSizes,
         getProductVariants,
         getVariantForOrder,
         findExistingProductSizeIds,
+        findMoldAssignableProductSizeIds,
         searchCustomers,
         customerExists,
     }

@@ -57,6 +57,8 @@ export type ProductionOrder = {
         product: { id: string; code: string; name: string }
         size: { id: string; code: number; sizeCode: string; label: string }
         version: ReferenceVariantVersion
+        /** Varyanta özel çevrim (sn); girilmemişse `null`. */
+        cycleTimeSec: number | null
         molds: ReferenceMoldSummary[]
     } | null
     createdAt: string
@@ -101,7 +103,7 @@ export type OrderCandidate = {
     notes: string[]
     isPreferred: boolean
     cycleTimeSec: number
-    cycleSource: "order" | "machineCard" | "mold"
+    cycleSource: "order" | "machineCard" | "variant" | "mold"
     shots: number
     setupMinutes: number
     productionMinutes: number

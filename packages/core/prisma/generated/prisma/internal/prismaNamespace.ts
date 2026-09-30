@@ -455,6 +455,7 @@ export const ModelName = {
   Mold: 'Mold',
   MoldOutput: 'MoldOutput',
   MoldMachineProfile: 'MoldMachineProfile',
+  ProductionVariantProfile: 'ProductionVariantProfile',
   MaterialProcessProfile: 'MaterialProcessProfile',
   ShiftPattern: 'ShiftPattern',
   ShiftDefinition: 'ShiftDefinition',
@@ -488,7 +489,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "customerPhone" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset" | "productionArea" | "productionMachine" | "mold" | "moldOutput" | "moldMachineProfile" | "materialProcessProfile" | "shiftPattern" | "shiftDefinition" | "productionCalendarException" | "machineDowntime" | "productionOperator" | "productionOrder" | "productionJob" | "productionJobOutput" | "productionLot" | "productionLotOutput" | "machineShiftAssignment" | "productionLotOperator" | "productionLotNote" | "productionReason" | "productionStop" | "productionLotScrap" | "productionJobStatusChange"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "customerPhone" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset" | "productionArea" | "productionMachine" | "mold" | "moldOutput" | "moldMachineProfile" | "productionVariantProfile" | "materialProcessProfile" | "shiftPattern" | "shiftDefinition" | "productionCalendarException" | "machineDowntime" | "productionOperator" | "productionOrder" | "productionJob" | "productionJobOutput" | "productionLot" | "productionLotOutput" | "machineShiftAssignment" | "productionLotOperator" | "productionLotNote" | "productionReason" | "productionStop" | "productionLotScrap" | "productionJobStatusChange"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4784,6 +4785,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProductionVariantProfile: {
+      payload: Prisma.$ProductionVariantProfilePayload<ExtArgs>
+      fields: Prisma.ProductionVariantProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductionVariantProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductionVariantProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.ProductionVariantProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductionVariantProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>
+        }
+        findMany: {
+          args: Prisma.ProductionVariantProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>[]
+        }
+        create: {
+          args: Prisma.ProductionVariantProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>
+        }
+        createMany: {
+          args: Prisma.ProductionVariantProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductionVariantProfileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>[]
+        }
+        delete: {
+          args: Prisma.ProductionVariantProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>
+        }
+        update: {
+          args: Prisma.ProductionVariantProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductionVariantProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductionVariantProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductionVariantProfileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductionVariantProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionVariantProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.ProductionVariantProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductionVariantProfile>
+        }
+        groupBy: {
+          args: Prisma.ProductionVariantProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionVariantProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductionVariantProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionVariantProfileCountAggregateOutputType> | number
+        }
+      }
+    }
     MaterialProcessProfile: {
       payload: Prisma.$MaterialProcessProfilePayload<ExtArgs>
       fields: Prisma.MaterialProcessProfileFieldRefs
@@ -6691,6 +6766,7 @@ export const SupplierScalarFieldEnum = {
   taxNumber: 'taxNumber',
   defaultPaymentTermDays: 'defaultPaymentTermDays',
   isActive: 'isActive',
+  isInHouseProduction: 'isInHouseProduction',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -7192,6 +7268,17 @@ export const MoldMachineProfileScalarFieldEnum = {
 } as const
 
 export type MoldMachineProfileScalarFieldEnum = (typeof MoldMachineProfileScalarFieldEnum)[keyof typeof MoldMachineProfileScalarFieldEnum]
+
+
+export const ProductionVariantProfileScalarFieldEnum = {
+  id: 'id',
+  variantId: 'variantId',
+  cycleTimeSec: 'cycleTimeSec',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionVariantProfileScalarFieldEnum = (typeof ProductionVariantProfileScalarFieldEnum)[keyof typeof ProductionVariantProfileScalarFieldEnum]
 
 
 export const MaterialProcessProfileScalarFieldEnum = {
@@ -8408,6 +8495,7 @@ export type GlobalOmitConfig = {
   mold?: Prisma.MoldOmit
   moldOutput?: Prisma.MoldOutputOmit
   moldMachineProfile?: Prisma.MoldMachineProfileOmit
+  productionVariantProfile?: Prisma.ProductionVariantProfileOmit
   materialProcessProfile?: Prisma.MaterialProcessProfileOmit
   shiftPattern?: Prisma.ShiftPatternOmit
   shiftDefinition?: Prisma.ShiftDefinitionOmit

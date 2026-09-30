@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils"
 const CYCLE_SOURCE_LABELS: Record<OrderCandidate["cycleSource"], string> = {
     order: "emirden",
     machineCard: "makine kartından",
+    variant: "varyanttan",
     mold: "kalıptan",
 }
 

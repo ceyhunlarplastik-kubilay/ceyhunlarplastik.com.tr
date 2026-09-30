@@ -32,8 +32,8 @@ const existingOrder = {
     status: "DRAFT",
 }
 
-function buildDeps(options: { usableMoldCount?: number; order?: Record<string, unknown> | null; customerExists?: boolean } = {}) {
-    const { usableMoldCount = 1, order = existingOrder, customerExists = true } = options
+function buildDeps(options: { usableMoldCount?: number; isInHouse?: boolean; order?: Record<string, unknown> | null; customerExists?: boolean } = {}) {
+    const { usableMoldCount = 1, isInHouse = true, order = existingOrder, customerExists = true } = options
     return {
         productionOrderRepository: {
             listOrders: vi.fn().mockResolvedValue({ data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 1 } }),
@@ -48,6 +48,7 @@ function buildDeps(options: { usableMoldCount?: number; order?: Record<string, u
                 fullCode: "10.1.3.V1",
                 productSizeId: "s",
                 usableMoldCount,
+                isInHouse,
             }),
             customerExists: vi.fn().mockResolvedValue(customerExists),
         },
@@ -91,6 +92,15 @@ describe("createProductionOrderHandler", () => {
             productVariantId: VARIANT_ID,
             quantity: 100,
         }))).rejects.toMatchObject({ statusCode: 400 })
+    })
+
+    it("iç üretim tedarikçisine bağlı olmayan varyanta emir açılmaz (kalıbı olsa da)", async () => {
+        const deps = buildDeps({ isInHouse: false })
+        await expect(createProductionOrderHandler(deps as never)(createEvent({
+            productVariantId: VARIANT_ID,
+            quantity: 100,
+        }))).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining("iç üretim") })
+        expect(deps.productionOrderRepository.createOrder).not.toHaveBeenCalled()
     })
 
     it("müşteri siparişinde müşteri zorunlu; bilinmeyen müşteri 404", async () => {
@@ -146,6 +156,7 @@ describe("updateProductionOrderHandler", () => {
             fullCode: "10.1.4.V2",
             productSizeId: "s2",
             usableMoldCount: 2,
+            isInHouse: true,
         })
 
         await updateProductionOrderHandler(deps as never)(updateEvent({ productVariantId: otherVariant }))

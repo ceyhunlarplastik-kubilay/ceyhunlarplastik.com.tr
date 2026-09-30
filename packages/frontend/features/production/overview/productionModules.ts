@@ -13,6 +13,7 @@ import {
     ListChecks,
     HardHat,
     History,
+    Package,
     SquareKanban,
     Tags,
     Users,
@@ -54,6 +55,13 @@ export const productionModules: ProductionModule[] = [
         icon: Grid3x3,
         phase: "Faz 1",
         href: "/uretim/uyumluluk",
+    },
+    {
+        title: "Üretim Varyantları",
+        description: "Kendi ürettiğimiz (iç üretim tedarikçisine bağlı) varyantlar ve varyanta özel çevrim süresi.",
+        icon: Package,
+        phase: "Faz 1",
+        href: "/uretim/varyantlar",
     },
     {
         title: "Hammadde Bilgisi",

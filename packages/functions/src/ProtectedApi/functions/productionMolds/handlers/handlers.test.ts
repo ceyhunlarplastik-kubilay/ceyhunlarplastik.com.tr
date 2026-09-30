@@ -19,8 +19,9 @@ const SIZE_A = "66666666-6666-4666-8666-666666666666"
 const SIZE_B = "66666666-6666-4666-8666-666666666667"
 const MACHINE_ID = "44444444-4444-4444-8444-444444444444"
 
-function buildDeps(options: { knownSizes?: string[]; existingMold?: Record<string, unknown> | null; missingMold?: boolean } = {}) {
+function buildDeps(options: { knownSizes?: string[]; assignableSizes?: string[]; existingMold?: Record<string, unknown> | null; missingMold?: boolean } = {}) {
     const { knownSizes = [SIZE_A, SIZE_B], existingMold = null } = options
+    const assignableSizes = options.assignableSizes ?? knownSizes
     return {
         productionMoldRepository: {
             getMold: vi.fn().mockResolvedValue(existingMold),
@@ -33,6 +34,7 @@ function buildDeps(options: { knownSizes?: string[]; existingMold?: Record<strin
         },
         productionReferenceRepository: {
             findExistingProductSizeIds: vi.fn().mockResolvedValue(new Set(knownSizes)),
+            findMoldAssignableProductSizeIds: vi.fn().mockResolvedValue(new Set(assignableSizes)),
         },
         productionMachineRepository: {
             findExistingMachineIds: vi.fn().mockResolvedValue(new Set([MACHINE_ID])),
@@ -79,6 +81,15 @@ describe("createMoldHandler", () => {
             code: "K-1", name: "K", standardCycleTimeSec: 20,
             outputs: [{ productSizeId: SIZE_B, cavities: 2 }],
         }))).rejects.toMatchObject({ statusCode: 404 })
+    })
+
+    it("iç üretim olmayan ölçü kalıba bağlanamaz", async () => {
+        const deps = buildDeps({ assignableSizes: [SIZE_A] })
+        await expect(createMoldHandler(deps as never)(createEvent({
+            code: "K-1", name: "K", standardCycleTimeSec: 20,
+            outputs: [{ productSizeId: SIZE_A, cavities: 2 }, { productSizeId: SIZE_B, cavities: 2 }],
+        }))).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining("iç üretim") })
+        expect(deps.productionMoldRepository.createMold).not.toHaveBeenCalled()
     })
 
     it("hem tercih hem engelli makine kartını reddeder", async () => {

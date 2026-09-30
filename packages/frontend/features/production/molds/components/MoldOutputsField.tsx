@@ -193,6 +193,7 @@ export function MoldOutputsField() {
             {fields.length === 0 ? (
                 <p className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
                     Bu kalıp henüz bir ölçüye bağlanmadı. Planlamada kullanılabilmesi için en az bir göz grubu ekleyin.
+                    Yalnız kendi ürettiğimiz (iç üretim tedarikçisine bağlı) ölçüler listelenir.
                 </p>
             ) : (
                 <ol className="space-y-3">

@@ -13,9 +13,12 @@ import { formatProductionDateTime, wallTimeToUtc } from "./productionTime"
 const wall = (value: string) => wallTimeToUtc(value)!
 
 describe("çevrim zinciri", () => {
-    it("emir > makine kartı > kalıp × hammadde katsayısı", () => {
-        expect(resolveCycleTimeSec({ orderOverrideSec: 16, machineCardSec: 17.5, moldStandardSec: 18 })).toEqual({ cycleTimeSec: 16, source: "order" })
-        expect(resolveCycleTimeSec({ machineCardSec: 17.5, moldStandardSec: 18 })).toEqual({ cycleTimeSec: 17.5, source: "machineCard" })
+    it("emir > makine kartı > varyant > kalıp × hammadde katsayısı", () => {
+        expect(resolveCycleTimeSec({ orderOverrideSec: 16, machineCardSec: 17.5, variantSec: 19, moldStandardSec: 18 })).toEqual({ cycleTimeSec: 16, source: "order" })
+        expect(resolveCycleTimeSec({ machineCardSec: 17.5, variantSec: 19, moldStandardSec: 18 })).toEqual({ cycleTimeSec: 17.5, source: "machineCard" })
+        // Varyant çevrimi hammadde katsayısıyla ÇARPILMAZ; boş / 0 ise atlanır.
+        expect(resolveCycleTimeSec({ variantSec: 19, moldStandardSec: 18, materialFactor: 1.2 })).toEqual({ cycleTimeSec: 19, source: "variant" })
+        expect(resolveCycleTimeSec({ variantSec: null, moldStandardSec: 18 })).toEqual({ cycleTimeSec: 18, source: "mold" })
         expect(resolveCycleTimeSec({ moldStandardSec: 18, materialFactor: 1.2 })).toEqual({ cycleTimeSec: 21.6, source: "mold" })
     })
 })

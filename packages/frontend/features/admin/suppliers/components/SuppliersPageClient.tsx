@@ -200,7 +200,12 @@ export function SuppliersPageClient() {
                             </TableRow>
                         ) : suppliers.map((supplier) => (
                             <TableRow key={supplier.id}>
-                                <TableCell className="font-medium">{supplier.name}</TableCell>
+                                <TableCell className="font-medium">
+                                    <span className="inline-flex flex-wrap items-center gap-2">
+                                        {supplier.name}
+                                        {supplier.isInHouseProduction ? <Badge variant="outline">İç üretim</Badge> : null}
+                                    </span>
+                                </TableCell>
                                 <TableCell>
                                     {(supplier.assignedPurchasingSuppliers ?? []).length > 0
                                         ? (supplier.assignedPurchasingSuppliers ?? []).map((user) => getUserDisplayName(user) || user.email).join(", ")

@@ -51,6 +51,11 @@ function assertRules(input: Parameters<typeof findProductionOrderIssues>[0]) {
 async function resolveMoldableVariant(deps: IProductionOrderDependencies, variantId: string) {
     const variant = await deps.productionReferenceRepository.getVariantForOrder(variantId)
     if (!variant) throw new createError.NotFound("Varyant bulunamadı.")
+    if (!variant.isInHouse) {
+        throw new createError.BadRequest(
+            `${variant.fullCode} iç üretim tedarikçisine bağlı değil (tedarikçiden alınan ürün); üretim emri açılamaz.`,
+        )
+    }
     if (variant.usableMoldCount === 0) {
         throw new createError.BadRequest(
             `${variant.fullCode} ölçüsünün kullanılabilir kalıbı yok (tedarikçiden alınan ürün ya da kalıbı kullanım dışı); üretim emri açılamaz.`,

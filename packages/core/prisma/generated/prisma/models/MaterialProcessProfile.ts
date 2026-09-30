@@ -14,9 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model MaterialProcessProfile
- * Hammaddenin üretim bilgisi — katalog `Material`'ın 1:1 yan tablosu. Ayrı tutulur
- * çünkü `Material` public/portal yanıtlarında dönüyor; üretim alanları oraya
- * eklenseydi ya yanıtlara sızardı ya da her select ayrıca daraltılmak zorunda kalırdı.
+ * 
  */
 export type MaterialProcessProfileModel = runtime.Types.Result.DefaultSelection<Prisma.$MaterialProcessProfilePayload>
 

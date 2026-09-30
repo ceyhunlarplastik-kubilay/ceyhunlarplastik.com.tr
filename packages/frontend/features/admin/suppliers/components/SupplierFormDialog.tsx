@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
     Dialog,
     DialogContent,
@@ -61,7 +62,7 @@ export function SupplierFormDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>{isEditing ? "Tedarikçi Bilgileri" : "Yeni Tedarikçi"}</DialogTitle>
                     <DialogDescription>
@@ -135,6 +136,27 @@ export function SupplierFormDialog({
                             )}
                         />
                     </div>
+
+                    <Controller
+                        control={form.control}
+                        name="isInHouseProduction"
+                        render={({ field }) => (
+                            <div className="flex items-start gap-3 rounded-xl border p-3">
+                                <Checkbox
+                                    id="supplier-in-house-production"
+                                    checked={field.value}
+                                    onCheckedChange={(checked) => field.onChange(checked === true)}
+                                />
+                                <div className="grid gap-1">
+                                    <Label htmlFor="supplier-in-house-production">Kendi üretimimiz (iç üretim)</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Üretim planlama yalnız bu tedarikçiye bağlı varyantları üretime alır. Yalnız bir
+                                        tedarikçi işaretlenebilir.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    />
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={isPending}>

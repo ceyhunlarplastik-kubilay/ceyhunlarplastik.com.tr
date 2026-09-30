@@ -390,10 +390,17 @@ export type MoldOutput = Prisma.MoldOutputModel
  */
 export type MoldMachineProfile = Prisma.MoldMachineProfileModel
 /**
- * Model MaterialProcessProfile
+ * Model ProductionVariantProfile
  * Hammaddenin üretim bilgisi — katalog `Material`'ın 1:1 yan tablosu. Ayrı tutulur
  * çünkü `Material` public/portal yanıtlarında dönüyor; üretim alanları oraya
  * eklenseydi ya yanıtlara sızardı ya da her select ayrıca daraltılmak zorunda kalırdı.
+ * Varyantın ÜRETİM bilgisi (katalog `ProductVariant`'ın 1:1 yan tablosu — hammadde profili deseni).
+ * Yalnız iç üretim varyantlarına girilir; katalog kaydına dokunulmaz.
+ */
+export type ProductionVariantProfile = Prisma.ProductionVariantProfileModel
+/**
+ * Model MaterialProcessProfile
+ * 
  */
 export type MaterialProcessProfile = Prisma.MaterialProcessProfileModel
 /**

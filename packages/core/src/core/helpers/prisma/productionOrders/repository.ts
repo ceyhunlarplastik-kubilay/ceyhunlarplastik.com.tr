@@ -58,6 +58,7 @@ const productionOrderSelect = {
                 },
             },
             version: { select: variantVersionSelect },
+            productionProfile: { select: { cycleTimeSec: true } },
         },
     },
     jobOutputs: {
@@ -129,6 +130,8 @@ export type ProductionOrderDto = Omit<ProductionOrderRecord, "dueDate" | "custom
         product: { id: string; code: string; name: string }
         size: ProductSizeRefDto
         version: VariantVersionDto
+        /** Varyanta özel çevrim (sn); girilmemişse `null`. */
+        cycleTimeSec: number | null
         /** Ölçüyü basan, kullanım dışı olmayan kalıplar. */
         molds: MoldSummaryDto[]
     } | null
@@ -167,6 +170,7 @@ function toProductionOrderDto({ dueDate, customer, productVariant, jobOutputs, .
                 product: productVariant.product,
                 size: toProductSizeRef(productVariant.product.code, productVariant.size),
                 version: toVariantVersion(productVariant.version),
+                cycleTimeSec: productVariant.productionProfile?.cycleTimeSec ?? null,
                 molds: productVariant.size.moldOutputs.map(toMoldSummary),
             }
             : null,

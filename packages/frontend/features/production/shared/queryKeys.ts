@@ -10,6 +10,10 @@ export const productionQueryKeys = {
     machines: () => [...productionQueryKeys.all, "machines"] as const,
     molds: () => [...productionQueryKeys.all, "molds"] as const,
     materialProfiles: () => [...productionQueryKeys.all, "material-profiles"] as const,
+    /** Önek — iç üretim varyantları (çevrim yazılınca tüm sayfalar tazelenir). */
+    variantsAll: () => [...productionQueryKeys.all, "variants"] as const,
+    variants: (query: { page: number; limit: number; q: string }) =>
+        [...productionQueryKeys.variantsAll(), query] as const,
     referenceProducts: () => [...productionQueryKeys.all, "references", "products"] as const,
     referenceProductSizes: (productId: string) =>
         [...productionQueryKeys.all, "references", "products", productId, "sizes"] as const,

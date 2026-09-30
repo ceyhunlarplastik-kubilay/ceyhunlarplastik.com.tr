@@ -2,6 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ISupplierDependencies, IUpdateSupplierEvent } from "@/functions/AdminApi/types/suppliers"
+import { assertSingleInHouseProductionSupplier } from "./inHouseProduction"
 
 export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependencies) => {
     return async (event: IUpdateSupplierEvent) => {
@@ -11,7 +12,7 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least one field must be provided");
 
-        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "assignedPurchasingUserIds"] as const
+        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "isInHouseProduction", "assignedPurchasingUserIds"] as const
 
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
@@ -19,7 +20,7 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`);
 
-        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, assignedPurchasingUserIds } = body;
+        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, isInHouseProduction, assignedPurchasingUserIds } = body;
 
         const updateData: Prisma.SupplierUpdateInput = {
             ...(name !== undefined && { name }),
@@ -29,6 +30,7 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
             ...(taxNumber !== undefined && { taxNumber }),
             ...(defaultPaymentTermDays !== undefined && { defaultPaymentTermDays }),
             ...(isActive !== undefined && { isActive }),
+            ...(isInHouseProduction !== undefined && { isInHouseProduction }),
             ...(assignedPurchasingUserIds !== undefined
                 ? {
                     assignedPurchasingSuppliers: {
@@ -37,6 +39,8 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
                 }
                 : {}),
         }
+
+        if (isInHouseProduction) await assertSingleInHouseProductionSupplier(supplierRepository, id)
 
         try {
             const supplier = await supplierRepository.updateSupplier(id, updateData)

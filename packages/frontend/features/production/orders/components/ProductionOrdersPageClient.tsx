@@ -89,7 +89,7 @@ export function ProductionOrdersPageClient() {
             <ProductionPageHeader
                 icon={<ClipboardList />}
                 title="Üretim Emirleri"
-                description="Hangi varyanttan kaç sağlam adet, hangi termine kadar üretilecek. Emir yalnız kalıbı olan ölçüye açılır; makine, zaman ve vardiya lotları planlamada belirlenir."
+                description="Hangi varyanttan kaç sağlam adet, hangi termine kadar üretilecek. Emir yalnız kendi ürettiğimiz (iç üretim tedarikçisine bağlı) ve kalıbı olan ölçüye açılır; makine, zaman ve vardiya lotları planlamada belirlenir."
                 action={(
                     <Button type="button" className="rounded-2xl" onClick={openCreate}>
                         <Plus className="h-4 w-4" />
@@ -138,7 +138,7 @@ export function ProductionOrdersPageClient() {
                         <EmptyDescription>
                             {hasFilters
                                 ? "Filtreleri temizleyip tekrar deneyin; kapanmış emirler için durumu \"Tümü\" yapın."
-                                : "Kalıbı olan bir ölçünün varyantı için emir açın: adet, termin ve öncelik yeter."}
+                                : "Kendi ürettiğimiz, kalıbı olan bir ölçünün varyantı için emir açın: adet, termin ve öncelik yeter."}
                         </EmptyDescription>
                     </EmptyHeader>
                     <EmptyContent>

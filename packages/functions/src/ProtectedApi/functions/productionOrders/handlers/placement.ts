@@ -105,7 +105,13 @@ export function evaluateInContext(ctx: PlanningContext, order: PlanningOrder, sc
     ]
 
     const result = evaluateOrderCandidates({
-        order: { quantity: order.quantity, dueDate: order.dueDate, cycleTimeOverrideSec: order.cycleTimeOverrideSec, productSizeId },
+        order: {
+            quantity: order.quantity,
+            dueDate: order.dueDate,
+            cycleTimeOverrideSec: order.cycleTimeOverrideSec,
+            productSizeId,
+            variantCycleTimeSec: variant.cycleTimeSec,
+        },
         molds,
         machines,
         patterns: ctx.patterns,

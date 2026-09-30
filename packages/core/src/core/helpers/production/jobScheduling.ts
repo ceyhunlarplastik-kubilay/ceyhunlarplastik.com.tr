@@ -7,17 +7,19 @@
  *   toplam     = bağlama_dk + üretim_dk  → çalışma pencerelerine yayılır
  *
  * Çevrim zinciri (ilk bulunan kazanır): emirdeki elle çevrim → kalıp-makine kartı →
- * kalıbın referans çevrimi × hammadde katsayısı.
+ * varyanta özel çevrim → kalıbın referans çevrimi × hammadde katsayısı.
+ * Hammadde katsayısı YALNIZ son adımda uygulanır: emir, kart ve varyant değerleri gerçek çevrimdir.
  */
 import type { WorkingWindow } from "./shiftCalendar"
 
 const MINUTE_MS = 60_000
 
-export type CycleTimeSource = "order" | "machineCard" | "mold"
+export type CycleTimeSource = "order" | "machineCard" | "variant" | "mold"
 
 export function resolveCycleTimeSec(input: {
     orderOverrideSec?: number | null
     machineCardSec?: number | null
+    variantSec?: number | null
     moldStandardSec: number
     materialFactor?: number | null
 }): { cycleTimeSec: number; source: CycleTimeSource } {
@@ -26,6 +28,9 @@ export function resolveCycleTimeSec(input: {
     }
     if (input.machineCardSec != null && input.machineCardSec > 0) {
         return { cycleTimeSec: input.machineCardSec, source: "machineCard" }
+    }
+    if (input.variantSec != null && input.variantSec > 0) {
+        return { cycleTimeSec: input.variantSec, source: "variant" }
     }
     const factor = input.materialFactor != null && input.materialFactor > 0 ? input.materialFactor : 1
     return { cycleTimeSec: Math.round(input.moldStandardSec * factor * 100) / 100, source: "mold" }

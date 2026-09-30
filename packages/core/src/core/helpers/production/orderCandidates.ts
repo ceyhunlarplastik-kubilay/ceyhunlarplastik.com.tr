@@ -96,7 +96,14 @@ export type OrderCandidate = {
 export type ExcludedCandidate = { machineCode: string; moldCode: string; reasons: string[] }
 
 export function evaluateOrderCandidates(input: {
-    order: { quantity: number; dueDate: string | null; cycleTimeOverrideSec: number | null; productSizeId: string }
+    order: {
+        quantity: number
+        dueDate: string | null
+        cycleTimeOverrideSec: number | null
+        productSizeId: string
+        /** Varyanta özel çevrim (`ProductionVariantProfile`); yoksa `null`. */
+        variantCycleTimeSec?: number | null
+    }
     molds: CandidateMold[]
     machines: CandidateMachine[]
     patterns: CandidateShiftPattern[]
@@ -144,6 +151,7 @@ export function evaluateOrderCandidates(input: {
             const cycle = resolveCycleTimeSec({
                 orderOverrideSec: input.order.cycleTimeOverrideSec,
                 machineCardSec: profile?.cycleTimeSec,
+                variantSec: input.order.variantCycleTimeSec,
                 moldStandardSec: mold.standardCycleTimeSec,
                 materialFactor: input.materialFactor,
             })

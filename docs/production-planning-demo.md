@@ -39,11 +39,12 @@ Bölüm 6'daki örnek verilerin sonuçları (uygunluk matrisi, E1 süresi, OEE, 
    `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`,
    sonra `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi`.
 2. **Rol:** admin panelinde **Kullanıcılar** → demo kullanıcısına rol **Üretim planlama** → çıkış / giriş → kullanıcı doğrudan `/uretim`'e düşer.
-3. **Örnek veriler:** Bölüm 6'daki sırayla girin (≈ 40 dk). Kalıp ve emirler için katalogda **varyantı olan 3 ürün modeli** seçin (aşağıda "Ürün A / B / C").
-4. **Geçmiş vardiya raporları:** Bölüm 6.9 — istatistik ekranları bunlarla dolar.
-5. **E4'ü toplantıdan ~2 saat önce planlayın ve başlatmayın** (6.8) → toplantıda "Başlamadı" uyarısı görünür.
-6. **Zil (isteğe bağlı):** kubi `.env`'e `PRODUCTION_ALERTS_ENABLED="true"`, sst dev'i yeniden başlatın (tarama 5 dk'da bir). Demo bitince satırı silin (Neon boşuna uyanmasın).
-7. **Canlı güncelleme için:** tarayıcıda iki pencere (ya da iki kullanıcı) açık tutun.
+3. **İç üretim tedarikçisi:** admin panelinde **Tedarikçiler** → "Ceyhunlar Üretim" → **Kendi üretimimiz (iç üretim)** kutusunu işaretleyin. İşaretlenene kadar üretim panelindeki ürün / ölçü seçicileri BOŞ gelir: yalnız bu tedarikçiye bağlı varyantlar üretime alınır.
+4. **Örnek veriler:** Bölüm 6'daki sırayla girin (≈ 40 dk). Kalıp ve emirler için katalogda **iç üretim tedarikçisine bağlı varyantı olan 3 ürün modeli** seçin (aşağıda "Ürün A / B / C").
+5. **Geçmiş vardiya raporları:** Bölüm 6.9 — istatistik ekranları bunlarla dolar.
+6. **E4'ü toplantıdan ~2 saat önce planlayın ve başlatmayın** (6.8) → toplantıda "Başlamadı" uyarısı görünür.
+7. **Zil (isteğe bağlı):** kubi `.env`'e `PRODUCTION_ALERTS_ENABLED="true"`, sst dev'i yeniden başlatın (tarama 5 dk'da bir). Demo bitince satırı silin (Neon boşuna uyanmasın).
+8. **Canlı güncelleme için:** tarayıcıda iki pencere (ya da iki kullanıcı) açık tutun.
 
 ## 4. Demo akışı (~20 dk)
 
@@ -77,6 +78,7 @@ Bölüm 6'daki örnek verilerin sonuçları (uygunluk matrisi, E1 süresi, OEE, 
 - **Uyumluluk Matrisi** — hangi kalıp hangi makineye uyar; hücre ayrıntısı nedenini söyler.
 
 **Her gün:**
+- **Üretim Varyantları** (Tanımlar) — kendi ürettiğimiz varyantların listesi. Kalem düğmesiyle varyanta özel **çevrim süresi** girilir; boş kaydedilirse kaldırılır. Planlamada sıra: emirdeki elle çevrim → kalıbın makine kartı → varyant çevrimi → kalıbın standart çevrimi × hammadde katsayısı. Öner'de çevrimin altında kaynağı yazar ("varyanttan").
 - **Üretim Emirleri** — **Yeni Emir**: varyant, sağlam adet, termin, öncelik. Satırdaki **Öner** makine/zaman adaylarını gösterir, **Planla** işi ve vardiya lotlarını yazar. **Çalışma süresi** makinenin fiilen çalışacağı süredir (bağlama + baskı × çevrim ÷ verim, saat olarak); altındaki **takvimde N gün**, işin geceler ve çalışılmayan saatler dahil kaç fabrika gününe yayıldığıdır — günde 12 saat çalışan makinede 34 saatlik iş takvimde 3 gün tutar.
 - **Planlama Tahtası** — makine satırları, gün/vardiya ekseni. Planlı işi sürükleyerek taşıyın (ya da iş ayrıntısında **Taşı**). Sağdaki bekleyen emirleri makine satırına sürükleyin ya da **Öner**. Üstteki kip: çakışmada "İlk boşluğa koy" / "Sonrakileri kaydır". ⚠ gecikme / termin, 🔧 bakım işaretleri; iş ayrıntısında tahmin ve kaydırma önerisi.
 - **Durum Panosu** — kartı sütunlar arasında sürükleyin: Planlandı ⇄ Sahaya verildi → Kalıp bağlanıyor → Üretimde ⇄ Duraklatıldı → Tamamlandı (tamamlamada sağlam / fire sorulur). Sahaya verilen iş tahtada kilitlenir.

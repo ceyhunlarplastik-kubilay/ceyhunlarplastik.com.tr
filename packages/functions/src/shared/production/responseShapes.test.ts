@@ -8,6 +8,11 @@ import type { MachineDowntimeDto } from "@/core/helpers/prisma/productionMachine
 import type { ProductionMachineDto } from "@/core/helpers/prisma/productionMachines/repository"
 import type { MaterialWithProfileDto } from "@/core/helpers/prisma/productionMaterialProfiles/repository"
 import type { MoldDto } from "@/core/helpers/prisma/productionMolds/repository"
+import type { ProductionVariantDto } from "@/core/helpers/prisma/productionVariantProfiles/repository"
+import {
+    listProductionVariantsResponseValidator,
+    productionVariantResponseValidator,
+} from "@/functions/ProtectedApi/validators/productionVariantProfiles"
 import type { ProductionOperatorDto } from "@/core/helpers/prisma/productionOperators/repository"
 import type { ProductionOrderDto } from "@/core/helpers/prisma/productionOrders/repository"
 import type {
@@ -349,10 +354,22 @@ const order: ProductionOrderDto = {
         product: { id: referenceProduct.id, code: referenceProduct.code, name: referenceProduct.name },
         size: sizeRef,
         version,
+        cycleTimeSec: 18.5,
         molds: [moldSummary],
     },
     createdAt: now,
     updatedAt: now,
+}
+
+const productionVariant: ProductionVariantDto = {
+    id: "abababab-abab-4bab-8bab-abababababab",
+    fullCode: "1.3.8.V1",
+    product: { id: referenceProduct.id, code: referenceProduct.code, name: referenceProduct.name },
+    size: sizeRef,
+    version,
+    usableMoldCount: 1,
+    cycleTimeSec: 18.5,
+    profileUpdatedAt: now,
 }
 
 function expectValid(schema: object, payload: Record<string, unknown>) {
@@ -366,6 +383,15 @@ function expectValid(schema: object, payload: Record<string, unknown>) {
 }
 
 describe("üretim tanımları — response validator ↔ DTO", () => {
+    it("üretim varyantı (çevrimi girilmemiş dahil)", () => {
+        const withoutProfile: ProductionVariantDto = { ...productionVariant, cycleTimeSec: null, profileUpdatedAt: null }
+        expectValid(listProductionVariantsResponseValidator, {
+            data: [productionVariant, withoutProfile],
+            meta: { page: 1, limit: 20, total: 2, totalPages: 1 },
+        })
+        expectValid(productionVariantResponseValidator, { variant: withoutProfile })
+    })
+
     it("vardiya düzeni", () => {
         expectValid(listShiftPatternsResponseValidator, { shiftPatterns: [shiftPattern] })
         expectValid(shiftPatternResponseValidator, { shiftPattern })

@@ -43,6 +43,7 @@ export type SupplierMinAggregateOutputType = {
   taxNumber: string | null
   defaultPaymentTermDays: number | null
   isActive: boolean | null
+  isInHouseProduction: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +57,7 @@ export type SupplierMaxAggregateOutputType = {
   taxNumber: string | null
   defaultPaymentTermDays: number | null
   isActive: boolean | null
+  isInHouseProduction: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,6 +71,7 @@ export type SupplierCountAggregateOutputType = {
   taxNumber: number
   defaultPaymentTermDays: number
   isActive: number
+  isInHouseProduction: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +95,7 @@ export type SupplierMinAggregateInputType = {
   taxNumber?: true
   defaultPaymentTermDays?: true
   isActive?: true
+  isInHouseProduction?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,6 +109,7 @@ export type SupplierMaxAggregateInputType = {
   taxNumber?: true
   defaultPaymentTermDays?: true
   isActive?: true
+  isInHouseProduction?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +123,7 @@ export type SupplierCountAggregateInputType = {
   taxNumber?: true
   defaultPaymentTermDays?: true
   isActive?: true
+  isInHouseProduction?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -218,6 +224,7 @@ export type SupplierGroupByOutputType = {
   taxNumber: string | null
   defaultPaymentTermDays: number | null
   isActive: boolean
+  isInHouseProduction: boolean
   createdAt: Date
   updatedAt: Date
   _count: SupplierCountAggregateOutputType | null
@@ -254,6 +261,7 @@ export type SupplierWhereInput = {
   taxNumber?: Prisma.StringNullableFilter<"Supplier"> | string | null
   defaultPaymentTermDays?: Prisma.IntNullableFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolFilter<"Supplier"> | boolean
+  isInHouseProduction?: Prisma.BoolFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   assignedPurchasingSuppliers?: Prisma.UserListRelationFilter
@@ -272,6 +280,7 @@ export type SupplierOrderByWithRelationInput = {
   taxNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultPaymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isInHouseProduction?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   assignedPurchasingSuppliers?: Prisma.UserOrderByRelationAggregateInput
@@ -293,6 +302,7 @@ export type SupplierWhereUniqueInput = Prisma.AtLeast<{
   taxNumber?: Prisma.StringNullableFilter<"Supplier"> | string | null
   defaultPaymentTermDays?: Prisma.IntNullableFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolFilter<"Supplier"> | boolean
+  isInHouseProduction?: Prisma.BoolFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   assignedPurchasingSuppliers?: Prisma.UserListRelationFilter
@@ -311,6 +321,7 @@ export type SupplierOrderByWithAggregationInput = {
   taxNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   defaultPaymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isInHouseProduction?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SupplierCountOrderByAggregateInput
@@ -332,6 +343,7 @@ export type SupplierScalarWhereWithAggregatesInput = {
   taxNumber?: Prisma.StringNullableWithAggregatesFilter<"Supplier"> | string | null
   defaultPaymentTermDays?: Prisma.IntNullableWithAggregatesFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Supplier"> | boolean
+  isInHouseProduction?: Prisma.BoolWithAggregatesFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Supplier"> | Date | string
 }
@@ -345,6 +357,7 @@ export type SupplierCreateInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -363,6 +376,7 @@ export type SupplierUncheckedCreateInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -381,6 +395,7 @@ export type SupplierUpdateInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -399,6 +414,7 @@ export type SupplierUncheckedUpdateInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -417,6 +433,7 @@ export type SupplierCreateManyInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -430,6 +447,7 @@ export type SupplierUpdateManyMutationInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -443,6 +461,7 @@ export type SupplierUncheckedUpdateManyInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -476,6 +495,7 @@ export type SupplierCountOrderByAggregateInput = {
   taxNumber?: Prisma.SortOrder
   defaultPaymentTermDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isInHouseProduction?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -493,6 +513,7 @@ export type SupplierMaxOrderByAggregateInput = {
   taxNumber?: Prisma.SortOrder
   defaultPaymentTermDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isInHouseProduction?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -506,6 +527,7 @@ export type SupplierMinOrderByAggregateInput = {
   taxNumber?: Prisma.SortOrder
   defaultPaymentTermDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isInHouseProduction?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -621,6 +643,7 @@ export type SupplierCreateWithoutUsersInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -638,6 +661,7 @@ export type SupplierUncheckedCreateWithoutUsersInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -660,6 +684,7 @@ export type SupplierCreateWithoutAssignedPurchasingSuppliersInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutSupplierInput
@@ -677,6 +702,7 @@ export type SupplierUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutSupplierInput
@@ -710,6 +736,7 @@ export type SupplierUpdateWithoutUsersInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -727,6 +754,7 @@ export type SupplierUncheckedUpdateWithoutUsersInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -763,6 +791,7 @@ export type SupplierScalarWhereInput = {
   taxNumber?: Prisma.StringNullableFilter<"Supplier"> | string | null
   defaultPaymentTermDays?: Prisma.IntNullableFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolFilter<"Supplier"> | boolean
+  isInHouseProduction?: Prisma.BoolFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
 }
@@ -776,6 +805,7 @@ export type SupplierCreateWithoutProductCodesInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -793,6 +823,7 @@ export type SupplierUncheckedCreateWithoutProductCodesInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -826,6 +857,7 @@ export type SupplierUpdateWithoutProductCodesInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -843,6 +875,7 @@ export type SupplierUncheckedUpdateWithoutProductCodesInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -860,6 +893,7 @@ export type SupplierCreateWithoutVariantSuppliersInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -877,6 +911,7 @@ export type SupplierUncheckedCreateWithoutVariantSuppliersInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -910,6 +945,7 @@ export type SupplierUpdateWithoutVariantSuppliersInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -927,6 +963,7 @@ export type SupplierUncheckedUpdateWithoutVariantSuppliersInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -944,6 +981,7 @@ export type SupplierCreateWithoutBusinessRequestsInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -961,6 +999,7 @@ export type SupplierUncheckedCreateWithoutBusinessRequestsInput = {
   taxNumber?: string | null
   defaultPaymentTermDays?: number | null
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
@@ -994,6 +1033,7 @@ export type SupplierUpdateWithoutBusinessRequestsInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -1011,6 +1051,7 @@ export type SupplierUncheckedUpdateWithoutBusinessRequestsInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedPurchasingSuppliers?: Prisma.UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
@@ -1028,6 +1069,7 @@ export type SupplierUpdateWithoutAssignedPurchasingSuppliersInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutSupplierNestedInput
@@ -1045,6 +1087,7 @@ export type SupplierUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutSupplierNestedInput
@@ -1062,6 +1105,7 @@ export type SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersInput =
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isInHouseProduction?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1142,6 +1186,7 @@ export type SupplierSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   taxNumber?: boolean
   defaultPaymentTermDays?: boolean
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   assignedPurchasingSuppliers?: boolean | Prisma.Supplier$assignedPurchasingSuppliersArgs<ExtArgs>
@@ -1161,6 +1206,7 @@ export type SupplierSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   taxNumber?: boolean
   defaultPaymentTermDays?: boolean
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["supplier"]>
@@ -1174,6 +1220,7 @@ export type SupplierSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   taxNumber?: boolean
   defaultPaymentTermDays?: boolean
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["supplier"]>
@@ -1187,11 +1234,12 @@ export type SupplierSelectScalar = {
   taxNumber?: boolean
   defaultPaymentTermDays?: boolean
   isActive?: boolean
+  isInHouseProduction?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "contactName" | "phone" | "address" | "taxNumber" | "defaultPaymentTermDays" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["supplier"]>
+export type SupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "contactName" | "phone" | "address" | "taxNumber" | "defaultPaymentTermDays" | "isActive" | "isInHouseProduction" | "createdAt" | "updatedAt", ExtArgs["result"]["supplier"]>
 export type SupplierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedPurchasingSuppliers?: boolean | Prisma.Supplier$assignedPurchasingSuppliersArgs<ExtArgs>
   variantSuppliers?: boolean | Prisma.Supplier$variantSuppliersArgs<ExtArgs>
@@ -1224,6 +1272,11 @@ export type $SupplierPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     taxNumber: string | null
     defaultPaymentTermDays: number | null
     isActive: boolean
+    /**
+     * Kendi üretim birimimiz ("Ceyhunlar Üretim"). Üretim planlama yalnız bu tedarikçiye bağlı
+     * varyantları üretime alır. En çok BİR tedarikçi işaretlenebilir (uygulama kuralı, admin uçları).
+     */
+    isInHouseProduction: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["supplier"]>
@@ -1662,6 +1715,7 @@ export interface SupplierFieldRefs {
   readonly taxNumber: Prisma.FieldRef<"Supplier", 'String'>
   readonly defaultPaymentTermDays: Prisma.FieldRef<"Supplier", 'Int'>
   readonly isActive: Prisma.FieldRef<"Supplier", 'Boolean'>
+  readonly isInHouseProduction: Prisma.FieldRef<"Supplier", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Supplier", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Supplier", 'DateTime'>
 }
