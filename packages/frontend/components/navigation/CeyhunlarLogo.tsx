@@ -14,7 +14,7 @@ export const CeyhunlarLogo = () => {
                     src="/logos/ceyhunlar.png"
                     alt="Ceyhunlar Plastik"
                     width={224}
-                    height={56}
+                    height={52}
                     className="object-contain"
                     priority
                     sizes="(max-width: 640px) 160px, (max-width: 1024px) 192px, 224px"

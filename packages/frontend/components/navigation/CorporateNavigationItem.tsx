@@ -21,19 +21,19 @@ export const CorporateNavigationItem = () => {
                 {t("corporate")}
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-                <ul className="grid gap-2 p-4 w-[600px] grid-cols-[.75fr_1fr]">
+                <ul className="grid gap-2 p-4 w-150 grid-cols-[.75fr_1fr]">
                     <li className="row-span-4">
                         <NavigationMenuLink asChild>
                             <Link
                                 href="/"
-                                className="flex h-full w-full flex-col justify-center items-center rounded-md bg-gradient-to-b from-muted/50 to-muted p-4 md:p-6 no-underline outline-none select-none transition-all duration-200 focus:shadow-md"
+                                className="flex h-full w-full flex-col justify-center items-center rounded-md bg-linear-to-b from-muted/50 to-muted p-4 md:p-6 no-underline outline-none select-none transition-all duration-200 focus:shadow-md"
                             >
                                 <div className="relative w-full h-20 mb-2 flex items-center justify-center">
                                     <Image
                                         src="/logos/ceyhunlar.png"
                                         alt={t("logoAlt")}
                                         width={200}
-                                        height={80}
+                                        height={46}
                                         className="object-contain"
                                         priority
                                     />

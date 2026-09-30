@@ -23,7 +23,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { ButtonShine } from "@/components/ui/button-shine"
 import { Input } from "@/components/ui/input"
@@ -265,6 +265,7 @@ export default function CustomerLeadDialog({
                 className="w-[min(760px,calc(100vw-1.25rem))] h-[min(84vh,700px)] overflow-hidden p-0 rounded-2xl border-neutral-200"
             >
                 <DialogTitle className="sr-only">{t("title")}</DialogTitle>
+                <DialogDescription className="sr-only">{stepTitles[step]}</DialogDescription>
 
                 <div className="flex h-full flex-col">
                     <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">

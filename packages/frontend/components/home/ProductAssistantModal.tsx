@@ -7,7 +7,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "motion/react"
 import { Sparkles, X, ArrowRight, CheckCircle2 } from "lucide-react"
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
@@ -250,6 +250,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                     className="flex flex-col w-[min(1020px,calc(100vw-1.5rem))] h-[min(88dvh,760px)] p-0 overflow-hidden rounded-2xl border-neutral-200"
                 >
                     <DialogTitle className="sr-only">{t("title")}</DialogTitle>
+                    <DialogDescription className="sr-only">{stepTitles[step]}</DialogDescription>
                     <div className="flex h-full min-h-0 flex-col">
                         <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-4 py-3 text-white sm:px-6 sm:py-4">
                             <div className="flex items-center justify-between">

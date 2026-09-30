@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
     // Next YALNIZ bu genişlikleri üretir → maliyet/kötüye-kullanım yüzeyi dar.
     // 3840 (4K) bu katalog için gereksiz, listeden çıkarıldı.
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // Next 16: `quality` prop'u yalnız bu listedeki değerleri kabul eder (75 varsayılan).
+    qualities: [70, 75],
     remotePatterns,
   },
 };

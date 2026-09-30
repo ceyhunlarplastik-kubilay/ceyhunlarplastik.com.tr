@@ -26,7 +26,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                             src="/logos/logo-text.png"
                             alt={t("logoAlt")}
                             width={140}
-                            height={35}
+                            height={51}
                             className="mb-4"
                         />
 
