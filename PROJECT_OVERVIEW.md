@@ -36,12 +36,13 @@ Backend tarafında API Gateway + Lambda + Prisma/PostgreSQL, frontend tarafında
 | Prisma modeli ve migration | [README.md](README.md) Prisma + [AGENTS.md](AGENTS.md) Database Rules | `packages/core/prisma/schema.prisma`, `packages/core/prisma/migrations/**` |
 | Auth ve role modeli | [ARCHITECTURE.md](ARCHITECTURE.md) Authentication and Access Lifecycle | `infra/cognito.ts`, `packages/core/src/core/middleware/authMiddleware.ts`, `packages/core/prisma/schema.prisma` |
 | Kullanıcı access lifecycle | [ARCHITECTURE.md](ARCHITECTURE.md) Access lifecycle | `infra/userAccessLifecycle.ts`, `packages/functions/src/UserAccessLifecycle/**` |
-| Realtime bildirimler | [ARCHITECTURE.md](ARCHITECTURE.md) Business workflow + access lifecycle notları | `infra/userAccessLifecycle.ts`, `infra/businessWorkflow.ts`, `packages/frontend/features/notifications/**` |
+| Realtime bildirimler + canlı üretim ekranları | [ARCHITECTURE.md](ARCHITECTURE.md) Business workflow + access lifecycle notları | `infra/userAccessLifecycle.ts`, `infra/businessWorkflow.ts`, `packages/frontend/features/realtime/**`, `packages/frontend/features/notifications/**`, `packages/frontend/features/production/realtime/**` |
 | Business request workflow | [ARCHITECTURE.md](ARCHITECTURE.md) Business Request Workflow | `infra/businessWorkflow.ts`, `packages/functions/src/BusinessWorkflow/**`, `packages/core/src/core/helpers/businessRequests/**` |
 | Müşteri portalı | [ARCHITECTURE.md](ARCHITECTURE.md) Customer portal flow | `packages/frontend/app/musteri/**`, `packages/frontend/features/customerPortal/**`, `packages/functions/src/ProtectedApi/functions/crm/**` |
 | Satış workspace | [ARCHITECTURE.md](ARCHITECTURE.md) Sales and purchasing workspaces | `packages/frontend/app/satis/**`, `packages/functions/src/ProtectedApi/functions/crm/**` |
 | Satın alma workspace | [ARCHITECTURE.md](ARCHITECTURE.md) Sales and purchasing workspaces | `packages/frontend/app/satinalma/**`, `packages/functions/src/ProtectedApi/functions/**` |
 | Veri girişi workspace | [AGENTS.md](AGENTS.md) Access lifecycle + UI rules | `packages/frontend/app/veri-girisi/**`, shared admin feature components |
+| Üretim planlama (APS/MES) | [docs/production-planning.md](docs/production-planning.md) | `packages/frontend/app/(panels)/uretim/**`, `packages/frontend/features/production/**` |
 | CRM ve müşteri adresleri | [ARCHITECTURE.md](ARCHITECTURE.md) CRM and portal model | `packages/core/prisma/schema.prisma`, `packages/frontend/features/admin/customers/**`, `packages/frontend/features/customerLocations/**` |
 | Geo selector verileri | [AGENTS.md](AGENTS.md) Reference geo data | `packages/core/prisma/schema.prisma`, `packages/functions/src/PublicApi/functions/geo/**` |
 | Özel müşteri fiyatları | [AGENTS.md](AGENTS.md) Customer-specific special prices | `CustomerVariantSpecialPrice`, `packages/frontend/features/**/specialPrices/**` |
@@ -55,9 +56,9 @@ Backend tarafında API Gateway + Lambda + Prisma/PostgreSQL, frontend tarafında
 | Alan | Kodda görülen durum |
 |---|---|
 | Workspaces | Root `package.json` `packages/*` kullanıyor; `core`, `functions`, `frontend`, `scripts` mevcut |
-| Infra dosyaları | 16 dosya: `db`, `cognito`, `storage`, `router`, `frontend`, `cors`, `apiLimits`, `googleMaps`, `lambdaNaming`, `PublicApi`, `ProtectedApi`, `AdminApi`, `OwnerApi`, `businessWorkflow`, `userAccessLifecycle`, `observability` |
-| Cognito grupları | `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor` |
-| Realtime | `UserAccessRealtime` kaynağı access ve notification topic prefixleriyle kullanılıyor |
+| Infra dosyaları | 18 dosya: `db`, `cognito`, `storage`, `router`, `frontend`, `cors`, `apiLimits`, `googleMaps`, `lambdaNaming`, `PublicApi`, `ProtectedApi`, `AdminApi`, `OwnerApi`, `businessWorkflow`, `userAccessLifecycle`, `observability`, `assetLifecycle`, `productionAlerts` (üretim uyarı taraması; prod'da her zaman, diğer stage'lerde `.env` bayrağıyla) |
+| Cognito grupları | `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`, `production_planner` — ad listesinin tek kaynağı `core/helpers/userAccess/groups.ts` |
+| Realtime | `UserAccessRealtime` kaynağı access, notification ve üretim değişiklik (`production/changes`, 4.4) konularıyla kullanılıyor; tarayıcı bağlantısı ortak `features/realtime` |
 | Ana workflow | `BusinessApprovalWorkflow` state machine + `BusinessWorkflowBus` + subscriber Lambda'ları |
 | Test yüzeyi | 114 test dosyası (kabaca core 544 · functions 297 · frontend 310 test); pricing, approval policy, authMiddleware, validator derleme ve i18n sızıntı kapıları kapsanıyor |
 
@@ -69,7 +70,12 @@ Backend tarafında API Gateway + Lambda + Prisma/PostgreSQL, frontend tarafında
 Google Maps + Places'e taşındı, Nominatim proxy'si silindi; `isSalesDirector`
 role flag'i; `Supplier.assignedPurchasingSuppliers` çoklu-atama ilişkisi;
 `responseValidator` handler-başına opsiyonel; 14 dilli next-intl i18n bölümü).
-Bilinen aktif sapma yok.
+
+Aktif sapmalar:
+- **[README.md / ARCHITECTURE.md / bu dosya — satış paneli yolu]** — `/satis` ve
+  `app/satis/**` diyor; kodda panel `/musteri-temsilcisi`
+  (`app/(panels)/musteri-temsilcisi`, 2026-09-17'de taşındı — IMPROVEMENT_LOG). Fark
+  2026-09-25'te üretim planlama Dilim 1.1 sırasında görüldü, düzeltilmedi.
 
 Yeni bir sapma fark edildiğinde buraya `[Dosya / Konu] — X diyor, kodda Y gördüm`
 formatında ekleyin.

@@ -162,7 +162,8 @@ Notable implementation detail:
 - Cognito app client
 - hosted UI domain configuration retained for compatibility and rollback
 - Cognito groups:
-  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`
+  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`, `production_planner`
+  (the name list is shared from `packages/core/src/core/helpers/userAccess/groups.ts`; a group missing there is silently dropped from the token)
 - a `postConfirmation` trigger Lambda linked to the stage database
 
 Frontend authentication is handled by NextAuth with a custom Cognito credentials flow.
@@ -197,7 +198,7 @@ The frontend receives environment values for:
 - NextAuth config
 - Cognito config
 - public/admin/protected API base URLs
-- user access realtime endpoint + authorizer name
+- realtime endpoint + authorizer name, the notification topic prefix and the production change topic
 - asset base URL
 
 Permanent stages are also granted a public Lambda invoke permission for the server function.
@@ -367,6 +368,8 @@ Current hierarchy expectations:
   External portal users that submit requests but do not self-approve them.
 - `content_editor`
   Internal data-entry role. Uses the `/veri-girisi` workspace and can manage category, product, and product attribute taxonomy content without receiving broad admin panel access.
+- `production_planner`
+  Internal production planning role. Uses the `/uretim` workspace (machines, molds, shift calendars, production orders, planning board — delivered in slices, see `docs/production-planning.md`). Not a party to sales/purchasing business requests and has no `/admin` access.
 
 ### Workflow orchestration
 Supplier, customer, sales, and purchasing approvals should use the generic `BusinessRequest` workflow backbone.
@@ -401,6 +404,8 @@ Supplier-specific usage rules:
 - Review UIs should keep the diff-first presentation style by comparing `currentSnapshot` and `requestedData`.
 - EventBridge subscribers persist activity logs, user notifications, workflow emails, and realtime notification messages.
 - Browser realtime topics must be namespaced by app and stage because AWS IoT is shared across apps/stages in an account. The user notification topic shape is `${appName}/${stage}/notifications/users/${dbUserId}`.
+- The production change topic is `${appName}/${stage}/production/changes` (slice 4.4): subscribe rights are role-based (ACTIVE users in the production planner groups, re-checked by the authorizer every 5 minutes; rules in `UserAccessLifecycle/functions/realtimeAccess.ts`), and the authorizer ends every connection when its Cognito id token expires.
+- Browser subscriptions share `packages/frontend/features/realtime` (`useRealtimeTopic` over the React-free `startRealtimeSubscription`): a fresh token from `getSession()` on every connection, renewal before expiry, retry on authorization / SUBACK rejection. Lambda publishers wrap the SST endpoint with `iotDataEndpointUrl` — SST exposes a bare host name and AWS SDK v3 rejects it with `Invalid URL`.
 
 Customer-specific request UX rules:
 - `CUSTOMER_ORDER_REQUEST` may use a checkout-style stacked draft preview above its form because line-item verification is the primary task
@@ -477,6 +482,8 @@ Important route segments currently include:
   Sales-facing routes
 - `app/(panels)/veri-girisi`
   Internal content/data-entry workspace for `content_editor`
+- `app/(panels)/uretim`
+  Production planning workspace for `production_planner` (admin/owner may also enter)
 - `app/(panels)/tedarikci`
   Supplier-facing workspace (`app/(panels)/supplier` is a redirect/alias)
 - `app/(panels)/hesabim`
@@ -606,7 +613,7 @@ Current access lifecycle model:
 - Cognito confirmation creates a DB `User` with `groups = ["user"]`
 - new users start with `accessStatus = PENDING_REVIEW`
 - `user` is a no-panel default group
-- admin can assign business roles: `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`
+- admin can assign business roles: `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`, `production_planner`
 - owner can additionally assign `admin` and `owner`
 - pending or otherwise inactive users can sign in, but they are routed to `/hesabim`
 
@@ -623,6 +630,7 @@ User-facing notification persistence uses `UserNotification`:
 - `REQUEST_CREATED`
 - `APPROVAL_REQUIRED`
 - `REQUEST_DECIDED`
+- `PRODUCTION_ALERT` (slice 4.5 — sub-kind in `data.kind`, dedupe key `data.alertKey`, panel link `data.href`)
 
 Business request workflow notifications use the same target resolution for persistence and realtime delivery. `business-request.pending-approval` targets the active approval owner/group, and customer order requests also fan out observer notifications to active admin/owner users for immediate admin visibility.
 
@@ -647,6 +655,7 @@ Derived booleans currently include:
 - `isSalesDirector`
 - `isCustomer`
 - `isContentEditor`
+- `isProductionPlanner`
 
 Keep these flags consistent across frontend assumptions, middleware output, and API permission checks.
 
@@ -697,6 +706,147 @@ Important distinction:
   - `Customer.assignedSalesUserId`
   - `Supplier.assignedPurchasingSuppliers` (many-to-many)
 - do not confuse those two concepts in UI or API design
+
+### Production planning model (in progress)
+Design and roadmap: `docs/production-planning.md`. Master data is in place (schema section
+"ÜRETİM PLANLAMA — TANIMLAR", migration `20260925120000_add_production_master_data`):
+- `ProductionArea` → `ProductionMachine` (clamp force, tie-bar spacing, mold height range, …)
+- `Mold` → `MoldOutput` → `ProductSize`: a mold is bound to a product-model SIZE, not a variant,
+  so it presses every colour/material version of that size; a family mold may hold sizes of
+  different product models. `MoldOutput → ProductSize` is `Restrict` — any flow that deletes
+  sizes must skip or block sizes held by a mold
+- `MoldMachineProfile` (proven cycle/setup, preferred, blocked), `MaterialProcessProfile`
+  (1:1 production data beside the catalog `Material`)
+- `ShiftPattern`/`ShiftDefinition` (daily working hours 12/16/24), `ProductionCalendarException`,
+  `MachineDowntime`, `ProductionOperator` (staff record, NOT a login account)
+
+Implemented surfaces (slices 1.3–1.5): ProtectedApi `/production/areas`, `/production/shift-patterns`,
+`/production/machines`, `/production/molds` (outputs + machine profiles written with the mold, full replace),
+`/production/material-profiles`, `/production/references/products[/{id}/sizes]`, `/production/operators`,
+`/production/calendar-exceptions` (+ `/bulk-delete`), `/production/machine-downtimes` (planner/admin/owner —
+one list in `packages/functions/src/shared/production/access.ts`; per-entity `actions.ts` under
+`packages/functions/src/ProtectedApi/functions/production*`) and the `/uretim/alanlar`,
+`/uretim/vardiyalar` (shift patterns + calendar exceptions), `/uretim/makineler` (machines + downtimes),
+`/uretim/kaliplar`, `/uretim/uyumluluk` (mold × machine matrix, computed client-side — no endpoint),
+`/uretim/operatorler`, `/uretim/hammaddeler` screens (`packages/frontend/features/production/**`).
+Pure rules shared by handlers and forms live in `packages/core/src/core/helpers/production/`:
+`shiftPatterns.ts` (workday = day of the first shift, night shift belongs to it, no overlap,
+≤ 24 h; effective pattern machine → area → default), `productionCalendar.ts` (one exception row
+per DAY; ranges are expanded on write and regrouped for display; one exception per day and
+scope, the narrowest scope wins: machine > area > factory), `machineDowntimes.ts` (half-open
+intervals, no overlap per machine) `productionTime.ts` (timestamps stored in UTC, entered and
+shown in factory time `Europe/Istanbul` — never browser-local, never a hard-coded offset) and
+`moldMachineCompatibility.ts` (mold ↔ machine checks with ok / warning / unknown / error per check,
+recommended machine = preferred card, else the smallest adequate press; the phase-2 engine filters
+candidates with the same function). Hydraulic clamps carry `ProductionMachine.maxDaylightMm`: usable
+opening = min(stroke, daylight − mold thickness).
+
+Phase 2 (in progress): `ProductionOrder` (slice 2.1) — auto-increment order number shown as
+"UE-1001", `productVariantId` with `onDelete: SetNull` plus a `variantCode` snapshot (same pattern
+as `OrderItem`: deleting a catalog variant never fails on production history; an order without a
+variant is not planned), opened only for sizes with a usable (non-retired) mold. ProtectedApi
+`/production/orders` (server-paginated), `/production/references/products/{id}/variants`,
+`/production/references/customers` (id + name only); screen `/uretim/emirler`.
+Order rules (manual status DRAFT ⇄ ON_HOLD ⇄ CANCELLED, only DRAFT deletable, customer required for
+customer orders) live in `core/helpers/production/productionOrders.ts`. Slice 2.2 adds the pure
+planning engine — `shiftCalendar.ts` (shift pattern + calendar exceptions + downtimes → working
+windows in factory time), `jobScheduling.ts` (cycle-time chain, shots, duration, forward
+scheduling, shift lots) and `orderCandidates.ts` (per mold × compatible machine plan preview) —
+served read-only by `GET /production/orders/{id}/candidates`. Slice 2.3 adds `ProductionJob`
+(auto-increment `lotBaseNumber` from 1000), `ProductionJobOutput` (every mold output; the order's
+size links to the order, others are by-products), `ProductionLot` / `ProductionLotOutput` (one lot
+per shift; lot number `base-sequence` is derived, not stored). `POST /production/orders/{id}/jobs`
+recomputes the chosen candidate server-side (never trusts client times) and writes job + outputs +
+lots + order status in ONE array transaction with pre-generated ids (`core/helpers/production/jobPlan.ts`);
+existing active jobs block machine and mold time. Mold output edits are diff-based (rows kept by
+size) because job outputs reference `MoldOutput` with `Restrict`; machines/molds with jobs cannot
+be deleted (409).
+
+Phase 3 (in progress): slice 3.1 adds the read-only planning board `/uretim/tahta`, fed by
+`GET /production/board?from&to` (narrow DTO: non-inactive machines with their shift instances and
+per-day calendar exceptions, downtimes, non-cancelled jobs with lots). Window rules and per-machine
+shift instances come from `core/helpers/production/productionBoard.ts` (same effective-pattern
+resolution as the engine; downtimes are NOT subtracted there — the board draws them as blocks);
+the drawing geometry is a pure, tested frontend helper (`features/production/board/utils/boardGeometry.ts`).
+Planning writes and job cancellation invalidate the board query prefix. Slice 3.2 makes the board
+editable: planned jobs are dragged (`@dnd-kit/core`, time = horizontal with 15-minute snap, machine =
+row) or moved with the "Taşı" form in the job dialog; the board DTO carries each job's `version` and
+`machineFit` (mold × visible machine verdicts) for live row feedback, while
+`PATCH /production/jobs/{id}/schedule` re-plans server-side with the same engine and optimistic
+locking on `ProductionJob.version`. Slice 3.3 adds the pending (DRAFT) orders panel — cards carry a
+server-computed best-mold `machineFit` and are dropped onto a machine row (`POST
+/production/orders/{id}/jobs` with optional `moldId`, `startAt`, `placement`) — and the
+"push-later" placement mode: the placed job sits at the requested time and later PLANNED jobs on
+that machine are re-planned behind it in order (`core/helpers/production/jobRipple.ts`). All
+placement flows share `productionOrders/handlers/placement.ts` and commit through
+`productionJobRepository.commitPlacement` in a single array transaction. Slice 3.4 adds the job
+status board `/uretim/pano` (`GET /production/kanban`, `PATCH /production/jobs/{id}/status`): the
+pure `core/helpers/production/jobStateMachine.ts` owns the transitions (PLANNED ⇄ RELEASED → SETUP →
+RUNNING ⇄ PAUSED → COMPLETED), the completion quantity rules and the order status derived from its
+jobs; a released job is locked on the planning board. Slice 3.5 (migration
+`20260926150000_add_production_shift_assignments_and_lot_notes`) adds the crew roster
+(`MachineShiftAssignment`, screen `/uretim/ekip`), lot operators (`ProductionLotOperator`) and lot
+notes (`ProductionLotNote`, optionally attributed to an operator since operators have no login),
+the lot list / detail screens (`/uretim/lotlar`, `/uretim/lotlar/{lotNumber}` with a printable QR
+label via `qrcode.react`; printing uses a `.print-root` portal + a scoped `@media print` rule in
+`globals.css`). Rescheduling now updates lots in place by sequence so notes and crews survive a
+move; job completion freezes the roster crew into each lot. Slice 4.2 (migration
+`20260928100000_add_production_shift_reports`) adds shop-floor data entered by the planner as a
+per-lot shift report (`/uretim/saha`, lot detail): actual start / end, good / scrap per output with a
+scrap-reason breakdown (`ProductionLotScrap`), stops (`ProductionStop`), shots; one reason dictionary
+(`ProductionReason`, STOP with a category / SCRAP); a report closes the lot, starts the next one and
+moves the mold shot counter. `ProductionJobStatusChange` records every job status change (planning,
+kanban, lot start) and backs the kanban "completed recently" column. Slice 4.4 makes the workspace
+live: every production write action is wrapped with `withProductionChange(scope, …)`
+(`functions/shared/production/realtime.ts`) and publishes a data-free hint (`plan` / `roster` /
+`lots` / `reasons` / `definitions`, contract `core/helpers/production/productionRealtime.ts`) to
+the production change topic after success; those routes use `productionMutationRouteOptions`
+(endpoint via env + `iot:Publish` on that single topic ARN — the Realtime component is not linked,
+since its link grants `iot:Publish` on `*`). The `/uretim` layout mounts `ProductionRealtimeProvider`
+once; it coalesces hints for 400 ms and invalidates the matching query prefixes, and refetches
+everything after a reconnect. Phase 5 (statistics) starts with slice 5.1, the product history
+(`GET /production/stats/products`, screen `/uretim/istatistikler/urunler`): the repository fetches a
+superset of jobs (planned interval overlaps the window or a lot started in it) and the pure
+`core/helpers/production/productionStats.ts` builds rows per job output (final count for completed
+jobs, sum of reported lots otherwise; actual cycle = reported run time ÷ shots; window check on the
+job's production period); Excel is generated in the browser with a lazily imported `exceljs`. Slice
+5.2 adds machine utilization and OEE (`GET /production/stats/machines?from&to&areaId`, screen
+`/uretim/istatistikler/makineler`) with the rules in the pure `core/helpers/production/machineStats.ts`:
+the TIME breakdown is clock-based and clipped to the window (shift capacity from the machine's shift
+pattern minus calendar exceptions = in-shift production from reported lots + machine downtime records
+that do not overlap production + idle; out-of-shift production is reported separately), while OEE
+(availability × performance × quality) uses only reported lots that START in the window; machine
+downtime records never enter OEE. The window ends at "now", so today's future shifts do not count as
+idle. "Unreported" lots are the ones closed with the job without a report, excluding never-started
+lots planned after an early completion (completion time from `ProductionJobStatusChange`). Slice
+5.3 closes Phase 5 with mold statistics (`GET /production/stats/molds`, screen
+`/uretim/istatistikler/kaliplar`, rules in the pure `core/helpers/production/moldStats.ts`): counter and
+maintenance (projected with the open jobs' unprinted shots via `remainingJobShots`, the same number the
+alert sweep uses), actual vs planned cycle per mold, per mold × machine (compared with the mold-machine
+card) and per mold × colour / material. A suggestion appears with at least 3 reported shifts and a 5 %
+gap; it is never written automatically — "Karta uygula" calls
+`PATCH /production/molds/{id}/machine-profiles/{machineId}` (card upsert, step 2 of the cycle-time
+chain), so only later plans change. Slice 4.5 adds persistent production alerts without an API route: a
+scheduled sweep (`infra/productionAlerts.ts` → `functions/src/ProductionAlerts/`; prod every 15
+minutes, other stages only with `PRODUCTION_ALERTS_ENABLED="true"` so Neon is not kept awake) runs
+the SAME forecast (`forecastJobsOnMachines`, shared with the board) for on-floor jobs and planned
+jobs whose production start has passed, plus mold maintenance for active molds, and writes
+`PRODUCTION_ALERT` notifications for ACTIVE `production_planner` users (rules and dedupe keys in
+`core/helpers/production/productionAlerts.ts`; delivered keys are read back from the notification
+rows, no extra table) with one realtime toast per user. The production panel shows the notification
+bell; a production alert opens the board with the job selected (`?is=`) or the molds page. Slice 4.3 compares plan and
+actuals without schema changes: `core/helpers/production/jobForecast.ts` is the single forecast
+(progress from reported shots; the remaining shots are placed on the machine's working windows with
+the planned cycle and efficiency, starting from the running lot's actual start, else the last
+report's end, else now + setup) and `moldMaintenance.ts` the single maintenance status (85 % warning
+ratio, projected with the board's planned shots). The board DTO carries `forecast`,
+`moldMaintenance` and lot actuals and also lists ON-FLOOR jobs whose planned end lies before the
+window (`ON_FLOOR_JOB_STATUSES` — an overrunning job still holds the machine; stale PLANNED jobs are
+not added because the engine does not treat them as busy). `POST /production/jobs/{id}/push-followers`
+recomputes the forecast server-side and reuses the 3.3 ripple (`planRippleFollowers` +
+`commitPlacement`) behind the projected end; `POST /production/molds/{id}/maintenance` resets the
+maintenance counter and stores the maintenance DAY in the mold form's convention (factory date at UTC
+midnight).
 
 ### Mapping and DTO helpers
 The repo already has custom mapping conventions that are part of the architecture.

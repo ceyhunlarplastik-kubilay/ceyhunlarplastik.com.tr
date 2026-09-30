@@ -149,6 +149,13 @@ Use:
 
 Validation rules should be centralized in a schema, not duplicated across inputs.
 
+When the schema TRANSFORMS input (e.g. numeric fields kept as text in the form and parsed
+to numbers), type the form as `useForm<z.input<…>, unknown, z.output<…>>`; the shadcn
+`FormField` in `components/ui/form.tsx` carries the third (`TTransformedValues`) generic
+for this. If a rule must hold on both sides (e.g. min ≤ max, shift overlaps), put it in a
+pure `packages/core` helper and call it from the zod `superRefine` AND the Lambda handler —
+request validators cannot use `.refine()` (see CLAUDE.md).
+
 ### UI components
 - Prefer `shadcn/ui` primitives from `packages/frontend/components/ui`
 - Prefer reusable feature components over one-off page-local markup
@@ -157,6 +164,11 @@ Validation rules should be centralized in a schema, not duplicated across inputs
 - Prefer consistent badges, dialogs, selects, inputs, and table primitives already present in the repo
 
 Do not introduce custom visual primitives if an equivalent shadcn/ui component already exists.
+
+For a searchable single-select backed by a SERVER search (large lists such as customers), use the
+shared `components/ui/searchable-select.tsx` with `onSearchChange` (turns off client filtering)
+and `selectedLabel` (label of a value not in the current results) — do not hand-roll another
+`Command shouldFilter={false}` combobox.
 
 Long form dialogs (customer editors and similar) share one layout: a fixed header, a body that
 scrolls on its own and uses the available screen height, a fixed action bar, and sections built
@@ -313,7 +325,7 @@ Respect these existing conventions before introducing alternatives:
 - `apiResponseDTO` for API response envelopes
 - repository pattern for Prisma access
 - shared mapping helpers such as `mapProductWithAssets`
-- auth-derived role flags and user capability checks such as `isOwner`, `isAdmin`, `isSupplier`, `isPurchasing`, `isSales`, `isContentEditor`
+- auth-derived role flags and user capability checks such as `isOwner`, `isAdmin`, `isSupplier`, `isPurchasing`, `isSales`, `isSalesDirector`, `isContentEditor`, `isProductionPlanner`
 
 When adding new backend functionality, first ask whether it belongs in:
 - a repository
@@ -384,6 +396,14 @@ When touching product variants or their codes:
   güncellenecek satırların kodları önce "park edilir"; bu fazı atlama.
 - Ölçü/renk/hammadde/tedarikçi kimliği düzenleme yüzeylerinde DEĞİŞTİRİLEMEZ olmalı —
   varyantın kodunu belirlerler; değişim satırı silip yeniden girmeyi gerektirir.
+- Bir ölçü (`ProductSize`) üretim planlamada KALIBA bağlı olabilir: `MoldOutput` ölçüyü
+  `Restrict` ile tutar (kalıp varyanta değil ölçüye bağlanır; aile kalıbında farklı ürün
+  modellerinin ölçüleri aynı kalıpta olabilir). Ölçü silen HER akış kalıbı olan ölçüyü
+  atlamalı ya da anlaşılır bir hatayla durmalı — yoksa FK hatası genel bir 500'e düşer.
+  Mevcut örnekler: `removeOrphanSizes` atlar, `mergeProductSizesByRequiredSignature`
+  kalıp gözlerini keeper'a taşır, ürün modeli silme 409 döner
+  (`productRepository.countMoldOutputs`). Ölçü kodu ("10.5.8") da tek kaynaktan:
+  `buildProductSizeCode` (`variantCode.ts`; `buildVariantFullCode` onun üzerine kurulu).
 
 When extending the content-entry (`content_editor`) workspace toward CRM data:
 - keep `content_editor` out of `/customers` endpoints; those carry commercial fields (discount,
@@ -433,6 +453,102 @@ When extending customer-specific special prices:
 - customer portal responses must only expose the authenticated customer's own active/current special prices and must not expose internal notes
 - order/request creation should snapshot the resolved price source and commercial terms at creation time so later special-price edits do not rewrite historical orders or requests
 - keep special-price UI helpers, formatting, form mapping, and larger cards in feature-local `specialPrices` utilities/components instead of crowding page client files
+
+When extending production planning (`/uretim`, design in `docs/production-planning.md`):
+- keep domain rules in pure `core/helpers/production/*` modules and call the SAME function from
+  the Lambda handler and the form's zod `superRefine` (shift patterns, mold outputs, calendar
+  ranges, downtime intervals)
+- timestamps are stored in UTC and entered/shown in FACTORY time via
+  `core/helpers/production/productionTime.ts` (`PRODUCTION_TIME_ZONE`); never rely on the
+  browser's time zone and never hard-code `+03:00`
+- calendar exceptions are one row per DAY: ranges are expanded on write and regrouped for display
+  (`productionCalendar.ts`); "one exception per day + scope" is an application rule (NULL scope
+  columns defeat a unique index); the narrowest scope wins (machine > area > factory)
+- mold ↔ machine compatibility has ONE source, `core/helpers/production/moldMachineCompatibility.ts`
+  (matrix today, phase-2 planning tomorrow); missing technical data yields `unknown`, never a
+  block. Machine `shotCapacityG` is the datasheet PS value, and hydraulic clamps need
+  `maxDaylightMm` (usable opening = min(stroke, daylight − thickness))
+- endpoint permissions come from `PRODUCTION_PLANNER_GROUPS`
+  (`functions/shared/production/access.ts`); do not copy the group array into new `actions.ts`
+- production orders reference the catalog variant with `onDelete: SetNull` + a `variantCode`
+  snapshot (like `OrderItem`), so variant-deleting admin flows need no production guard; order
+  rules live in `core/helpers/production/productionOrders.ts`
+- jobs reference `MoldOutput`, `ProductionMachine` and `Mold` with `Restrict`: mold output edits are
+  diff-based (keep the row per size — never `deleteMany` + `createMany` again), and any delete flow
+  must count jobs first and answer 409. Planning writes go through `buildJobPlan` (pre-generated
+  ids, one array transaction); the plan is always recomputed server-side from the chosen pair.
+  Moving a job (board drag & drop or the "Taşı" form) goes through
+  `PATCH /production/jobs/{id}/schedule` with `expectedVersion`: the server re-plans the same mold on
+  the target machine from the requested earliest start (`evaluateOrderCandidates` `earliestStart`,
+  the job's own interval excluded from busy) and writes via `buildJobRescheduleWrite` in one array
+  transaction whose first op filters on `version` — never trust client-computed times.
+  Every placement (Öner, Planla, board move, board order drop, "sonrakileri kaydır") goes through
+  `functions/src/ProtectedApi/functions/productionOrders/handlers/placement.ts`: load the planning
+  context ONCE, run the engine per job, collect every write, then commit with
+  `productionJobRepository.commitPlacement` (new job + all reschedules in one array transaction, each
+  reschedule version-filtered). Ripple follower rules live in `core/helpers/production/jobRipple.ts`
+- job status changes (kanban drag, card menu, later operator actions) follow ONE state machine,
+  `core/helpers/production/jobStateMachine.ts` (transitions, completion quantities, order status
+  derived from its jobs); `PATCH /production/jobs/{id}/status` writes job + outputs + lots + derived
+  order status in one version-filtered array transaction. Do not set an order's
+  PLANNED/RELEASED/IN_PROGRESS/COMPLETED status by hand — it is derived. Job status labels also live
+  there (`JOB_STATUS_LABELS`); the frontend re-exports them
+- lots are identified by `lotBaseNumber-sequence` ("1000-2", `productionLots.ts`) and are updated IN
+  PLACE by sequence when a job moves (`buildJobRescheduleWrite` → `rescheduleWriteOrConflict`), so
+  lot notes and lot operators survive; never go back to delete + recreate lots. A move that would
+  drop a lot holding notes / lot-specific operators answers 409
+- the crew (roster) is `MachineShiftAssignment` per machine × shift DAY × shift code
+  (`shiftAssignments.ts`); a lot's crew = its own `ProductionLotOperator` rows if any, else the
+  roster cell (`resolveLotOperators`); completion freezes the roster into the lot. Operators
+  referenced by roster / lots / notes are `Restrict` — delete answers 409, deactivate instead
+- shop-floor data is a per-lot SHIFT REPORT entered by the planner (`core/helpers/production/lotReports.ts`,
+  `PUT /production/lots/{lotNumber}/report`): it closes the lot, auto-starts the next PLANNED lot (first
+  report only), replaces scrap breakdown + stops, and moves the mold counter by the shot delta — all in
+  one job-version-filtered array transaction. Job totals (entered at completion, prefilled with the
+  sum of reported lots) stay separate from lot counts; never fabricate lot counts from job totals.
+  Every job status change writes `ProductionJobStatusChange` (plan, kanban, lot start); "completed
+  in the last N days" reads that history, not `updatedAt`. Stop / scrap reasons are one dictionary
+  (`ProductionReason`, `productionReasons.ts`); used reasons are `Restrict` — deactivate, don't delete
+- plan ↔ actual has ONE forecast, `core/helpers/production/jobForecast.ts`: the board DTO and
+  `POST /production/jobs/{id}/push-followers` call the same functions and the server never trusts a
+  client forecast. Mold maintenance status has ONE source, `core/helpers/production/moldMaintenance.ts`
+  (molds page, board, alert strip) — do not add another threshold (a second copy with a different
+  ratio already drifted once). The board also lists ON-FLOOR jobs whose planned end is before the
+  window (`ON_FLOOR_JOB_STATUSES`); a planned-interval filter alone hides an overrunning job
+- every production WRITE route publishes a live-update hint after success: wrap the action with
+  `withProductionChange(scope, …)` (`functions/shared/production/realtime.ts`) and give the route
+  `productionMutationRouteOptions` in `infra/ProtectedApi.ts` (endpoint via env + `iot:Publish` on the
+  single topic ARN — do NOT `link` the Realtime component, its link grants `iot:Publish` on `*`).
+  `realtimeCoverage.test.ts` fails when either is missing. Scope → query keys on the browser side live
+  in `features/production/realtime/utils/productionChangeQueryKeys.ts`; the message carries no data
+- production statistics (Phase 5) are computed in the pure `core/helpers/production/productionStats.ts`
+  (count source, actual cycle, production-period window); repositories only fetch a superset. Counts:
+  a COMPLETED job uses the final count entered at closing, a running job the sum of reported lots —
+  never mix them in one number. Machine utilization / OEE rules live in the pure
+  `core/helpers/production/machineStats.ts`: the time breakdown is clipped to the window and must add
+  up (capacity = in-shift production + machine downtime + idle; downtime overlapping a reported lot is
+  not counted twice), OEE comes ONLY from reported lots starting in the window, and machine downtime
+  records never enter OEE. Mold statistics and the cycle suggestion live in
+  `core/helpers/production/moldStats.ts` (same actual-cycle rule; thresholds 3 reported shifts + 5 %):
+  a suggestion is NEVER written automatically — the planner applies it through
+  `PATCH /production/molds/{id}/machine-profiles/{machineId}` (card upsert), and "remaining shots" for
+  maintenance projection comes from `remainingJobShots` (shared with the forecast and the alert sweep).
+  New stats queries live under `productionQueryKeys.statsAll()` so the
+  `plan` live-update scope refreshes them; Excel stays a lazily imported browser module
+- production alerts (bell) come from ONE rule module, `core/helpers/production/productionAlerts.ts`,
+  fed by the same forecast as the board (`forecastJobsOnMachines`, `forecastCalendarRange`,
+  `remainingShotsByMold` in `jobForecast.ts`) — never compute delay / maintenance a second way in the
+  sweep. A new alert kind is a new `data.kind` (no migration); its dedupe key must carry what makes
+  it a NEW episode (planned end, due date, maintenance cycle), or users get it once and never again.
+  The sweep cron runs in prod only unless `.env` sets `PRODUCTION_ALERTS_ENABLED="true"`: a frequent
+  cron keeps the non-prod Neon database awake
+- a render-time "now" comes from `features/production/shared/hooks/useNow.ts`, not `new Date()`
+  in the component body (react-hooks/purity; labels like "sürüyor" must refresh)
+- a job's duration has two meanings; never show one as the other. WORK time (setup + shots × cycle ÷ efficiency)
+  is written in hours with `formatWorkMinutes` via `features/production/shared/jobDurations.ts` (same
+  `computeProductionMinutes` as the engine). The CALENDAR span (factory days the job covers, nights included) is a
+  day count (`jobCalendarDays`). `formatDurationMinutes` writes 24-hour days: use it only for calendar quantities
+  (delays, downtimes, lot spans). On a 12-hour factory a 34-hour job shown as "1 gün 10 sa" looked shorter than it is
 
 ## Database Rules
 
@@ -493,6 +609,7 @@ For approval and async workflows:
 - keep domain updates in shared helpers or handlers
 - avoid coupling business truth to transient UI polling behavior
 - for AWS IoT/SST Realtime topics, always prefix with app and stage, authorize subscribe access per user topic, and keep browser clients publish-denied unless a feature explicitly requires client publishing
+- browser realtime subscriptions reuse `features/realtime` (`useRealtimeTopic`): it takes a fresh token per connection via `getSession()` and renews before expiry — do not hand-roll another mqtt connection with the `useSession()` token (it goes stale in a long-lived tab). Lambda IoT publishers pass the endpoint through `iotDataEndpointUrl` (`functions/shared/realtime/iotDataEndpoint.ts`)
 
 For user access lifecycle and notifications:
 - prefer `Bus + Realtime + SES` style fan-out for role/access change notifications
@@ -503,6 +620,8 @@ For user access lifecycle and notifications:
 - Treat the application database as the normalized source of truth for user access state after Cognito authentication succeeds.
 - The default `user` group is a no-panel role and should not grant admin/protected workspace access.
 - `content_editor` is an internal data-entry role with its own `/veri-girisi` workspace for category, product, and product attribute taxonomy content; do not grant it broad `/admin` panel access unless explicitly requested.
+- `production_planner` ("Üretim Planlama") is an internal role with its own `/uretim` workspace for production planning (machines, molds, shift calendars, production orders, planning board — see `docs/production-planning.md`); it takes no part in sales/purchasing business requests and gets no `/admin` access.
+- Cognito group NAMES have one source: `packages/core/src/core/helpers/userAccess/groups.ts` (pure, no imports — the frontend reads it via `@core/*`). The backend `authMiddleware`, the Admin/Owner API role validators and the frontend token parser all derive from it; a group missing there is dropped from the token SILENTLY. A new role still needs its `UserGroup` in `infra/cognito.ts`, a derived flag in `authMiddleware.ts`, and panel routing in `features/auth/lib/navigation.ts` + `proxy.ts`.
 - Access lifecycle should use explicit statuses such as `PENDING_REVIEW`, `ACTIVE`, `SUSPENDED`, and `REJECTED` when the feature is involved.
 - Pending or inactive users should be routed to a dedicated account-status surface such as `/hesabim`, not dropped into privileged panels.
 - If signup/confirm flows change, keep the post-confirmation DB user creation and pending-review experience aligned with frontend auth messaging.

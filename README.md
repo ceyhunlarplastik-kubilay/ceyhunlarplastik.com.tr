@@ -60,6 +60,7 @@ DOMAIN="yourdomain.com"
 DIRECT_RDS_HOST="10.0.x.x"   # prod DIRECT_URL host (migrations bypass the RDS Proxy) — instance endpoint hostname OR its private IP; use the IP to avoid a macOS DNS issue, see "Production RDS" below
 DEEPL_GLOSSARY_ID="optional-glossary-id"
 GOOGLE_LOGIN_ENABLED="true"  # optional, per stage — adds "Sign in with Google" (Cognito Google IdP + PreSignUp linking trigger). Off unless exactly "true"; leave it unset on stages that have no Google OAuth client/secrets
+PRODUCTION_ALERTS_ENABLED="true"  # optional, NON-prod only — turns on the production alert sweep cron (every 5 min) while you test production notifications. Prod always runs it (every 15 min). Leave it unset otherwise: the sweep would keep waking the Neon database
 ```
 
 > The `packages/core/.env` file is reserved for local database utilities such as Prisma CLI and the translation script. Runtime database access is provided through SST links: prod receives RDS connection fields, non-prod receives the Neon pooled URL. DeepL setup is documented at the end of this file.
@@ -437,7 +438,7 @@ Authentication is managed via **AWS Cognito** (`infra/cognito.ts`).
 
 - Sign-in method: **email**
 - Email verification is sent on registration
-- **9 groups** (`infra/cognito.ts`). After Cognito auth succeeds the DB (`User.groups`) is the source of truth for access; derived role flags (`isOwner`, `isAdmin`, `isSales`, `isSalesDirector`, `isPurchasing`, `isSupplier`, `isContentEditor`, …) come from `authMiddleware.ts`.
+- **10 groups** (`infra/cognito.ts`; the name list itself lives in `packages/core/src/core/helpers/userAccess/groups.ts` and is shared by the backend, the Admin/Owner API validators and the frontend token parser). After Cognito auth succeeds the DB (`User.groups`) is the source of truth for access; derived role flags (`isOwner`, `isAdmin`, `isSales`, `isSalesDirector`, `isPurchasing`, `isSupplier`, `isContentEditor`, `isProductionPlanner`, …) come from `authMiddleware.ts`.
 
 | Group | Role |
 |---|---|
@@ -445,6 +446,7 @@ Authentication is managed via **AWS Cognito** (`infra/cognito.ts`).
 | `admin` | Admin panel |
 | `user` | Default no-panel role — new signups land here as `PENDING_REVIEW`, routed to `/hesabim` |
 | `content_editor` | Internal data-entry workspace (`/veri-girisi`) — category/product/attribute taxonomy content only |
+| `production_planner` | Production planning workspace (`/uretim`) — injection machines, molds, shift calendars and the planning board, rolled out slice by slice (see `docs/production-planning.md`) |
 | `sales` / `sales_director` | Sales workspace (`/satis`) |
 | `purchasing` | Purchasing workspace (`/satinalma`) |
 | `supplier` | Supplier workspace |

@@ -9639,6 +9639,1465 @@ eşit sayıda eklendi (865/865).
   dengeli; seçicide kaydırırken arama/sektör çubuğu üstte kalır; adres ekle/düzenle/kaldır
   (oluşturmada); admin/temsilci dialogunda da seçici kartları aynı küçük boyutta.
 
+## Üretim Planlama — Faz 0 (plan) + Dilim 1.1: `production_planner` rolü + `/uretim` panel iskeleti (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Talep:** yeni "Üretim Planlama" rolü — enjeksiyon makineleri (kapama kuvveti, kolonlar
+  arası, kalıp kalınlığı), makineye uyan kalıplar, hammadde, operatör ataması, 12/16/24 saatlik
+  vardiyalar, Gantt/scheduling board'da sürükle-bırak planlama, vardiya lotları
+  (`1000-1`, `1000-2`…) + lot notları, sonradan istatistik. Kullanıcı planı onayladı; frontend
+  için ücretsiz kaynaklarla devam (kendi tahtamız: `@dnd-kit/core` + date-fns + shadcn).
+- **Faz 0 (plan):** [docs/production-planning.md](docs/production-planning.md) (commit
+  `e198768`). Kütüphane araştırması: 21st.dev "schedule" sonuçları takvim/randevu bileşeni;
+  ReUI ve Kibo Gantt'ta saat ölçeği yok; DayPilot Lite'ta dışarıdan sürükleme, çakışma algılama
+  ve şimdi çizgisi Pro'da; tam donanımlı çözümler (Bryntum, DHTMLX PRO, FullCalendar Premium)
+  ticari.
+- **Kullanıcı notu → tasarım düzeltmesi:** bir kalıpta aynı ürün modelinin farklı ölçülerinden
+  VE farklı ürün modellerinden gözler olabilir. Kalıp tarafı (`MoldOutput` = kalıp →
+  `ProductSize` satırları) bunu zaten karşılıyordu, ama planda iş/lot tek çıktılıydı. Tek baskı
+  tüm gözleri aynı renk/hammaddeyle doldurduğu için Faz 2 şeması düzeltildi: iş ADET değil
+  BASKI planlar; emir bağı `ProductionJobOutput` (çıktı satırı) üzerinden; lot sayımları
+  `ProductionLotOutput`'ta; işte `versionSignature` (doküman §5.2-5.3, §6 formülü).
+- **Dilim 1.1 — yapılan:**
+  - **Grup adları tek kaynakta:** yeni `core/helpers/userAccess/groups.ts` (saf, importsuz:
+    `ALL_USER_GROUPS`, `BUSINESS_USER_GROUPS`, `PRIVILEGED_USER_GROUPS`, `UserGroup`,
+    `isKnownUserGroup`); `userAccess/types.ts` yeniden dışa aktarıyor, mevcut importlar
+    değişmedi. Ondan türeyenler: `authMiddleware` (`KNOWN_GROUPS` kopyası silindi), Admin/Owner
+    API rol validator'ları (`z.enum(ALL_USER_GROUPS)`), AdminApi `IUpdateUserRoleBody.group`,
+    frontend `lib/auth/cognito-tokens.ts` (`KNOWN_GROUPS` kopyası silindi, `@core/*` ile) ve
+    `updateUserRole.ts` tipi. Neden: kopyalardan birinde eksik kalan grup token'dan SESSİZCE
+    düşüyordu (rol var, panel yok, hata yok).
+  - **Rol:** `infra/cognito.ts` → `CeyhunlarProductionPlanners` (`production_planner`,
+    precedence 10). `isProductionPlanner` bayrağı (`authMiddleware` + `IAuthenticatedUser`).
+    `/me/permissions` → `flags.isProductionPlanner` + `can.accessProductionPanel` (yanıt
+    şemasında `flags`/`can` loose, şema değişmedi). Etiket "Üretim Planlama": `messaging.ts`,
+    `userEditor.ts` (değer + seçenek + etiket + atama konfigi), `AdminUserMenu` rozeti. Admin
+    atayabilir (`BUSINESS_USER_GROUPS`); rol değişiminde eski gruplar `ALL_USER_GROUPS`
+    üzerinden temizlenir. Planlayıcı satış/satın alma iş talebi açamaz
+    (`getRequesterApprovalRole` 403).
+  - **Panel:** `navigation.ts` (`resolveAuthHome` → `/uretim`; `canAccessPath` `/uretim` =
+    planner/admin/owner), `proxy.ts` `AUTH_PROTECTED_PREFIXES` += `/uretim` (public
+    `seri-uretim` ile çakışmadığı kontrol edildi), `app/(panels)/uretim/layout.tsx` (erişimi
+    `canAccessPath`'ten okur — giriş yönlendirmesiyle tek kural), `page.tsx` →
+    `features/production/overview` (modül kartları "Faz N · Yakında"; `productionModules.ts`'teki
+    öğeye `href` verilince kart bağlantıya döner), `productionNav.ts` (yalnız "Genel Bakış" —
+    sayfası olmayan öğe menüye eklenmez), `panelNavIcons` += `factory`.
+  - **Dokümanlar:** AGENTS (access lifecycle + grup tek kaynağı kuralı + bayrak listesine
+    `isSalesDirector`/`isProductionPlanner`), ARCHITECTURE (grup listesi, role topology, panel
+    rotası, admin'in atayabildiği roller, role flags), README (10 grup + tablo satırı),
+    PROJECT_OVERVIEW (grup satırı + "Nereye bakılır"), `.claude/rules/cognito-groups.md`
+    (10 grup), tasarım dokümanı.
+- **Yeni testler:** core `authMiddleware.test` (`production_planner` token'dan düşmüyor;
+  bayrak türetiliyor, planlayıcı yalnız üretim route'larına giriyor), `policy.test`
+  (planlayıcı iş talebi açamaz); frontend `features/auth/lib/navigation.test.ts` (7 test:
+  yönlendirme, erişim, diğer rollerin reddi, `seri-uretim` ayrımı).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error /
+  159 warning (baseline; dokunulan dosyalarda 0) ✅ · core 703/703 ✅ · functions 354/354
+  (validator derleme 298) ✅ · frontend 412/412 ✅ · root `tsc`'de `infra/` hatası 0 ✅ ·
+  `next build` ✅ (`/uretim` rota listesinde).
+- **Yan bulgu (dokunulmadı):** `packages/functions/src/OwnerApi/types/users.js` repoda izlenen,
+  Mayıs'tan kalma derlenmiş bir kopya. esbuild `.ts`'i önce çözdüğü için etkisiz; silinmesi
+  ayrı küçük bir temizlik.
+- **Kullanıcıda kalan (kubi):**
+  1. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` — deploy çıktısında
+     `CeyhunlarProductionPlanners` grubunun oluştuğunu gör (grup olmadan rol ataması Cognito'da
+     başarısız olur).
+  2. Admin hesabıyla `/admin/users` → bir test kullanıcısı → rol "Üretim planlama" → kaydet.
+  3. Test kullanıcısıyla çıkış + giriş (NextAuth oturumu rol değişikliğini 5 dakikaya kadar
+     geç görebilir) → otomatik `/uretim`; menüde "Genel Bakış", sağ üstte "Üretim Planlama"
+     rozeti, 9 modül kartı "Faz N · Yakında".
+  4. Aynı kullanıcıyla `/admin`, `/veri-girisi`, `/musteri-temsilcisi` → reddedilmeli.
+  5. Admin hesabıyla `/uretim` açılmalı; başka bir rol (ör. veri girişi) açamamalı.
+  6. İsteğe bağlı: rolü geri çevir → kullanıcı Cognito'da `production_planner` grubundan
+     çıkmalı.
+- **Deploy notu:** prod'a giderken yalnız yeni Cognito grubu yaratılır (additive).
+  `npx sst diff --stage prod` (prod `.env`'iyle) çıktısında `CeyhunlarProductionPlanners`
+  UserGroup eklenmesi + Lambda kod güncellemeleri dışında değişiklik beklenmez.
+
+## Üretim Planlama — Dilim 1.2: tanım şeması + migration + ölçü koruması (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Kullanıcı kararları (şemayı şekillendiren):** "12/16/24" = makinenin günde kaç saat
+  çalıştığı (vardiya düzeni); lot kökü için standart yok — id gibi otomatik artsın, `-1 -2 -3`
+  (Faz 2); operatörlerin bu aşamada giriş hesabı yok, notları planlayıcı yazar; bakalit
+  makineleri dahil değil; şirketin makine/kalıp listesi henüz gelmedi.
+- **Şema (11 tablo + 5 enum, tamamen additive):** `ProductionArea`, `ProductionMachine`,
+  `Mold`, `MoldOutput`, `MoldMachineProfile`, `MaterialProcessProfile`, `ShiftPattern`,
+  `ShiftDefinition`, `ProductionCalendarException`, `MachineDowntime`, `ProductionOperator`.
+  Mevcut tablolarda kolon değişikliği YOK; Prisma'da yalnız ters ilişkiler
+  (`ProductSize.moldOutputs`, `Material.processProfile`, `Customer.ownedMolds`,
+  `User.createdMachineDowntimes`). Plan taslağından farklar: proses tipi (plastik/bakalit)
+  çıkarıldı; `ProductionOperator.userId`/`processTypes` çıkarıldı; vardiya ekibi tablosu
+  Faz 3.5'e taşındı (kullanılmayacak tablo açılmadı); makine/kalıpta ayrı `isActive` yok
+  (`status` tek kaynak). Tipler: mm/ton/dakika/adet `Int`, mühendislik değerleri `Float`
+  (`ProductSizeValue.value` gibi — JSON'da düz sayı), para (`hourlyCost`) `Decimal`.
+  `schema.prisma` `prisma format` ile biçimlenmiş DEĞİL (formatlayıcı ilgisiz yüzlerce
+  satırı değiştiriyor) → eklemeler elle hizalandı, formatlayıcı çalıştırılmadı.
+- **Migration `20260925120000_add_production_master_data`:** SQL, HEAD şeması ile yeni şemanın
+  farkından `prisma migrate diff --from-schema … --to-schema … --script` ile üretildi (DB
+  bağlantısız). Yalnız `CREATE TYPE` ×5 + `CREATE TABLE` ×11 + index + FK; `DROP` / mevcut
+  tabloda `ALTER` yok, backfill yok. Prisma client yeniden üretildi (7.10.0; `generated/`
+  farkı yalnız bu modeller + gömülü şema metni).
+- **Ölçü koruması — `MoldOutput → ProductSize` `Restrict`:** kalıp tanımı sessizce
+  kaybolmasın diye. Ölçü silen üç yol uyarlandı (aksi hâlde FK hatası 500'e düşerdi):
+  - `removeOrphanSizes` (veri girişinde varyant satırı silinince çalışan temizlik —
+    `deleteVariantMatrixRowHandler`): `moldOutputs: { none: {} }` ile kalıbı olan ölçüyü
+    ATLAR (kalıp o ölçüyü basmaya devam ediyor). Bu ölçü varyant matrisinde varyantsız bir
+    ölçü kodu olarak görünmeye devam eder — hata üretmez.
+  - `mergeProductSizesByRequiredSignature` (tek seferlik `backfill:recode-product-sizes`):
+    kopyanın kalıp gözlerini keeper'a taşır; aynı kalıbın iki ölçüdeki gözleri TOPLANIR
+    (`@@unique([moldId, productSizeId])`). Sonuca `movedMoldOutputs`, script özetine
+    "taşınan kalıp gözü" eklendi.
+  - Ürün modeli silme: `productRepository.countMoldOutputs` > 0 ise `deleteProductHandler`
+    silmeyi denemeden **409** döner (mesaj TR; global HTTP hata yakalayıcısı 409 mesajını
+    toast'lıyor).
+  - AGENTS.md "When touching product variants" bölümüne kural olarak eklendi.
+- **Yeni test:** functions `deleteProductHandler.test.ts` (kalıba bağlı ölçü → 409 ve silme
+  çağrılmaz; yoksa silme devam).
+- **Nasıl doğrulandı:**
+  - `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159 warning ✅ ·
+    core 703/703 ✅ · functions 356/356 ✅ (+2) · frontend 412/412 ✅.
+  - **Yerel PostgreSQL 17 (atılabilir küme, scratchpad):** 87 migration temiz uygulandı;
+    `migrate diff --from-config-datasource --to-schema` → "No difference detected"; 11 tablo
+    oluştu. Gerçek kodla (Prisma 7 + adapter-pg, `@/core/db/prisma` geçici testte yerel
+    istemciyle değiştirildi) 5 senaryo: (1) `removeOrphanSizes` kalıbı olan ölçüyü tuttu,
+    kalıbı olmayanı sildi; (2) kalıbı olan ölçüyü doğrudan silmek P2003 ile reddedildi;
+    (3) birleştirmede gözler keeper'a taşındı, aynı kalıbın gözleri toplandı (2+2=4),
+    kopya ölçü silindi; (4) `countMoldOutputs` = 3 ve ürün silme DB'de de P2003 ile
+    engelli (koruma gerçekten gerekli); (5) kalıplar silinince engel kalktı. Geçici test
+    dosyası silindi, küme durduruldu ve kaldırıldı.
+- **Yan bulgu (dokunulmadı, PLAN'a madde açıldı):** ölçü şablonu + ölçü değeri olan bir ürün
+  modeli `prisma.product.delete` ile silinemiyor — `ProductSizeValue_requirementId_fkey`
+  (`Restrict`) zincirleme silmede patlıyor ve handler bunu "Failed to delete product" (500)
+  olarak dönüyor. Bu dilimden bağımsız, önceden var olan durum.
+- **Kullanıcıda kalan (kubi) — SIRA ÖNEMLİ:**
+  1. Önce migration: `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`.
+     Yeni kod `MoldOutput` tablosunu sorguluyor; tablo yokken veri girişinde varyant satırı
+     silme ve ürün silme hata verir.
+  2. Sonra `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` → Dilim 1.1 test
+     adımları (yukarıda).
+  3. Regresyon: veri girişinde bir ürünün varyant matrisinden bir satır sil → hata olmamalı
+     (henüz kalıp girilemediği için davranış öncekiyle aynı).
+  4. İsteğe bağlı: Prisma Studio'da (`npx sst shell --target Prisma` → `cd packages/core &&
+     npx prisma studio`) 11 yeni tablonun göründüğünü kontrol et.
+- **Deploy notu:** prod'da da migration kod deploy'undan ÖNCE (VPC tüneli, README "Database
+  Migrations on a Deployed Stage").
+- **Güncelleme (kullanıcı, 2026-09-25):** kubi'de migration uygulandı; Dilim 1.1 sayfalarında
+  giriş/çıkış denendi — sorun yok.
+
+## Üretim Planlama — Dilim 1.3: parkur/alan + vardiya düzenleri + makineler (API + ekran) (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Dilim düzeni değişti:** plandaki "1.3 tüm API'ler, 1.4 tüm ekranlar" yerine tanımlar
+  **dikey** bölündü (her dilim API + ekran birlikte) — API'si olan ama ekranı olmayan bir dilim
+  kubi'de tıklanarak denenemiyordu. Yeni sıra: 1.3 bu dilim · 1.4 kalıplar · 1.5 operatörler +
+  takvim/duruşlar · 1.6 uyumluluk matrisi (doküman §10).
+- **Core (saf, testli, göreli import yok → frontend `@core/*` ile aynı kodu kullanıyor):**
+  - `helpers/production/shiftPatterns.ts`: vardiya GÜNÜ kuralı (ilk vardiyanın günü; saati ondan
+    önce olan vardiya gece devamı, `daysOfWeek` vardiya gününe göre), normalleştirme (kod büyük
+    harf, günler tekil+sıralı), `findShiftPatternIssues` (en fazla 4 vardiya, tekrarlanan kod,
+    30 dk–24 sa süre, örtüşme, 24 saati aşma), günlük/haftalık özet, 12/16/24 saat hazır
+    şablonları (Pzt–Cmt varsayılan), saat biçimleri, `resolveEffectiveShiftPattern`
+    (makine → alan → varsayılan — Faz 2 motoru da bunu kullanacak). 12 test.
+  - `helpers/production/productionMasterData.ts`: `normalizeProductionCode` ("m-01 " → "M-01",
+    locale'siz) + `findMachineSpecIssues` (min ≤ maks kalıp kalınlığı). 3 test.
+  - `helpers/prisma/errors.ts` += `isPrismaErrorCode`.
+  - Repository'ler (`productionAreas`, `productionShiftPatterns`, `productionMachines`) DTO döner:
+    `_count` → `machineCount`/`areaCount`, `hourlyCost` Decimal → number. Vardiya düzeni
+    yazımı transaction'da yalnız yazma (varsayılan devri + tanımların tam değişimi); gösterim
+    okuması transaction dışında (CLAUDE.md P2028 dersi). Varsayılan düzen yoksa ilk oluşturulan
+    kendiliğinden varsayılan olur.
+- **Functions (ProtectedApi, yetki `production_planner`/admin/owner, varlık başına ayrı
+  `actions.ts`):** 13 route — `GET/POST /production/areas`, `PATCH/DELETE /production/areas/{id}`,
+  `GET/POST /production/shift-patterns`, `PUT/DELETE /production/shift-patterns/{id}` (PUT =
+  vardiya listesinin tam değişimi), `GET/POST /production/machines`,
+  `GET/PATCH/DELETE /production/machines/{id}`. İstek şemalarında `.refine()`/`.default()` yok;
+  çapraz kurallar handler'da core fonksiyonlarıyla (vardiya kuralları, min ≤ maks — kısmi
+  güncellemede kayıttaki değerle BİRLEŞTİRİLEREK). İş kuralları: makinesi olan alan silinemez
+  (409); varsayılan düzen silinemez ve varsayılanlığı doğrudan kaldırılamaz (başka düzen
+  varsayılan yapılarak devredilir); makine/alanda kullanılan düzen silinemez (şemadaki
+  SetNull'a bırakılmadı — planı sessizce değiştirirdi); yinelenen kod/ad → 409; bilinmeyen
+  alan/düzen → 404. Yanıt doğrulayıcıları `.loose()`, ortak zarf `validators/productionShared.ts`.
+  Girdi yardımcıları `functions/src/shared/production/input.ts` (kırpma, boş metin → null,
+  PATCH için `withoutUndefined`).
+- **Infra:** `infra/ProtectedApi.ts`'e 13 route (her biri Lambda; yalnız ekleme).
+- **Frontend (`features/production/**`, sayfalar ince):**
+  - `/uretim/vardiyalar`: düzen kartları (günde en fazla X saat, çalışma günleri, 24 saatlik
+    şerit — gece vardiyası "+1" ile, vardiya listesi, kullanım sayısı), "Varsayılan yap", silme
+    (varsayılan/kullanımda ise kapalı). Form: hazır şablon düğmeleri, `useFieldArray` vardiya
+    satırları (kod, ad, `time` input, saat cinsinden süre "7,5" kabul, gün düğmeleri
+    `aria-pressed`), canlı önizleme + kural hataları (sunucuyla aynı fonksiyon).
+  - `/uretim/alanlar`: tablo + küçük dialog (kod, ad, vardiya düzeni "varsayılan" seçeneğiyle,
+    sıra, aktif, not); makinesi olan alanın silme düğmesi kapalı.
+  - `/uretim/makineler`: filtreler URL'de (nuqs `q`, `alan`, `durum`; filtre istemcide, saf ve
+    testli `filterProductionMachines` — Türkçe İ/i duyarsız); tablo: tonaj, kolonlar arası
+    (Y × D), kalıp kalınlığı (min–maks), **geçerli vardiya düzeni ve kaynağı** (Makine / Alandan /
+    Varsayılan), durum rozeti. Alan yoksa "önce alan tanımlayın" boş durumu. Uzun form
+    `LeadCustomerProfileDialog` deseninde 4 bölüm (Kimlik, Kalıp Uyumu, Enjeksiyon Ünitesi,
+    Planlama); sayı alanları formda metin, şemada sayı (`shared/formNumbers.ts`, ondalık virgül).
+  - Menüye "Tanımlar" grubu (Makineler, Parkur ve Alanlar, Vardiya Düzenleri; `warehouse` ikonu);
+    genel bakışta Makineler + Vardiya Düzenleri kartları bağlantıya döndü, "Takvim ve Duruşlar"
+    kartı eklendi.
+  - **Ortak bileşen düzeltmesi:** shadcn `components/ui/form.tsx` `FormField`'a
+    `TTransformedValues` generic'i eklendi (shadcn güncel sürümüyle aynı; varsayılan eski
+    davranış). Şeması girdiyi dönüştüren formlarda (metin → sayı) `form.control` tip hatası
+    veriyordu. AGENTS.md "Forms"a kural olarak yazıldı.
+- **Şema yorumu:** `ShiftDefinition` açıklaması vardiya günü kuralına göre düzeltildi (yalnız
+  yorum: `migrate diff` → "empty migration"; Prisma client yeniden üretildi).
+- **Yeni testler:** core `shiftPatterns.test.ts` (12), `productionMasterData.test.ts` (3);
+  functions `shared/production/responseShapes.test.ts` (DTO tipli fixture ↔ response
+  validator, zarf `apiResponseDTO`'dan geçerek), `productionShiftPatterns/handlers/handlers.test.ts`
+  (6), `productionMachines/handlers/handlers.test.ts` (6, alan silme dahil); frontend
+  `filterProductionMachines.test.ts` (3), `productionMachineForm.test.ts` (3),
+  `shiftPatternForm.test.ts` (3).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error /
+  159 warning (değişmedi — yeni dosyalar uyarı eklemedi) ✅ · core 718/718 ✅ · functions
+  390/390 ✅ (validator derleme yeni şemaları kendiliğinden kapsadı) · frontend 421/421 ✅ ·
+  root `tsc`'de `infra/` hatası 0 ✅ · `next build` ✅ (474/474 sayfa; `/uretim/alanlar`,
+  `/uretim/makineler`, `/uretim/vardiyalar` listede). Görsel doğrulama yapılmadı (sayfalar
+  oturum + API ister) → kubi'de.
+- **Kullanıcıda kalan (kubi):**
+  1. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` (13 yeni Lambda oluşur;
+     migration zaten uygulandı, yeni migration YOK).
+  2. Planlayıcı (veya admin) ile `/uretim/vardiyalar` → "Yeni Düzen" → "Günde 24 saat · 3 × 8"
+     şablonu → kaydet: ilk düzen "Varsayılan" rozetiyle gelmeli, şeritte C "+1" görünmeli.
+     "Günde 16 saat · 2 × 8" ile ikinci düzeni oluştur; birine "Varsayılan yap" → rozet taşınmalı.
+     Formda bir vardiyayı diğerinin içine kaydır → önizlemede "örtüşüyor" hatası, kayıt engelli.
+  3. `/uretim/alanlar` → "Parkur 1" (P1) oluştur; vardiya düzeni olarak 16 saatliği seç.
+  4. `/uretim/makineler` → makine ekle (kod "m-01" yaz → "M-01" kaydolmalı); tabloda vardiya
+     düzeni "Alandan" görünmeli. Makineye kendi düzenini seçince "Makine" olmalı. Min kalıp
+     kalınlığı > maks → form hatası. Aynı kodla ikinci makine → "zaten var" uyarısı.
+  5. Silme kuralları: makinesi olan alanın ve varsayılan/kullanılan düzenin silme düğmesi kapalı;
+     boş alan ve kullanılmayan düzen silinebilmeli.
+  6. Filtreler: arama/alan/durum değiştirince URL'de `?q=&alan=&durum=` görünmeli; sayfa
+     yenilenince filtre korunmalı.
+  7. Telefon genişliğinde (≈390px) makine formu: başlık ve Kaydet görünür kalmalı, gövde kaymalı.
+- **Deploy notu:** prod'da yeni 13 route/Lambda eklenir (additive); migration 1.2'den —
+  prod'da kod deploy'undan önce uygulanmalı.
+- **Güncelleme (kullanıcı, 2026-09-25):** kubi'de test edildi — sorun yok. (Vardiya günü kuralı
+  ve Pzt–Cmt varsayılan şablon günleri itirazsız kabul edildi.)
+
+## Üretim Planlama — Dilim 1.4: kalıplar + göz grupları + makine kartları + hammadde bilgisi (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Core (saf, testli):**
+  - `productVariants/variantCode.ts` += `buildProductSizeCode` ("10.5" + 8 → "10.5.8");
+    `buildVariantFullCode` artık onun üzerine kurulu (kod şablonu tek kaynakta — AGENTS.md).
+    Mevcut 18 test + 2 yeni geçti.
+  - `helpers/production/molds.ts`: `findMoldOutputIssues` (en fazla 20 göz grubu, aynı ölçü iki
+    kez yok, göz 1–256), `findMoldMachineProfileIssues` (aynı makine iki kart yok, tercih +
+    engel çelişkisi), `findMoldSpecIssues` (son bakımdaki sayaç ≤ toplam), `sumCavities`,
+    `computeShotWeightG` (Σ göz × parça + yolluk; parça ağırlığı eksikse null — 1.6'daki
+    baskı kapasitesi kontrolü de bunu kullanacak), `describeMaintenanceProgress` (aralığın
+    %85'inde "yaklaşıyor", %100'de "zamanı geldi"). 6 test.
+  - Repository'ler: `productionReferences` (dar ürün sözlüğü: yalnız ölçüsü olan ürün modelleri;
+    ölçüler `sortKey` sırasında, etiket mevcut `toMeasurementLabel` ile, varyant/kalıp sayısıyla),
+    `productionMolds` (göz grupları ürün kodu → ölçü sırasıyla; iç içe `createMany` tek çağrıda,
+    güncellemede liste verilirse `deleteMany + createMany` tam değişim — interaktif transaction
+    yok), `productionMaterialProfiles` (hammadde + 1:1 profil; `upsert`),
+    `productionMachines.findExistingMachineIds`.
+- **Functions:** 9 route — `GET /production/references/products`,
+  `GET /production/references/products/{id}/sizes`, `GET/POST /production/molds`,
+  `GET/PATCH/DELETE /production/molds/{id}`, `GET /production/material-profiles`,
+  `PUT /production/material-profiles/{materialId}`. Plandaki ayrı `/outputs` ve
+  `/mold-machine-profiles` uçları AÇILMADI: göz grupları ve makine kartları kalıpla aynı istekte
+  (gönderilirse tam değişim, gönderilmezse dokunulmaz) — daha az Lambda, form tek kayıt. Kurallar
+  handler'da core ile; bilinmeyen ölçü/makine → 404 (FK 500'ü yerine); yinelenen kod → 409;
+  "Şirket kalıbı"na geçince sahip müşteri temizlenir; kurutma gerekmiyorsa kurutma değerleri
+  temizlenir; hammadde ailesi büyük harfe normalleştirilir.
+- **Frontend:** `/uretim/kaliplar` — liste (bastığı ölçüler rozet olarak "1.3.8 × 4", toplam göz,
+  gerekli tonaj, çevrim, bakım durumu, durum rozeti; arama ölçü kodu ve ürün modelinde de,
+  filtreler URL'de) + 6 bölümlü form (Kimlik, Göz Grupları, Makine Gereksinimleri, Üretim, Bakım,
+  Makine Kartları). Göz grubu satırı: ürün modeli (`SearchableSelect`, ürün listesi 5 dk
+  önbellekte) → ölçü (`sizeCode · etiket`) → göz → parça ağırlığı; canlı özet: toplam göz,
+  baskı ağırlığı, "Aile kalıbı · N ürün modeli" rozeti, kural hataları (sunucuyla aynı
+  fonksiyon). `/uretim/hammaddeler` — katalog hammaddeleri + üretim bilgisi (makinede işlenir mi
+  / insert, aile, yoğunluk, kurutma, çevrim katsayısı), düzenleme dialog'u. Menüye Kalıplar ve
+  Hammadde Bilgisi; genel bakışta kartlar bağlantıya döndü.
+  - Makine formundaki yerel sayı alanı, form tipinden bağımsız ortak
+    `features/production/shared/components/FormNumberField.tsx`'e taşındı (makine, kalıp ve
+    hammadde formları kullanıyor).
+- **Bilinçli ertelenen:** müşteri kalıbında SAHİP müşteri seçimi (şemada `ownerCustomerId` var)
+  — dar bir müşteri sözlüğü ucu ister; şimdilik yalnız "Müşteri kalıbı" işareti.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159
+  warning (değişmedi) ✅ · core 726/726 ✅ · functions 412/412 ✅ · frontend 426/426 ✅ · root
+  `tsc`'de `infra/` hatası 0 ✅ · `next build` ✅ (476/476 sayfa; `/uretim/kaliplar`,
+  `/uretim/hammaddeler` listede). **Yerel PostgreSQL 17 (atılabilir küme):** 87 migration +
+  gerçek repository'lerle (Prisma 7 + adapter-pg; geçici test, sonra silindi) — referans
+  sıraları ve "1.3.8" / "Elcik Çapı: 10 mm" etiketi, iki ürün modelinden gözlü aile kalıbının
+  tek çağrıda oluşması ve ürün kodu → ölçü sırasıyla dönmesi, liste verilmeyen güncellemede
+  dokunulmaması, verilende tam değişim, ölçünün kalıp sayısı, profil upsert'ü (oluştur +
+  güncelle), kalıp silinince göz gruplarının Cascade ile gitmesi — hepsi ✅.
+- **Kullanıcıda kalan (kubi):**
+  1. `npx sst dev --stage kubi` (9 yeni Lambda; yeni migration YOK).
+  2. `/uretim/kaliplar` → "Yeni Kalıp": kod "k-1045" (→ "K-1045"), çevrim "22,5". Göz grubu ekle →
+     ürün modelini yazarak ara → ölçüyü seç ("1.3.8 · Elcik Çapı: 10 mm" gibi) → 4 göz, parça 12,4 g.
+     Farklı bir ürün modelinden ikinci göz grubu ekle → "Aile kalıbı · 2 ürün modeli" rozeti ve
+     baskı ağırlığı görünmeli. Aynı ölçüyü iki kez seç → hata, kayıt engelli.
+  3. Makine kartı ekle (M-01, çevrim 21 sn, "Tercih edilen"); aynı satırda "Bu makinede
+     çalışmaz"ı da işaretle → hata.
+  4. Kaydet → listede "1.3.8 × 4" rozetleri. Düzenle → yalnız adı değiştirip kaydet → göz
+     grupları ve kartlar yerinde kalmalı.
+  5. Bakım: aralık 100000, toplam 90000, son bakım 0 → listede "Yaklaşıyor"; son bakım > toplam →
+     form hatası.
+  6. Arama: "1.3.8" ya da ürün modeli adıyla kalıp bulunmalı; URL'de `?q=` görünmeli.
+  7. `/uretim/hammaddeler`: bir hammaddeye "Bilgi gir" → kurutma işaretle, 80 °C / 4 sa, çevrim
+     katsayısı 1,2 → kaydet; kurutmayı kaldırıp kaydet → kurutma sütunu "Gerekmez" olmalı.
+  8. Regresyon: kalıba bağlanmış bir ölçünün ürün modelini veri girişinden silmeye çalış → 409
+     mesajı ("…kalıp gözüne bağlı…"), 500 değil.
+- **Deploy notu:** prod'da 9 yeni route/Lambda (additive); migration 1.2'den (prod'da koddan önce).
+- **Kullanıcı doğrulaması (2026-09-25):** kubi'de örnek kalıplar girildi (Arburg ALLROUNDER 320 C
+  makinesine göre gerçekçi örnekler verildi; föy bulguları doküman §10 / 1.6'ya tasarım girdisi
+  olarak yazıldı) — sorun bildirilmedi, sıradaki dilime geçildi.
+
+## Üretim Planlama — Dilim 1.5: operatörler + takvim istisnaları + makine duruşları (API + ekran) (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Neden:** planlama motoru (Faz 2) makinenin hangi gün ve saatte çalışabileceğini bilmeli:
+  vardiya düzeni (1.3) haftalık kalıbı verir; bu dilim istisnaları (bayram, toplu izin, ek mesai)
+  ve makinenin kullanılamadığı aralıkları (planlı bakım, arıza) ekler. Operatör listesi, ileride
+  makine × vardiya ekibi ve lot operatörü için temel. Tablolar 1.2 migration'ında vardı →
+  **yeni migration YOK** (yerelde `migrate diff`: fark yok).
+- **Core (saf, testli; frontend `@core/*` ile aynı fonksiyonları kullanır):**
+  - `helpers/production/productionTime.ts`: FABRİKA SAATİ. Zamanlar UTC saklanır, ekranda ve
+    formda `Europe/Istanbul` duvar saatiyle girilir/gösterilir; tarayıcının saat dilimine
+    güvenilmez, +03:00 sabit yazılmaz (`Intl` ile dönüşüm, yeni bağımlılık yok):
+    `wallTimeToUtc`, `utcToWallTime`, `productionDateKey`, `formatProductionDateTime` /
+    `ShortDateTime` / `TimeRange`, `formatDurationMinutes`. Testte Türkiye'nin 2016 öncesi
+    UTC+2 kışı ve Berlin yaz saati geçişi de sınandı.
+  - `helpers/production/productionCalendar.ts`: gün anahtarları ("YYYY-MM-DD", `@db.Date`'e UTC
+    gece yarısı), `enumerateDateKeys`, `findCalendarExceptionIssues` (ters aralık, en fazla 62
+    gün, alan + makine birlikte olamaz), `groupCalendarExceptionDays` (ardışık, türü + notu +
+    kapsamı aynı günleri tek satırda birleştirir), `calendarExceptionScopeKey`.
+  - `helpers/production/machineDowntimes.ts`: `findMachineDowntimeIssues` (bitiş > başlangıç,
+    en fazla 180 gün), `downtimesOverlap` (yarı açık aralık: 08–12 ile 12–16 çakışmaz),
+    `downtimeTimeStatus`, `describeMachineDowntimeState` (sürüyor / 7 gün içinde yaklaşan).
+  - Repository'ler: `productionOperators`, `productionCalendarExceptions` (`replaceEntry`:
+    silme + yazma tek dizi transaction'ında — etkileşimli transaction yok; okuma dışarıda),
+    `productionMachineDowntimes` (çakışma sorgusu; giren kullanıcı yalnız adıyla — e-posta
+    yanıta çıkmaz).
+- **Karar — takvim kaydı GÜN başına:** şema tek gün (`date`) tutuyor; motor "bu gün çalışılıyor
+  mu?" sorusunu gün üzerinden soruyor. Kullanıcı ise aralık girer: istek aralığı günlere açar,
+  liste ardışık günleri tek satırda birleştirir. Düzenleme `replaceIds` ile (eski günler silinip
+  yeni aralık yazılır), silme `bulk-delete` ile. Aynı gün + aynı kapsamda tek kayıt (uygulama
+  katmanında; NULL'lı unique index bu çakışmayı yakalamaz); farklı kapsamlar bir arada olabilir
+  — fabrika tatilken bir alan ek mesai yapabilir, en dar kapsam geçerli (makine > alan >
+  fabrika). Yarım gün (arife) desteklenmiyor — gün düzeyinde.
+- **Functions:** 11 route (hepsi additive) — `GET/POST /production/operators`,
+  `PATCH/DELETE /production/operators/{id}` · `GET /production/calendar-exceptions?from&to`,
+  `POST /production/calendar-exceptions` (oluştur / `replaceIds` ile düzenle),
+  `POST /production/calendar-exceptions/bulk-delete` · `GET /production/machine-downtimes?machineId&from&to`,
+  `POST /production/machine-downtimes`, `PATCH/DELETE /production/machine-downtimes/{id}`.
+  Kurallar: sicil numarası kod gibi normalleşir ("cp-0123" → "CP-0123"), tekrar → 409; takvimde
+  kural ihlali 400, bilinmeyen alan/makine 404, dolu gün 409 (tarihleriyle); duruşta çakışma 409
+  (çakışan aralık fabrika saatiyle mesajda), kısmi güncellemede kurallar kayıttaki değerle
+  birleştirilerek uygulanır, `createdByUserId` isteği yapan kullanıcıdan.
+  - Yan temizlik: 6 `actions.ts`'te kopyalanmış yetki listesi tek kaynağa taşındı
+    (`functions/shared/production/access.ts` → `PRODUCTION_PLANNER_GROUPS`); makine referansı
+    için ortak `productionMachineRefSchema` (kalıp validator'ındaki satır içi kopya da ona bağlandı).
+- **Frontend:**
+  - `/uretim/operatorler` (yeni sayfa, menüde): liste (aktifler önce, soyadı Türkçe harf
+    sırasıyla; ad / sicil / biçimsiz telefonla arama; filtreler URL'de) + dialog. Silme yerine
+    "Pasif" önerilir.
+  - `/uretim/vardiyalar` → **"Vardiya ve Takvim"**: altına "Takvim İstisnaları" bölümü (yıl
+    URL'de `?yil=`, ‹ 2026 › geçişi; tarih aralığı + gün sayısı + haftanın günleri, tür rozeti,
+    kapsam; dialog'da canlı özet "3 gün · 26.05.2026 Sal – 28.05.2026 Per", kapsam tek seçim:
+    Tüm fabrika / Alanlar / Makineler).
+  - `/uretim/makineler`: altına "Duruşlar" bölümü (sürenler ve yaklaşanlar üstte, geçmiş 30 gün
+    soluk; süre, tür, giren, durum) + makine tablosunun durum hücresinde "Duruşta · bitiş 28.09
+    16:00" / "Duruş: 28.09 08:00" uyarısı (aynı sorgu, tek istek). Duruş formu fabrika saatiyle
+    `datetime-local`, varsayılan yarın 08:00–16:00 planlı bakım, canlı süre ve kaydetmeden önce
+    çakışma uyarısı (asıl kontrol sunucuda).
+  - "Şimdi" için dakikada tazelenen `shared/hooks/useNow.ts` (render'da `new Date()` saf değil).
+  - Genel bakışta "Makine Duruşları" ve "Operatörler" kartları bağlantıya döndü.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159
+  warning (değişmedi) ✅ · core 753/753 ✅ · functions 452/452 ✅ (validator derleme testi 11 yeni
+  validator'ı da derledi) · frontend 443/443 ✅ · root `tsc`'de `infra/` hatası 0 ✅ · `next build`
+  ✅ (477/477; `/uretim/operatorler` listede). **Yerel PostgreSQL 17 (atılabilir küme):** tüm
+  migration'lar + `migrate diff` fark yok; gerçek repository'lerle (geçici test, sonra silindi):
+  günlerin kaymadan yazılması (`to_char` ile), NULL kapsamlı çakışmanın yalnız aynı kapsamı
+  yakalaması, `replaceIds` düzenlemesi, tarih aralığıyla listeleme, alan silinince istisnaların
+  Cascade ile gitmesi; duruşta uç uca değen aralığın çakışmaması, kesişenin yakalanması,
+  pencere listesi, kullanıcı silinince `createdByUser`'ın boşalması (SetNull); operatörde
+  birden çok boş sicil, dolu sicil tekrarında P2002 — hepsi ✅.
+- **Kullanıcıda kalan (kubi):**
+  1. `npx sst dev --stage kubi` (11 yeni Lambda; yeni migration YOK).
+  2. `/uretim/operatorler`: iki operatör ekle; birine sicil "cp-0123" yaz → listede "CP-0123".
+     Aynı sicili ikinciye yaz → 409 uyarısı. Birini "Pasif" yap → listenin sonuna iner;
+     "Pasif" filtresi ve "0532…" gibi telefon araması çalışmalı.
+  3. `/uretim/vardiyalar` (başlık "Vardiya ve Takvim") → "Takvim İstisnaları" → "Yeni Kayıt":
+     Tatil / bayram, 26.05.2026 – 29.05.2026, Tüm fabrika, "Kurban Bayramı" → tek satır
+     "4 gün · Sal – Cum". Aynı aralığın bir gününe tekrar fabrika kaydı dene → 409 (tarihli).
+     Aynı güne P1 alanı için "Ek mesai günü" → kabul edilmeli (farklı kapsam).
+  4. Satırı düzenle → bitişi 30.05'e çek → tek satır, 5 gün. Sil → satır gider. Yıl okları →
+     URL'de `?yil=2027`, liste boş durum mesajı.
+  5. `/uretim/makineler` → "Duruşlar" → "Yeni Duruş": M-01, yarın 08:00–16:00 planlı bakım →
+     listede "Planlandı"; makine tablosunda M-01'in altında "Duruş: …08:00". Aynı makineye
+     12:00–18:00 dene → form içi çakışma uyarısı, kaydet kapalı. 16:00–18:00 → kabul (uç uca).
+  6. Şu anı kapsayan bir duruş gir → satırda "Sürüyor", makine tablosunda kırmızı "Duruşta ·
+     bitiş …". Saatlerin girdiğin gibi (İstanbul saati) göründüğünü kontrol et.
+  7. Menü: "Vardiya ve Takvim" ve "Operatörler" görünmeli; genel bakıştaki "Makine Duruşları"
+     kartı sayfanın "Duruşlar" bölümüne götürmeli.
+- **Deploy notu:** prod'da 11 yeni route/Lambda (additive); migration yok (1.2'ninki zaten
+  prod'da koddan önce uygulanacak).
+- **Açık uç (talep gelirse):** resmî tatilleri yıla göre tek tıkla ekleme (dinî bayram
+  tarihleri her yıl değiştiği için yıllık tablo ister); yarım gün (arife) istisnası.
+- **Kullanıcı doğrulaması (2026-09-25):** kubi'de test edildi, sorun bildirilmedi; Dilim 1.6'ya
+  (önerilen `maxDaylightMm` alanıyla birlikte) geçildi.
+
+## Üretim Planlama — Dilim 1.6: kalıp × makine uygunluk motoru + matris ekranı + plaka açıklığı (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Neden:** hedef "doğru kalıbı en ekonomik makineye eşleştirmek". Planlama (Faz 2) gelmeden
+  "bu kalıp hangi makinede çalışır?" sorusunu cevaplar ve Faz 2 motoruna aday süzgecini hazırlar.
+  Kurallar, kullanıcının kubi'ye girdiği Arburg ALLROUNDER 320 C'nin resmî föyünden çıkan
+  bulgularla netleşti (1.4 LOG notu; doküman §10 / 1.6).
+- **Şema (onaylı, 2026-09-25 — "Önerim evet"e "devam"):** `ProductionMachine.maxDaylightMm Int?`
+  — plakalar arası maks. açıklık. Hidrolik kapamada (Arburg C) açılma kalıp kalınlaştıkça azalır:
+  kullanılabilir açılma = min(strok, açıklık − kalınlık); dizlili makinede boş kalır. Migration
+  `20260925190000_add_production_machine_max_daylight`: tek `ALTER TABLE … ADD COLUMN
+  "maxDaylightMm" INTEGER` (boş bırakılabilir; backfill / DROP yok), şema kopyası ↔ yeni şema
+  `migrate diff`'inden üretildi. Prisma client yeniden üretildi.
+- **Core (saf, testli):**
+  - `helpers/production/moldMachineCompatibility.ts`: `evaluateMoldMachineCompatibility` — her
+    kontrol `ok | warning | unknown | error` + Türkçe gerekçe; hüküm en kötüsü. Kontroller:
+    kalıp kartı engeli, makine/kalıp durumu, tonaj, kolonlar (BİR yönde geçmesi yeter:
+    genişlik < yatay → yukarıdan, yükseklik < dikey → yandan), kalınlık (min/maks + açıklıktan
+    küçük; ince kalıpta "ara plaka"), açılma (min(strok, açıklık − kalınlık)), baskı ağırlığı
+    (kapasite aşımı hata, %20–80 dışı uyarı; kapasite PS — hafif hammadde notu), sıcak yolluk
+    (eksikse harici cihaz → uyarı), maça ve robot (eksikse hata), bilezik (iki taraf biliniyorsa;
+    fark uyarı). Eksik veri `unknown` — planı kilitlemez. Sonuçta tonaj ve baskı doluluğu,
+    kullanılabilir açılma. `recommendMachineForMold`: ✓/⚠ arasından tercih edilen kart →
+    ✓ olan → en küçük tonaj. 12 test (Arburg föyü + örnek K-1001, K-9001…K-9007 senaryoları).
+  - `productionMasterData.findMachineSpecIssues` artık alan etiketli döner (`{ field, message }`)
+    ve açıklık kuralları ekledi: min/maks kalınlık < açıklık, strok ≤ açıklık (Arburg'a "maks.
+    kalınlık 550" girilip açıklık 550 eklenirse maks. kalınlık alanında hata). Form hatayı ilgili
+    alanda gösterir; handler mesajları birleştirir.
+- **Functions:** makine uçlarına `maxDaylightMm` (istek + yanıt şeması, varsayılan null, kısmi
+  güncellemede kural kayıttaki değerle birleşik — yeni handler testi). **Yeni route YOK:** matris
+  makine + kalıp listelerinden istemcide aynı motorla hesaplanıyor (doküman §7 kararı).
+- **Frontend:**
+  - `/uretim/uyumluluk` (menüde Kalıplar'ın altında, genel bakışta kart): kalıp satırı × makine
+    sütunu; hücrede ✓/⚠/?/✗ + gerekli tonajın makine tonajına oranı; ★ önerilen makine, 👍 kalıp
+    kartında tercih edilen; satırda "N makinede çalışır" / "Uygun makine yok"; hücreye basınca tek
+    paylaşılan dialog'da kontrol listesi + "Kalıbı aç / Makineyi aç" bağlantıları. Filtreler
+    URL'de (`?q=&alan=&tumu=`): kalıp araması, makine alanı, kullanım dışıları göster. Yapışkan
+    başlık + yapışkan kalıp sütunu için tablo shadcn `Table` kabı olmadan kuruldu (kabın kendi
+    kaydırma kutusu yapışkanlığı bozuyordu); lejantta seviye sayıları.
+  - Makine formu → Kalıp Uyumu: "Maks. plaka açıklığı" alanı (hidrolik kapama açıklaması), maks.
+    kalınlık ve baskı ağırlığı alanlarına yol gösteren açıklamalar (PS değeri).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159
+  warning (değişmedi) ✅ · core 766/766 ✅ · functions 453/453 ✅ · frontend 447/447 ✅ · root
+  `tsc`'de `infra/` hatası 0 ✅ · `next build` ✅ (478/478; `/uretim/uyumluluk` listede).
+  **Yerel PostgreSQL 17 (atılabilir küme):** 88 migration sırayla uygulandı, yeni sütun
+  `integer / nullable`, `migrate diff` (doğru çıkış koduyla) "No difference detected" ✅.
+  **Görsel (başsız Chrome, build CSS'i, sahte 12 kalıp × 6 makine; geçici dosyalar silindi):**
+  masaüstü, 390 px telefon ve koyu tema — yapışkan başlık ve kalıp sütunu kaydırmada yerinde,
+  önerilen hücre vurgusu ve ikonlar okunur; sonuçlar kurallarla tutarlı ✅.
+- **Kullanıcıda kalan (kubi) — SIRA ÖNEMLİ:**
+  1. Önce migration: `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`
+     (yeni kod `maxDaylightMm` sütununu okuyor; migration'sız makine listesi hata verir).
+  2. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` (yeni Lambda yok).
+  3. M-01'i düzenle → "Maks. plaka açıklığı" 550 gir. "Maks. kalıp kalınlığı" 550 ise kaydetmez
+     (alanın altında açıklama) → boşalt ya da 350 yap → kaydet. Merkezleme bileziğini 125 yap.
+  4. `/uretim/uyumluluk`: K-1001 satırında M-01 ✓ ve ★; hücreye bas → açılma "kullanılabilir 324
+     mm (açıklık 550 − kalınlık 226)". Test kalıpları: K-9001 tonaj ✗, K-9002 kolon ✗, K-9003
+     baskı ✗, K-9004 maça ✗ (+ sıcak yolluk ⚠), K-9005 kalınlık ✗ ("ara plaka"), K-9006 açılma ✗
+     (230 < 260), K-9007 bilezik ⚠. Bilgisi eksik kalıp "?" göstermeli.
+  5. Filtreler: kalıp ara, alan seç (sütunlar daralır), "Kullanım dışıları göster" — URL'de
+     görünmeli; geri tuşu filtreyi korumalı. Telefonda tablo yatay kayar, kalıp sütunu sabit kalır.
+- **Deploy notu:** prod'da yeni route yok; migration 1.2 ve 1.6 (ikisi de ekleme) koddan ÖNCE.
+- **Kullanıcı doğrulaması (2026-09-25):** kubi'de migration uygulandı, matris açıldı; girilen
+  K-1001, K-1002, K-1003 kalıpları uygun görünüyor. Sorun bildirilmedi; Faz 2'ye geçildi (emir
+  numarası: otomatik artan, "UE-1001" — önerilen biçim onaylandı).
+
+## Üretim Planlama — Dilim 2.1: üretim emirleri (şema + migration + API + ekran) (2026-09-25) *(kullanıcı talebiyle, branch `feature/production-planning`)*
+
+- **Neden:** Faz 2'nin ilk dikey dilimi — "hangi varyanttan kaç adet, hangi termine kadar"
+  kaydı olmadan planlama motoru (2.2) ve işler/lotlar (2.3) çalışacak veri bulamaz. Faz 2 de
+  Faz 1 gibi kubi'de tıklanarak denenebilir dilimlere bölündü (kullanıcı onayı).
+- **Şema (onaylı plan — emir no "UE-1001" biçimi kullanıcı onayıyla):** `ProductionOrder`
+  (`orderNumber` otomatik artan, `productVariantId?` **SetNull** + `variantCode` kopyası,
+  `quantity`, `dueDate @db.Date`, `priority` LOW/NORMAL/HIGH/URGENT, `source`
+  MANUAL/STOCK/CUSTOMER_ORDER, `customerId?` SetNull, `cycleTimeOverrideSec?`, `status`
+  DRAFT/PLANNED/RELEASED/IN_PROGRESS/COMPLETED/CANCELLED/ON_HOLD, `notes`, `createdByUserId?`).
+  Migration `20260926090000_add_production_orders`: 3 enum + 1 tablo + index + FK (mevcut
+  tablolara dokunmaz) + `ALTER SEQUENCE … RESTART WITH 1001` (Prisma sıra başlangıcını şemada
+  tutmaz; sürüklenme üretmez — `migrate diff` fark yok).
+  - **Karar — varyant bağı SetNull:** projedeki `OrderItem` / `BusinessRequestItem` deseni. Varyant
+    silen 5 akış var (matris satır / toplu silme, varyant silme ucu, ölçü birleştirme, ürün
+    silme); `Restrict` beşine de koruma isterdi. Varyant silinirse emir kodla okunur kalır,
+    listede "Varyant katalogdan silinmiş" görünür; varyantsız emir planlanmaz.
+- **Core:** `helpers/production/productionOrders.ts` (saf, 6 test) — `formatProductionOrderNumber`
+  / `parseProductionOrderNumber` ("UE-1001", "1001"), elle durum geçişi (yalnız Taslak ⇄
+  Beklemede ⇄ İptal; diğerleri planlamadan gelecek), düzenlenebilirlik (Taslak, Beklemede),
+  silinebilirlik (yalnız Taslak), `findProductionOrderIssues` (adet 1–10 milyon, termin, müşteri
+  siparişinde müşteri zorunlu, elle çevrim 0,1–3600 sn; alan etiketli), termin okunuşu
+  ("3 gün kaldı" / "2 gün gecikti"). Repository'ler: `productionOrders` (sunucuda sayfalı liste
+  `{ data, meta }`; sıra termin → öncelik → no; arama emir no / varyant kodu / ürün / müşteri /
+  not), `productionReferences` += kalıplı ürün filtresi, üretilebilir ölçü → varyant sözlüğü
+  (renk, hammadde kodları, ölçünün kalıpları), emir için varyant bilgisi, müşteri araması (yalnız
+  `CUSTOMER`, id + ad).
+- **Functions:** 6 yeni route — `GET/POST /production/orders`, `PATCH/DELETE
+  /production/orders/{id}`, `GET /production/references/products/{id}/variants`,
+  `GET /production/references/customers?q`; mevcut `GET /production/references/products`'a
+  açık query validator'ı (`moldable`). Kurallar handler'da core ile: kullanılabilir (RETIRED
+  olmayan) kalıbı olmayan ölçüye emir 400, bilinmeyen varyant/müşteri 404, elle izin verilmeyen
+  durum ve düzenlenemeyen emirde içerik değişikliği 409, taslak dışı silme 409; kısmi
+  güncellemede kurallar kayıttaki değerle birleşik. 12 handler testi + yanıt şekli fikstürleri.
+- **Frontend:** `/uretim/emirler` (menüde yeni "Planlama" grubu; genel bakış kartı bağlantı).
+  Liste: emir no, varyant kodu + ürün + ölçü + renk/hammadde, ölçünün kalıpları ("K-1001 × 8"),
+  adet, termin + kalan/geciken gün, öncelik, müşteri/kaynak, durum; satırda düzenle, durum menüsü,
+  (taslakta) sil. Arama/durum/sayfa/sayfa boyutu URL'de, ortak `AdminListPagination` +
+  `AdminListRefreshBar` + bölüm-yerel yükleme katmanı. Form: ürün modeli (yalnız kalıplı) →
+  ölçüye göre gruplanmış varyantlar (altında ölçünün kalıpları), adet, termin, öncelik, kaynak,
+  müşteri (sunucu araması), elle çevrim, not.
+  - Ortak `SearchableSelect` genişletildi: `onSearchChange` (sunucu araması, istemci süzmesi
+    kapanır) + `selectedLabel` — mevcut kullanımlar değişmedi; AGENTS.md'ye kural eklendi.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159
+  warning (değişmedi) ✅ · core 772/772 ✅ · functions 474/474 ✅ · frontend 450/450 ✅ · root
+  `tsc`'de `infra/` hatası 0 ✅ · `next build` ✅ (479/479; `/uretim/emirler`). **Yerel
+  PostgreSQL 17 (UTF-8 yerel ayar; geçici test ve küme silindi):** 89 migration + `migrate diff`
+  fark yok; kalıplı ürün filtresi (kalıp kullanım dışı olunca düşüyor), varyant sözlüğü (V1 ·
+  Siyah · PP, K-1001 × 8), müşteri araması aday müşteriyi getirmiyor, emir no 1001–1004,
+  sıralama (termin → acil → no; terminsiz sonda), "UE-1002" ve müşteri adıyla arama, sayfalama,
+  durum filtresi, varyant silinince emrin `variantCode`'la kalması ✅.
+  - Not: `--locale=C` kümede "örnek" araması "Örnek"i bulmadı (C ctype'ta ILIKE yalnız ASCII
+    katlar); Neon/RDS UTF-8 yerel ayarında sorun yok — uygulamanın diğer aramalarıyla aynı davranış.
+- **Kullanıcıda kalan (kubi) — SIRA ÖNEMLİ:**
+  1. Önce migration: `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`.
+  2. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` (6 yeni Lambda).
+  3. `/uretim/emirler` → "Yeni Emir": ürün modeli listesinde yalnız kalıbı olanlar (K-1001/2/3'ün
+     ürünleri) görünmeli; varyant seçince altta "… ölçüsünü basan kalıplar: K-1001 (8 göz)".
+     100.000 adet, termin, öncelik "Yüksek" → kaydet → "UE-1001 oluşturuldu".
+  4. Kaynağı "Müşteri siparişi" yap, müşteri seçmeden kaydet → müşteri alanında hata; müşteri
+     ara ("mob…") ve seç → kaydet.
+  5. Listede durum menüsü: Beklemede → İptal → Taslak geçişleri; iptalde düzenle kapalı; sil
+     yalnız taslakta. Arama "UE-1001" / ürün adı; "Durum: Tümü" iptalleri de gösterir; URL'de
+     `?q=&durum=&sayfa=`.
+- **Deploy notu:** prod'da 6 yeni route; migration'lar (1.2, 1.6, 2.1 — hepsi ekleme) koddan ÖNCE.
+
+## Üretim Planlama — Dilim 2.2: planlama motoru + emir "Öner" önizlemesi (2026-09-25) *(kullanıcı onayıyla, branch `feature/production-planning`)*
+
+- **Neden:** "doğru kalıbı en ekonomik makineye eşleştirip hedefe yetiştirmek" — emrin hangi
+  makinede ne zaman biteceğini ve maliyetini, vardiya takvimini (istisna + duruş dahil) gerçekten
+  uygulayarak gösteren ilk yüzey. Motor saf ve testli; 2.3'te işleri de aynı motor yerleştirecek.
+- **Core (saf):**
+  - `shiftCalendar.ts`: vardiya örnekleri (vardiya günü kuralı: gece vardiyası ilk vardiyanın
+    gününe ait; istisna da vardiya gününe uygulanır), istisna önceliği makine > alan > fabrika
+    (tatil/toplu izin → yok, ek mesai → `daysOfWeek`'e bakılmadan tüm vardiyalar), duruşları
+    düşme (kırpma/bölme), [from, to) pencereleri — fabrika saatiyle (`productionTime.ts`).
+  - `jobScheduling.ts`: çevrim zinciri (emir → makine kartı → kalıp × hammadde katsayısı),
+    baskı = ⌈adet ÷ (göz × (1 − fire))⌉, süre = baskı × çevrim ÷ verim, ileri planlama
+    (bağlama → üretim, pencere aralarında bekler), vardiya lotları (vardiya günü + kod başına
+    bir lot; baskı süreyle orantılı, tam sayı).
+  - `orderCandidates.ts`: emrin ölçüsünü basan her kalıp × makine için uygunluk (tek kaynak),
+    plan, termine yetişme (termin gününün sonu, fabrika saati), makine maliyeti (saat maliyeti ×
+    (bağlama + üretim)), lotlar; ✗ olanlar gerekçesiyle ayrı; "en erken" ve "en ekonomik"
+    (termine yetişenler arasında) işaretleri. Makinelerdeki diğer işler henüz yok → önizleme.
+  - 21 test: doküman §6 örneği birebir (3×8, 08:00 başlangıç, 45 dk bağlama → 08:45 üretim,
+    A/B/C lotları, 02.10 01:05 bitiş); 100.000 tapa (12.691 baskı, ≈4.355 dk); 12 saatlik düzende
+    7 lot; tatilde gece vardiyası da düşer; ek mesai; duruş bölmesi; termin/maliyet işaretleri.
+  - Versiyon DTO'suna `materialIds` (katsayı eşleşmesi için; çok hammaddede en büyük katsayı).
+- **Functions:** `GET /production/orders/{id}/candidates` — tanımlar paralel tek seferde okunur
+  (kalıp, makine, alan, düzen, 45 günlük takvim, duruş, hammadde profilleri), hiçbir şey
+  yazılmaz; kapanmış ya da varyantı silinmiş emirde 409. Yanıt şekli testi + 2 handler testi.
+- **Frontend:** emir satırında "Öner" (takvim ikonu) → önizleme dialog'u: makine · kalıp × göz ·
+  baskı, çevrim ve kaynağı, süre, başlangıç, bitiş (ya da "45 gün içinde bitmiyor"), termin
+  (Yetişir / Gecikir), makine maliyeti, en erken / en ekonomik rozetleri, uyarılar, açılır vardiya
+  lotları; uygun olmayanlar gerekçesiyle; "Yeniden hesapla".
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159
+  warning ✅ · core 787/787 ✅ · functions 478/478 ✅ · frontend 450/450 ✅ · `next build` ✅.
+- **Kullanıcıda kalan (kubi):** (2.1 migration'ı uygulandıktan sonra) `sst dev --stage kubi` →
+  `/uretim/emirler` → bir emirde takvim ikonu ("Öner"):
+  1. K-1001'in ölçüsündeki emirde M-01 görünmeli; çevrim "makine kartından" 17,5 sn (kart varsa).
+  2. Başlangıç şu anki ya da sıradaki vardiya, bitiş günlere yayılmış (Pazar ve takvimdeki
+     bayram günleri atlanmalı); lotları aç → her vardiya bir lot, adetler toplamı baskı × göz.
+  3. Termini yakın bir tarih yap → "Gecikir"; bir duruş gir (Makineler → Duruşlar) → bitiş kaymalı.
+  4. Makinenin saat maliyeti doluysa maliyet görünür; birden çok uygun makine varsa en erken /
+     en ekonomik rozetleri.
+- **Deploy notu:** 1 yeni route; migration yok.
+
+## Üretim Planlama — Dilim 2.3: işler ve vardiya lotları + "Planla" (2026-09-25) *(kullanıcı onayıyla, branch `feature/production-planning`)*
+
+- **Neden:** önizleme (2.2) karar verdiriyordu ama kaydetmiyordu. Bu dilimde seçilen aday işe ve
+  vardiya lotlarına ("1000-1", "1000-2"…) dönüşüyor; takvim artık dolu makineyi ve kalıbı biliyor.
+  Kullanıcı "devam et" dedi; 2.1 migration'ının kubi'de uygulandığını bildirdi.
+- **Şema** (migration `20260926120000_add_production_jobs_and_lots`, yalnız ekleme: 2 enum + 4
+  tablo + index + FK; `ALTER SEQUENCE … RESTART WITH 1000`; yerelde `migrate diff` fark yok):
+  `ProductionJob` (makine/kalıp `Restrict`, `versionSignature`, baskı, bağlama/üretim başı, bitiş,
+  planlama anı kopyaları: çevrim, verim, bağlama; durum; `version`), `ProductionJobOutput`
+  (`MoldOutput` `Restrict`, `productSizeId` kopyası, emir `SetNull`, göz, planlı/sağlam/fire adet),
+  `ProductionLot` (vardiya günü + kod, planlı/gerçek zaman, baskı, durum), `ProductionLotOutput`.
+  Lot operatörü ve notları Faz 3'e. **Tasarımdan fark:** lotlar "sahaya ver"de değil "Planla"da
+  (PLANNED) yazılıyor; lot numarası saklanmıyor, `kök-sıra` türetiliyor.
+- **Core:** `jobPlan.ts` (saf; adaydan iş + tüm göz çıktıları [emrin ölçüsü emre, diğerleri yan
+  ürün] + lotlar + lot çıktıları; kimlikler dışarıdan → tek dizi transaction'ı; `formatLotNumber`),
+  `orderCandidates` mevcut işleri (`busy`: aynı makine ya da aynı kalıp) duruş gibi düşer,
+  versiyon DTO'suna `signature`. Repository: `productionJobs` (aktif iş aralıkları, planı yazma +
+  emri Planlandı, iptal + başka işi kalmayan emri Taslağa döndürme); emir DTO'sunda işler ve
+  lotlar (emre düşen adetlerle); kalıp göz güncellemesi **fark tabanlı** (upsert by
+  `moldId+productSizeId`, çıkarılanı sil) + iş sayımları; makine iş sayımı.
+- **Functions:** `POST /production/orders/{id}/jobs` ("Planla": yalnız Taslak/Beklemedeki emir;
+  plan sunucuda o anki verilerle YENİDEN hesaplanır, istemcinin saatine güvenilmez; uymayan çift /
+  ufukta bitmeyen iş 409), `DELETE /production/jobs/{id}` (yalnız PLANNED). Korumalar: işi olan
+  makine ve kalıp silinemez, işe bağlı göz grubu çıkarılamaz (409, FK 500 yerine). 8 yeni test.
+- **Frontend:** önizleme dialog'unda her adayda "Planla"; emir satırında son işin özeti (makine ·
+  bitiş) ve açılır iş/lot paneli (lot no, vardiya günü + kod, saat aralığı, emre düşen adet,
+  planlı işi iptal).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error / 159
+  warning ✅ · core 790/790 ✅ · functions 486/486 ✅ · frontend 450/450 ✅ · `next build` ✅.
+  **Yerel PostgreSQL 17 (geçici test ve küme silindi):** 90 migration + fark yok; lot kökü 1000,
+  tek dizi transaction'ında iş + 2 çıktı (biri yan ürün) + 2 lot + 4 lot çıktısı, emir Planlandı,
+  lotlar "1000-1"/"1000-2" ve emre düşen adetler, aktif iş aralığı, fark tabanlı göz güncellemesi
+  satır kimliğini korudu, işe bağlı göz silme ve işi olan makine silme FK ile reddedildi, iptalde
+  lotlar silindi ve emir Taslağa döndü ✅.
+- **Kullanıcıda kalan (kubi) — SIRA ÖNEMLİ:**
+  1. Migration: `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`.
+  2. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` (yeni Lambda'lar: 2.1'in 6'sı,
+     2.2'nin 1'i, 2.3'ün 2'si).
+  3. `/uretim/emirler` → emir oluştur → takvim ikonu ("Öner") → bir adayda "Planla" → emir
+     "Planlandı", satırda "M-01 · bitiş …"; oka bas → lotlar 1000-1, 1000-2… ve adetleri.
+  4. İkinci bir emir aç ve aynı kalıp/makineyle "Öner" → başlangıç ilk işin bitişinden sonra olmalı.
+  5. Kalıbı düzenle: göz sayısını değiştir → kaydedilmeli; işe bağlı ölçünün göz grubunu sil →
+     409 uyarısı. Makineyi silmeyi dene → 409. İşi iptal et → emir Taslak, lotlar gider.
+- **Deploy notu:** prod'da 9 yeni route (2.1–2.3); migration'lar 1.2, 1.6, 2.1, 2.3 (hepsi ekleme)
+  koddan ÖNCE.
+
+## Üretim Planlama — Dilim 3.1: planlama tahtası (salt okunur) (2026-09-26) *(kullanıcı onayıyla, branch `feature/production-planning`)*
+
+**Ne yapıldı:** Faz 3'ün ilk dilimi — planlı işlerin makine satırları üzerinde Gantt olarak
+görüntülenmesi. Migration YOK; 1 yeni route.
+
+- **Core:** `core/helpers/production/productionBoard.ts` (saf, testli) — pencere kuralı
+  (`findBoardRangeIssue`: YYYY-AA-GG, sıra, en fazla 31 gün), pencerenin gerçek anları (fabrika
+  gece yarısı → ertesi gece yarısı) ve makine başına vardiya örnekleri + gün istisnaları
+  (`buildBoardMachineCalendars`; etkin düzen makine > alan > varsayılan — motorla aynı çözüm;
+  duruş burada DÜŞÜLMEZ, tahta ayrı blok çizer). `productionJobRepository.listBoardJobs`: iptal
+  edilmemiş, pencereyle kesişen işler — dar seçim (kalıp kodu, emir no, varyant kodu, termin,
+  ürün rengi, lotlar).
+- **API:** `GET /production/board?from&to` (ProtectedApi, `PRODUCTION_PLANNER_GROUPS`).
+  Verilmezse bugün + 6 gün. Pasif makineler satır olarak dönmez; bakım/arızadakiler döner.
+  Açık query validator + response validator; `responseShapes.test.ts`'e GERÇEK handler çıktısını
+  doğrulayan test eklendi (DTO tipli fixture'lar → handler → şema).
+- **Ekran `/uretim/tahta`** (menüde "Planlama" altında ilk öğe, genel bakış kartı bağlandı):
+  alan gruplu makine satırları, yapışkan makine sütunu (telefonda dar), gün başlıkları (Pazar
+  gölgeli), vardiya dışı gri, takvim istisnası etiketi, taralı duruş (tooltip: tür + aralık +
+  neden), iş çubuğu = kesikli bağlama + durum renkli lot parçaları + ince bağlantı hattı + ürün
+  rengi şeridi, şimdi çizgisi (`useNow`), işe tıklayınca ayrıntı dialog'u (zamanlar, baskı/çevrim,
+  emirler → emir sayfasına bağlantı, lotlar, planlı işi iptal). URL durumu nuqs: `bas`, `gun`
+  (3/7/14/28 = zoom), `alan`, `yenile`. `AdminListRefreshBar` + bölüm-yerel yükleme katmanı.
+  Geometri saf ve testli: `features/production/board/utils/boardGeometry.ts`.
+- **Küçük düzenlemeler:** iş durum etiketleri ortak modüle taşındı (`shared/jobStatus.ts`);
+  "Planla" ve iş iptali tahta sorgusunu da tazeler (`productionQueryKeys.boardAll`);
+  `panelNavIcons`'a `gantt`.
+
+**Neden bu biçim:** tahta satır sayısı küçük (~10–50 makine) → alan süzgeci istemcide; konumlar
+yüzde, kap genişliği gün başına piksel — sanallaştırma gerekmedi. Yeni bağımlılık eklenmedi;
+`@dnd-kit` sürükle-bırakla (3.2) gelecek. Tasarımda tahta `/uretim` olarak düşünülmüştü; genel
+bakış yerinde bırakıldı, tahta ayrı yol (`/uretim/tahta`).
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi)
+· testler core 794 · functions 492 · frontend 456 ✓ · `next build` "Compiled successfully" ·
+root tsc `infra/` 0 hata. Görsel: geçici statik render + başsız Chrome ile masaüstü (açık/koyu)
+ve 390 px telefon — 3×8 ve 2×8 düzenleri, alan tatili, bakım duruşu, kırpılan iş, düzeni olmayan
+makine senaryoları; telefonda makine sütunu 11rem → 7.5rem daraltıldı.
+
+**Kullanıcıda bekleyen:** kubi'de deploy (yeni route) + test: `/uretim/tahta` açılır; 2.3'te
+planlanan iş doğru makinede, doğru saatlerde, lotlarıyla görünür; önceki/sonraki/bugün ve gün
+sayısı URL'ye yazılır; duruş ve tatil günleri görünür; işe tıklayınca ayrıntı açılır, planlı iş
+iptal edilince tahtadan ve emirden düşer (emir Taslağa döner). 2.3 migration'ı kubi'de uygulandı
+(kullanıcı, 2026-09-26).
+
+**Kalan:** 3.2 sürükle-bırak (taşı, canlı doğrulama, bekleyen emirler paneli, `version` çakışma
+koruması), 3.3 Öner entegrasyonu + "sonrakileri kaydır", Kanban panosu, lot notları.
+
+## Üretim Planlama — Dilim 3.2: tahtada taşıma (sürükle-bırak + "Taşı" formu) (2026-09-26) *(kullanıcı onayıyla, branch `feature/production-planning`)*
+
+**Ne yapıldı:** planlı iş tahtada başka zamana ve/veya makineye taşınabiliyor. Migration YOK
+(`ProductionJob.version` 2.3'ten beri vardı); 1 yeni route; yeni bağımlılık `@dnd-kit/core` 6.3
+(tasarım dokümanındaki kütüphane kararı).
+
+- **Core:** `evaluateOrderCandidates` opsiyonel `earliestStart` aldı (geçmişse `now`; ufuk o
+  andan sayılır). `jobPlan.ts` → `buildJobRescheduleWrite` (saf): yeni planı MEVCUT işe uygular —
+  iş kimliği ve çıktıları (kalıp gözüne göre eşlenir) kalır, lotlar yeniden kurulur, çıktı
+  adetleri güncellenir. `productionJobRepository.rescheduleJob`: tek DİZİ transaction —
+  `update where { id, version }` (+1) → lotları sil → lotları + lot çıktılarını yaz → çıktı
+  adetleri; sürüm tutmazsa P2025 → tamamı geri alınır, `null`. `getJob` makine/kalıp/sürüm/
+  çıktıları; tahta işleri `version` taşıyor.
+- **API:** `PATCH /production/jobs/{id}/schedule` `{ machineId, startAt, expectedVersion }`
+  (productionOrders actions'ında, planlama deps'iyle). Yalnız PLANNED iş; tek emre bağlı olmalı;
+  plan aynı motorla, aynı kalıp + hedef makine için, istenen andan sonraki ilk uygun boşluğa
+  yeniden hesaplanır (iş kendi aralığını meşgul saymaz; diğer işler, aynı kalıbın başka
+  makinedeki işi ve duruşlar sayar). Uyumsuz makine → 409 + gerekçe; sürüm → 409. Yanıt:
+  yeni zamanlar + `shifted` (istenen an doluysa/vardiya dışıysa kaydı). Tahta ucu her iş için
+  görünen makinelerle `machineFit` (uygunluk hükmü + ilk hata gerekçesi) döndürüyor.
+- **Ekran:** çubuk PointerSensor ile sürüklenir (6 px eşiği → kısa hareket tıklama; bırakma
+  sonrası tıklama bastırılır), yatay = zaman (15 dk adım, `draggedStartAt`), dikey = makine
+  satırı (`useDroppable`). Sürüklerken uygun olmayan satırlar hafif kırmızı; hedef satır
+  yeşil / sarı / kırmızı çerçeve; çubuğun üstünde "M-02 · 29.09 08:15" (hata ise gerekçe) etiketi.
+  Uygun olmayan satıra bırakma istemcide durur (toast). Bekleyen taşıma çubukta nabız + bölüm
+  katmanı "Plan yeniden hesaplanıyor…". Klavye alternatifi: iş dialog'unda "Taşı" formu
+  (RHF + zod, makine seçimi uygunsuzları devre dışı, fabrika saatiyle `datetime-local`).
+  Başarıda "taşındı" / "ilk uygun boşluğa yerleşti" toast'u; tahta + emirler tazelenir.
+  dnd-kit KeyboardSensor bilerek yok (Enter/Space butonun tıklamasıyla çakışıyor).
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler
+core 796 · functions 499 · frontend 460 ✓ · `next build` "Compiled successfully" · root tsc `infra/`
+0 hata. Yerel PostgreSQL 17 (tek kullanımlık küme, tüm migration'lar + sapma yok):
+`rescheduleJob` gerçek DB'de — sürüm eşleşince iş/lot/lot çıktısı değişip sürüm 0→1; eski
+sürümle ikinci yazım `null` ve HİÇBİR ŞEY değişmedi (lotlar dahil geri alındı). Görsel: sürükleme
+durumları (uygun / uyarı / hata satırı, önizleme etiketi, bekleyen çubuk) statik render + başsız
+Chrome.
+
+**Kullanıcıda bekleyen:** kubi deploy (yeni route) + test: `/uretim/tahta`'da planlı işi aynı
+satırda sağa sürükle → yeni saatte, lotlarıyla yeniden çizilir; başka makineye sürükle (uygunsa
+yeşil) → emir sayfasında da makine değişir; uygun olmayan makinede kırmızı + bırakınca uyarı;
+vardiya dışına bırak → "ilk uygun boşluğa yerleşti"; iki sekmede aynı işi taşı → ikincisi 409
+"bu arada değiştirilmiş"; dialog'daki "Taşı" formu da aynı sonucu verir. `package-lock.json`
+değişti (`@dnd-kit/core`) — `npm install` gerekebilir.
+
+**Kalan:** 3.3 bekleyen emirler paneli + Öner entegrasyonu + "sonrakileri kaydır"; Kanban, lot
+notları.
+
+## Üretim Planlama — Dilim 3.3: bekleyen emirler paneli + "Öner" + "sonrakileri kaydır" (2026-09-26) *(kullanıcı onayıyla, branch `feature/production-planning`)*
+
+**Ne yapıldı:** tahtadan emir planlama ve çakışmada kaydırma. Migration YOK, yeni route YOK
+(mevcut uçlar genişledi).
+
+- **Core:** `jobRipple.ts` (saf, testli) — `selectRippleFollowers` (aynı makine, PLANNED, bırakılan
+  andan sonra başlayan, taşınan hariç, sıralı) + `rippleEarliestStart` (eski yer / öndeki işin
+  bitişi — boşluk korunur). `productionBoard.ts` → `bestCompatibilityVerdict` (emrin kalıplarından
+  en iyisi). Repository: `commitPlacement` (yeni iş + taşımalar tek DİZİ transaction'ı, her taşıma
+  `version` filtreli; biri tutmazsa P2025 → hepsi geri, `null`), `listPlannedJobsOnMachine`;
+  `createJobPlan` / `rescheduleJob` artık ona delege ediyor.
+- **Functions:** yeni `productionOrders/handlers/placement.ts` — planlama bağlamı BİR KEZ okunur
+  (`loadPlanningContext`), motor her iş için bağlamla çalışır (`evaluateInContext`,
+  `placeOrderOnMachine`: kalıp verilmezse o makinede en erken biten kalıp), `planRippleFollowers`
+  takipçileri sırayla yeniden planlar (yerinde kalan yazılmaz). "Öner", "Planla" ve taşıma bu
+  modüle bağlandı (önceki tek fonksiyon kaldırıldı). `POST /production/orders/{id}/jobs`:
+  `moldId` opsiyonel, `startAt`, `placement`; yanıt `{ order, shifted, shiftedJobs }` (yeni
+  `planProductionOrderResponseValidator`). `PATCH /production/jobs/{id}/schedule`: `placement`,
+  yanıtta `shiftedJobs`. Tahta ucu Taslak emirleri (en çok 50, termine göre) + makine uygunluğuyla
+  `pendingOrders` / `pendingOrderTotal` olarak döndürüyor (varyantı silinmiş emir panelde yok).
+- **Ekran:** "Bekleyen emirler" paneli (kart: emir no, öncelik, renk, varyant, ürün, adet,
+  termin; tutamaçla sürüklenir, `DragOverlay` + hedef etiketi; "Öner" düğmesi emirlerdeki aday
+  dialog'unu açar — dialog'un prop'u dar bir `Pick`'e indirildi). Kart satıra bırakılınca imlecin
+  satırdaki KONUMU başlangıç olur (`pointerStartAt`, 15 dk); satırlar emrin en iyi kalıbına göre
+  boyanır. Araç çubuğunda çakışma kipi ("İlk boşluğa koy" / "Sonrakileri kaydır", URL
+  `?cakisma=kaydir`); taşıma, "Taşı" formu ve emir bırakma aynı kipi kullanır. Bildirim tek
+  yardımcıdan (`describePlacementResult`: "… · 2 iş kaydırıldı (1004, 1005)").
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler
+core 799 · functions 504 · frontend 464 ✓ · `next build` "Compiled successfully" · root tsc `infra/`
+0 hata. Handler testleri: kalıpsız emir bırakma, "sonrakileri kaydır"da takipçinin taşınan işin
+arkasına kayması + tek yazım, değmeyen takipçinin yazılmaması. Yerel PostgreSQL 17:
+`commitPlacement` — kaydırılan işin sürümü tutmayınca YENİ İŞ DE yazılmadı (emir Taslak kaldı);
+doğru sürümle yeni iş + kaydırma birlikte yazıldı, emir Planlandı, sürüm 5→6. Görsel: panel,
+sürüklenen kart, araç çubuğu (statik render + başsız Chrome).
+
+**Kullanıcıda bekleyen:** kubi deploy + test: Taslak emir kartını bir satıra sürükle → iş o
+makinede bırakılan saatten planlanır, kart panelden düşer; uygun olmayan satırda kırmızı + uyarı;
+kartta "Öner" → aday dialog'u; çakışma kipini "Sonrakileri kaydır" yap, bir işi başka bir işin
+üstüne bırak → alttaki iş arkasına kayar, bildirimde kaydırılan iş numaraları görünür; "İlk
+boşluğa koy"da mevcut iş yerinde kalır.
+
+**Kalan:** 3.4 durum panosu (kanban), 3.5 vardiya ekibi + lot listesi/notları.
+
+## Üretim Planlama — Dilim 3.4: durum panosu (kanban) (2026-09-26) *(kullanıcı onayıyla, branch `feature/production-planning`)*
+
+**Ne yapıldı:** işlerin sahadaki durumunu izleyen ve değiştiren pano. Migration YOK
+(`ProductionJobOutput.goodQuantity/scrapQuantity` 2.3'ten beri vardı); 2 yeni route.
+
+- **Core:** `jobStateMachine.ts` (saf, testli) — geçişler PLANNED ⇄ RELEASED → SETUP → RUNNING ⇄
+  PAUSED → COMPLETED (SETUP → PAUSED da; tamamlanan iş kapalı), `JOB_STATUS_LABELS` /
+  `JOB_TRANSITION_LABELS` (frontend yeniden dışa aktarıyor — tek kaynak), `findJobCompletionIssues`
+  (her çıktı tam bir kez, 0 ≤ tam sayı ≤ 100M), `deriveOrderStatusFromJobs` (hepsi bitti →
+  Tamamlandı; sahada / kısmen bitti → Üretimde; sahaya verilmiş → Serbest; aksi Planlandı; elle
+  yönetilen Taslak / Beklemede / İptal'e dokunmaz). Repository: `listKanbanJobs` (aktif +
+  `completedSince`'ten beri tamamlanan; dar DTO, çıktılarda ölçü kodu + ürün adı),
+  `listOrderJobStatuses`, `transitionJob` (tek DİZİ transaction: iş `update where {id, version}`
+  → çıktı adetleri `where {id, jobId}` → tamamlamada lotlar COMPLETED → emir
+  `updateMany where {id, status: from}`; herhangi biri P2025 → hepsi geri, `null`).
+- **API:** yeni `productionJobs` actions — `GET /production/kanban` (son 7 gün),
+  `PATCH /production/jobs/{id}/status` `{ status, expectedVersion, outputs? }`: sürüm → 409,
+  izinsiz geçiş → 409 (Türkçe durum adlarıyla), eksik / gereksiz adet → 400; türeyen emir durumu
+  aynı yazımda; yanıt `{ job, orders }`.
+- **Ekran `/uretim/pano`** (menüde "Planlama" altında, genel bakış kartı bağlandı): 6 sütun
+  (mobilde yatay kayar), kart = iş no + emir, varyant, ürün · ölçü (+N göz grubu), makine · kalıp,
+  planlı pencere + lot sayısı, planlı adet (tamamlandıysa sağlam / fire), "plandan X geç" ve
+  termin (geçtiyse kırmızı) rozetleri. Sürükleme `@dnd-kit/core` (sütun = droppable); sürüklerken
+  izinli sütunlar yeşil, diğerleri soluk; izinsiz bırakma istemcide durur. Karttaki "…" menüsü
+  izinli geçişleri listeler (klavye / dokunmatik alternatifi). Tamamlandı → sağlam / fire dialog'u
+  (RHF + zod, varsayılan sağlam = planlanan). Süzgeç: arama, alan, makine; otomatik yenileme —
+  hepsi URL'de. Geçiş kanban + tahta + emirleri tazeler.
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler
+core 805 · functions 513 · frontend 470 ✓ · `next build` "Compiled successfully" · root tsc `infra/`
+0 hata. Yerel PostgreSQL 17: başka işin çıktısıyla ve eski sürümle geçiş HİÇBİR ŞEY yazmadı; doğru
+tamamlama iş + adet + lot + emri (Üretimde → Tamamlandı) birlikte yazdı; arada elle Beklemede'ye
+alınan emir ezilmedi. Görsel: masaüstü + 390 px (statik render + başsız Chrome).
+
+**Kullanıcıda bekleyen:** kubi deploy (2 yeni route) + test: `/uretim/pano`'da planlı iş
+"Planlandı"da; "Sahaya verildi"ye sürükle → emir sayfasında emir "Serbest", tahtada iş artık
+sürüklenmez; "Planlandı"ya geri çek → tahtada yeniden taşınabilir; "Kalıp bağlanıyor" → "Üretimde"
+→ emir "Üretimde"; "Planlandı"dan "Üretimde"ye doğrudan bırakmak reddedilir (sütun soluk, uyarı);
+"Tamamlandı"ya bırak → adet dialog'u → sağlam / fire kaydedilir, emir "Tamamlandı"; kart menüsüyle
+aynı geçişler; iki sekmede aynı kart → ikincisi 409.
+
+**Kalan:** 3.5 vardiya ekibi + lot listesi / notları; Faz 4'te gerçekleşen saatler, yeniden açma.
+
+## Üretim Planlama — Dilim 3.5: vardiya ekibi, lotlar, lot notları ve QR etiket (2026-09-26 → 2026-09-28) *(kullanıcı onayıyla: migration + QR'lı etiket + notta operatör; branch `feature/production-planning`)*
+
+**Ne yapıldı:** Faz 3'ün son dilimi. İki oturuma yayıldı (ilk oturum kullanım sınırında backend'de
+kaldı; kullanıcı `/uretim/lotlar`'ı açınca 404 — sayfa henüz yoktu, menüde de bağlantı yoktu).
+
+- **Migration** `20260926150000_add_production_shift_assignments_and_lot_notes` (yalnız ekleme):
+  `MachineShiftAssignment` (makine × vardiya günü × kod × operatör, tekil; makine silinince
+  Cascade), `ProductionLotOperator` (lot × operatör), `ProductionLotNote` + `ProductionLotNoteCategory`
+  (Genel / Kalite / Bakım-arıza / Hammadde / Vardiya devri; yazan kullanıcı SetNull, opsiyonel
+  "operatör adına"). Operatöre bağlı her satır Restrict.
+- **Core (saf, testli):** `productionLots.ts` (lot no ayrıştırma, not kuralı + silme yetkisi, lot
+  ekibi çözümü lota özel > vardiya ekibi, tamamlamada dondurma), `shiftAssignments.ts` (günün
+  hücreleri — gece vardiyası kırpılmadan o güne ait, ekip seçim kuralı: tekrar / sınır / yeni
+  pasif yok, kopyalama aralığı + planı). **Taşıma düzeltmesi:** `buildJobRescheduleWrite` lotları
+  SIRAYA göre yerinde günceller (kimlik, not, ekip korunur); plan kısalıp not / lota özel ekibi olan
+  lot kalkacaksa `rescheduleWriteOrConflict` 409 verir (taşıma ve "sonrakileri kaydır" ikisi de).
+- **Repository:** `productionLots` (sayfalı liste; arama "1000-2" / iş kökü ya da emir no / varyant /
+  ürün / makine / kalıp; ayrıntı + kardeş lotlar + notlar; lota özel ekip; not), 
+  `productionShiftAssignments` (gün / hücre okuma, hücre tam değişim, günleri tam değiştirme —
+  dizi transaction'ları), işler: lot özetleri, yerinde lot yazımı, tamamlamada ekip dondurma;
+  operatörler: `countReferences`.
+- **API (8 route):** `GET /production/lots`, `GET /production/lots/{lotNumber}`,
+  `PUT /production/lots/{lotNumber}/operators`, `POST /production/lots/{lotNumber}/notes`,
+  `DELETE /production/lot-notes/{id}`, `GET|PUT /production/shift-assignments`,
+  `POST /production/shift-assignments/copy`. Durum geçişi (3.4) tamamlamada ekibi dondurur; operatör
+  silme bağlı kayıtta 409.
+- **Ekranlar:** `/uretim/lotlar` (tarih aralığı, makine, arama — arama tüm tarihlerde; tablo: lot,
+  vardiya, makine · kalıp, ürün / emir, planlanan, ekip — vardiya ekibinden gelen soluk, iş durumu),
+  `/uretim/lotlar/[lotNumber]` (özet, çıktılar, aynı işin lotları, Ekip: kaynak rozeti + düzenle /
+  vardiya ekibine dön, Notlar: kategori + operatör adına + metin, yazan / yönetici siler; "Tahtada
+  gör", Etiket: 100 × 70 mm, QR = ayrıntı adresi, alan adı sabit yazılmaz), `/uretim/ekip` (gün
+  gezintisi, alan süzgeci, makine başına vardiya hücreleri + ortak `OperatorMultiPicker`, düzen dışı
+  kalmış atama uyarısı + temizle, günlere kopyalama dialog'u, görevsiz aktif operatörler). Menüye
+  Lotlar + Vardiya Ekibi, genel bakış kartları; tahta ayrıntısı ve emir sayfasındaki lot numaraları
+  ayrıntıya bağlı; iş iptal metni "notlar da silinir". Yazdırma: `.print-root` portalı +
+  `globals.css`'te `:has` ile sınırlı `@media print` kuralı.
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler
+core 818 · functions 542 · frontend 478 ✓ · `next build` "Compiled successfully" · root tsc `infra/`
+0 hata. Yerel PostgreSQL 17 (tek kullanımlık küme): tüm migration'lar + sapma yok; gerçek veri
+zinciriyle lot listesi / arama / ayrıntı, not + lota özel ekip, hücre değişimi + gün kopyalama,
+taşımada lot kimliklerinin ve notun korunması, kayıtlı lot kalkacaksa engel, dondurma satırı,
+kullanılan operatörün silinememesi. Görsel: lot tablosu, etiket, ekip satırları (statik render +
+başsız Chrome).
+
+**Kullanıcıda bekleyen:** kubi'de migration:
+`npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`,
+`npm install` (`qrcode.react`), deploy (8 yeni route) ve test (aşağıdaki kubi adımları).
+
+**Kalan / sonraki:** Faz 4 (saha: lot başlat / bitir, sayım, fire, gerçekleşen saatler — şema).
+
+## Üretim Planlama — Dilim 4.2: vardiya raporu (saha girişi, planlayıcı operatör adına) (2026-09-28) *(kullanıcı onayıyla: migration + varsayılan nedenler ekrandan + kalıp sayacı şimdi; branch `feature/production-planning`)*
+
+**Ne yapıldı:** Faz 4'ün ilk dilimi (4.1 operatör hesapları ertelendi). Belgedeki genel
+`ProductionEvent` akışı yerine daha dar bir model önerildi ve onaylandı: lot başına vardiya raporu +
+iş durum geçmişi.
+
+- **Migration** `20260928100000_add_production_shift_reports` (yalnız ekleme): `ProductionReason`
+  (+ `ProductionReasonKind` STOP / SCRAP, `ProductionStopCategory`), `ProductionStop`,
+  `ProductionLotScrap`, `ProductionJobStatusChange`; `ProductionLot.actualShots / reportedAt /
+  reportedByUserId`. Nedenler Restrict (kullanılan silinmez).
+- **Core (saf, testli):** `productionReasons.ts` (kod normalizasyonu, tür ↔ kategori kuralı, 22
+  varsayılan neden, eksik varsayılanlar), `lotReports.ts` (başlatma koşulu, iş durumu geçişi —
+  başlatma duraklatılmışı sürdürür, rapor sürdürmez —, rapor kuralları: süre ≤ 30 sa, gelecek
+  değil, çıktı başına tam sayı, fire kırılımı ≤ fire, duruş toplamı ≤ lot süresi, duruş aralığı,
+  pasif neden yalnız eski raporda; baskı türetme; raporsuz baskı; sıradaki lot; raporlanan toplam).
+- **Repository:** `productionReasons` (CRUD + kullanım sayısı + toplu varsayılan), lotlar (liste /
+  ayrıntıda gerçekleşen saat, baskı, duruş toplamı, fire kırılımı, duruşlar, raporu giren; rapor için
+  dar okuma; `startLot` / `reportLot` — iş sürümü filtreli tek dizi transaction: lot, çıktı adetleri,
+  kırılım + duruş tam değişim, sıradaki lot, kalıp sayacı, durum geçmişi, devir notu), işler (plan
+  ve geçişlerde durum geçmişi, tamamlamada raporsuz baskı sayaca, pano: raporlanan toplamlar +
+  "son 7 gün" geçmişten).
+- **API (7 route):** nedenler `GET/POST /production/reasons`, `PATCH/DELETE /production/reasons/{id}`,
+  `POST /production/reasons/defaults`; `POST /production/lots/{lotNumber}/start`,
+  `PUT /production/lots/{lotNumber}/report`. Lot listesi / ayrıntısı / pano yanıtları genişledi (iş
+  sürümü, rapor alanları, raporlanan toplamlar).
+- **Ekranlar:** `/uretim/saha` Vardiya Raporu (gün / dün / bugün, makine başına günün lotları,
+  durum rozeti — "Raporsuz kapandı" ayrı —, Başlat / Rapor gir / Düzelt, "N lot rapor bekliyor"),
+  rapor dialog'u (uzun form düzeni: süre + baskı, çıktılar + fire nedenleri, duruşlar, vardiya devri
+  + operatör adına; kural sunucuyla aynı fonksiyon), lot ayrıntısında "Vardiya raporu" bölümü
+  (gerçekleşen / planlanan, duruşlar, tüm lotlar raporlanınca "işi tamamla" yönlendirmesi), lot
+  tablosunda lot durumu, `/uretim/nedenler` (sekmeli sözlük, "Varsayılanları ekle", kullanılan
+  neden silinmez). Pano tamamlama dialog'u raporların toplamıyla dolar. Menü: Planlama / Saha /
+  Tanımlar.
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler
+core 830 · functions 564 · frontend 486 ✓ · `next build` "Compiled successfully" · root tsc `infra/`
+0 hata. Yerel PostgreSQL 17: tüm migration'lar + sapma yok; varsayılan 22 neden (ikinci çağrı 0),
+başlatma (iş RELEASED → RUNNING, sürüm, geçmiş), ikinci başlatma engeli, rapor (lot kapanır, sıradaki
+lot bitişte başlar, sayaç +1.001, kırılım / duruş / devir notu), eski sürümle rapor hiçbir şey
+yazmadı, düzeltmede sayaç fark kadar (−51), kullanılan nedenin silinememesi, tamamlamada raporsuz
+baskı + geçmiş, pano süzgeci geçmişten. Görsel: rapor bölümü + lot tablosu (statik render + başsız
+Chrome). Not: bir test ilk sürümde gerçek saate bağlıydı ("bitiş gelecekte"); tarihler geçmişe
+alındı.
+
+**Kullanıcıda bekleyen:** kubi'de migration
+(`npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`),
+deploy (7 yeni route) ve test (kubi adımları). Bu değişiklikten önce tamamlanmış kubi test işlerinin
+durum geçmişi yok — panonun "Tamamlandı" sütununda görünmezler (prod'da üretim verisi yok).
+
+**Kalan:** 4.3 planlanan ↔ gerçekleşen (tahtada gerçekleşen çubuk, gecikme uyarısı, bakım uyarısı).
+
+## Üretim Planlama — Dilim 4.3: planlanan ↔ gerçekleşen (tahmin, gecikme önerisi, kalıp bakımı) (2026-09-28) *(kullanıcı onayıyla; migration yok; branch `feature/production-planning`)*
+
+**Ne yapıldı:** Faz 4'ün son zorunlu dilimi (4.1 ertelendi, 4.4 opsiyonel). Şema gerekmedi: 4.2'nin
+gerçekleşen saatleri, rapor baskısı ve kalıp sayacı yetti.
+
+- **Core (saf, testli):** `jobForecast.ts` — ilerleme = raporlu baskı / planlanan; kalan baskı
+  PLANDAKİ çevrim ve verimle makinenin çalışma pencerelerine (vardiya, istisna, duruş) yerleştirilir.
+  Başlangıç: üretimdeki lotun gerçek başı → son raporun bitişi (duraklatılmışta şimdiyle büyüğü) →
+  lot izlenmeden "Üretimde" yapılmış işte planlı üretim başı → hiç başlamamışsa şimdi + bağlama.
+  Durumlar Plana uygun / Başlamadı / Geride / Süresi geçti / Üretim bitti (eşik 30 dk); termin riski
+  = tahmini bitiş en yakın termin gününün sonunu aşıyor. `machineWindowsFrom` + `dueEndAtFor` tahta
+  ile öneri ucunun ortak takvimi (`resolveMachinePattern` `productionBoard.ts`'ten çıkarıldı).
+  `moldMaintenance.ts` — bakım durumunun TEK kaynağı: 1.4'teki `describeMaintenanceProgress`
+  (`molds.ts`) buraya taşınıp silindi. 4.3 taslağı %90 eşik kullanıyordu, kalıplar sayfası %85 —
+  iki ekran çelişecekti; fark edilip belgelenmiş %85'e hizalandı. Şimdiki seviye + planlı baskılarla
+  öngörülen seviye. `ON_FLOOR_JOB_STATUSES` (`jobStateMachine.ts`; lot başlatma listesi ona bağlandı).
+- **Repository:** tahta işleri kalıp sayacı, verim, bağlama ve lot gerçekleşenleriyle. Planlı bitişi
+  pencereden önce kalmış ama sahada açık iş de listelenir: yalnız planlı aralık süzgeci, dün bitmesi
+  gereken ve hâlâ üretimdeki işi bugünkü tahtadan düşürüyordu (makine boş görünüyordu). Bayat PLANLI
+  iş eklenmez — motor onu meşgul saymıyor, tahtada meşgul görünmesi çelişirdi. `getJobForForecast`;
+  kalıp `recordMaintenance` (sayaç yarışına karşı `totalShots` filtreli güncelleme, 3 deneme).
+- **API (2 route):** `POST /production/jobs/{id}/push-followers` — tahmini sunucuda aynı fonksiyonla
+  hesaplar ve 3.3 zincirini (`planRippleFollowers` + `commitPlacement`, sürüm filtreli tek dizi
+  transaction) geciken işin [bağlama başı, tahmini bitiş] aralığıyla çalıştırır. Planlı (kendisi
+  taşınır), kapanmış, plana uygun ya da arkasında planlı iş olmayan işte 409. Planlama bağlamı takvimi
+  üretimin gerçek başından okur (`loadPlanningContext` `calendarFrom`).
+  `POST /production/molds/{id}/maintenance` — son bakım sayacı = güncel sayaç; bakım anı gelecekte
+  olamaz (5 dk tolerans). Tarih kalıp formuyla aynı sözleşmede saklanır (fabrika günü, UTC gece
+  yarısı): form tarihi `slice(0, 10)` ile okuyup geri yazdığı için tam an saklansa, gece yarısına
+  yakın bakım bir sonraki form kaydında bir gün kayardı. `GET /production/board` işlerine `forecast`,
+  `moldMaintenance`, lot gerçekleşenleri eklendi. Takvim ve duruşlar BUGÜNÜ de kapsayan aralıkla
+  okunur — uzak gelecekteki ya da geçmişteki pencerede de üretimdeki işin tahmini şimdiden yürür;
+  yanıta yalnız penceredekiler gider.
+- **Ekranlar:** Tahtada:
+  - çubuğun alt kenarında gerçekleşen hat (raporlu lotlar; üretimdeki lot şimdiye kadar);
+  - planlı bitişten tahmini bitişe taralı uzantı. Yalnız eşiği aşan gecikmede çizilir ve arkadaki
+    işin üstüne biner, böylece çakışma görünür. Planlı aralığı pencere dışında kalan geciken işte
+    yalnız uzantı çizilir;
+  - etikette %ilerleme + ⚠ / 🔧 ikonları, lejant;
+  - üstte uyarı şeridi: geciken / termin riskli işler (→ ayrıntı) ve bakımı gelen ya da planlı
+    işlerle aşılacak kalıplar (→ kalıplar sayfası); 6'dan fazlası katlanır.
+
+  İş dialog'unda "Gerçekleşen ve tahmin" bölümü var: durum rozeti, ilerleme çubuğu, planlı / tahmini
+  bitiş, gecikme, en yakın termin, kalıp bakımı. Aynı bölümde "Sonraki işleri tahmini bitişe kaydır"
+  bulunur; sunucuyla aynı koşulda sunulur ve onayda penceredeki takipçileri listeler. Vardiya
+  lotlarında rapor baskısı görünür. Kalıplar sayfasında bakım hücresi tek kaynağa geçti ve onaylı
+  "Bakım yapıldı" eklendi. Saf yardımcılar testli: `features/production/board/utils/boardForecast.ts`.
+
+**Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) ·
+testler core 838 · functions 575 · frontend 494 ✓ · `next build` "Compiled successfully" · root tsc
+`infra/` 0 hata.
+- Yeni testler: tahmin (7) ve bakım (3) çekirdek; öneri ucu (4: kaydırma + takvimin geçmişten
+  okunması, başlamamış sahadaki iş, 409 durumları, sürüm çakışması); bakım ucu (2: fabrika günü,
+  gelecek / bilinmeyen); tahta ucu (takvim bugünü kapsar); yanıt şekli; `boardForecast` (7); sonuç
+  mesajı.
+- **Yerel PostgreSQL 17** (tek kullanımlık küme; test ve küme silindi): tüm migration'lar uygulandı,
+  sapma yok. Gerçek repository'ler ve handler'larla:
+  - 7/24 düzende 90 dk geç başlamış iş → tahmini bitiş +60 dk, gecikme 90 dk;
+  - "kaydır" arkadaki işi tahmini bitişin arkasına aldı (sürüm +1, lotlar yeniden yazıldı); 5 gün
+    sonraki iş yerinde kaldı; ikinci çağrı boş liste döndü; planlı işte 409;
+  - yarından başlayan tahtada sahadaki geciken iş "Süresi geçti" ile listelendi, bayat planlı iş
+    listelenmedi;
+  - bakım 950 / 1.000 → "yaklaşıyor", öngörü "geldi"; "Bakım yapıldı" sonrası sayaç eşitlendi, gün
+    fabrika takvimiyle yazıldı, tahtada "uygun" oldu;
+  - iki yanıt şeması GERÇEK çıktıyla doğrulandı.
+- **Görsel** (statik render + başsız Chrome, açık / koyu + 390 px): iki düzeltme çıktı:
+  - telefonda "kaydır" açıklaması düğmenin yanında sıkışıyordu → alta alındı;
+  - plana uygun (eşik altı) işte çubuk sonunda anlamsız ince şerit çiziliyordu → uzantı yalnız eşiği
+    aşan gecikmede. Öneri, sunucuyla aynı koşulda kaldı.
+
+**Kullanıcıda bekleyen:** migration YOK. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi`
+(2 yeni Lambda) ve kubi adımları:
+1. Kalıplar: bir kalıba bakım aralığı ver (ör. 1.000) ve sayacı aralığın %85'inin üstüne getir
+   (form) → "Yaklaşıyor". 🔧 → "Bakım yapıldı" → %0; ipucunda son bakım bugün.
+2. Tahta: panodan bir işi "Sahaya verildi"ye al. Vardiya Raporu'nda ilk lotu planlı başlangıçtan
+   geç (ör. 2 saat) başlat. Beklenen: çubukta taralı uzantı ve ⚠; uyarı şeridinde "Geride · tahmini
+   bitiş …".
+3. Aynı makinede arkasına çakışan bir planlı iş koy. İş dialog'u → "Sonraki işleri tahmini bitişe
+   kaydır" → onayda takipçi listelenir → "Kaydır". Beklenen: takipçi tahmini bitişin arkasına kayar,
+   bildirimde "1 iş kaydırıldı".
+4. Lotun raporunu gir. Beklenen: etikette %, alt kenarda koyu hat, kalıp sayacı ve bakım durumu
+   değişir.
+5. Planlı bitişi geçmiş bir günde kalan ama hâlâ "Üretimde" olan iş bugünkü tahtada uzantısıyla ve
+   şeritte görünür.
+
+**Deploy notu:** prod'da 2 yeni route; bu dilim şema eklemiyor. 3.5 / 4.2 migration'ları koddan
+ÖNCE uygulanmalı.
+
+**Kalan:** Faz 5 istatistik ya da opsiyonel 4.4 Realtime. 4.3 açık uçları PLAN'da.
+
+## Üretim Planlama — Dilim 4.4: canlı tahta (Realtime) (2026-09-28) *(kullanıcı onayıyla: infra değişikliği, sessiz tazeleme, kalıcı bildirimler 4.5'e; migration yok; branch `feature/production-planning`)*
+
+**Ne yapıldı:** bir planlayıcının değişikliği, diğer açık `/uretim` ekranlarını (tahta, pano, emirler,
+lotlar, saha, ekip, tanımlar) yenileme beklemeden tazeler.
+
+- **Sözleşme (core, saf, testli):** `productionRealtime.ts`. Alanlar plan / roster / lots / reasons /
+  definitions. Mesaj yalnız ipucudur (`{ type, scopes, occurredAt, actorUserId }`), veri taşımaz;
+  ayrıştırıcı bilinmeyen alanı düşürür.
+- **Yayın (functions):** `shared/production/realtime.ts`.
+  - `publishProductionChange`: QoS 0, 1,5 sn zaman aşımı. Hata yalnız loglanır, yazma isteğini
+    bozmaz. Ortam ayarı yoksa atlar.
+  - `withProductionChange(scope, …)`: yalnız BAŞARILI yazmadan sonra yayınlar.
+  - 41 üretim yazma ucu sarıldı: tanımlar 22 · plan 10 (emirler 7, iş durumu, lot başlat / rapor) ·
+    ekip 2 · lot notu / ekibi 3 · nedenler 4.
+  - Koruma testi `realtimeCoverage.test.ts`: infra'daki her üretim yazma route'u dar izinli ayarı
+    kullanmalı ve action sarılı olmalı; GET route'ları varsayılanda kalmalı.
+- **Yetkilendirici:** kurallar `UserAccessLifecycle/functions/realtimeAccess.ts`'te (saf, testli).
+  - Kendi erişim ve bildirim konuları: aktif her kullanıcı (değişmedi).
+  - Üretim konusu: yalnız erişimi ACTIVE olan ve üretim yetkili gruptaki kullanıcı
+    (`hasProductionAccess`, uç yetkisiyle aynı liste). Her 5 dk'lık yenilemede veritabanından
+    yeniden okunur.
+  - Bağlantı jetonun süresi dolunca kesilir (`disconnectAfterInSeconds`, IoT aralığı 300–86.400 sn).
+- **Infra (onaylı):**
+  - Konu adının tek kaynağı: `productionRealtimeTopic` (`infra/userAccessLifecycle.ts`).
+  - `infra/ProtectedApi.ts`'teki `productionMutationRouteOptions` 41 route'ta: varsayılanlar +
+    `PRODUCTION_REALTIME_ENDPOINT/TOPIC` env + yalnız o konunun ARN'ine `iot:Publish`.
+  - Realtime bilinçli olarak `link` EDİLMEDİ: SST'nin link'i `iot:Publish`'i `*`'a veriyor (kaynakta
+    görüldü).
+  - Yetkilendiriciye ve frontend'e konu env'i eklendi.
+- **Yan bulgu, düzeltildi:** SST Realtime `endpoint`'i şemasız bir host adı. AWS SDK v3
+  `IoTDataPlaneClient` bunu `TypeError: Invalid URL` ile reddediyor (yerelde, ağa çıkmadan istek
+  yakalayıcıyla ölçüldü). Mevcut `publishUserAccessRealtime` ve `publishBusinessRequestRealtime` bu
+  yüzden muhtemelen hiç yayın yapmıyordu; bildirim zili yalnız sorgu yenilemesiyle doluyordu. Prod
+  logları incelenmedi. `iotDataEndpointUrl` ile `https://` eklendi.
+- **Frontend:**
+  - Ortak `features/realtime`: `realtimeConnection.ts` (bildirim hook'undan taşındı), `tokenRenewal.ts`
+    (JWT exp okuma, yenileme zamanı), `realtimeSubscription.ts` (React'ten bağımsız yaşam döngüsü):
+    - her bağlantıda `getSession()` ile taze jeton — `useSession` verisi aynı sekmede kendiliğinden
+      yenilenmiyor;
+    - jeton bitişinden 2 dk önce yeniden bağlanma;
+    - yetki ya da abonelik reddinde 15 sn sonra taze jetonla yeniden deneme;
+    - yalnız güncel bağlantının olayları işlenir.
+  - `useRealtimeTopic` bunun ince sarmalayıcısı. Bildirim zili de aynı koda geçti (davranış aynı,
+    jeton yenilemesi kazanıldı).
+  - Üretim: `ProductionRealtimeProvider` (`/uretim` layout'unda bir kez) + `useProductionRealtime`.
+    - Gelen alanlar 400 ms'de birleşir, ilgili sorgu önekleri geçersiz kılınır
+      (`productionChangeQueryKeys.ts`).
+    - Kendi değişikliği yok sayılmaz: aynı kullanıcının diğer sekmesi de tazelenmeli
+      (`refetchOnWindowFocus` kapalı).
+    - Bağlantı geri gelince bir kez her şey tazelenir.
+  - Başlıkta `ProductionLiveIndicator`: Canlı / Bağlanıyor / Canlı değil, son değişikliğin zamanı ve
+    alanı. Realtime tanımsızsa görünmez. Toast yok (kullanıcı tercihi).
+
+**Doğrulama:**
+- `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · testler core
+  840 · functions 585 · frontend 504 ✓ · `next build` "Compiled successfully" · root tsc `infra/` 0
+  hata.
+- Yeni testler: sözleşme 2 · yayıncı + sarmalayıcı + uç nokta 4 · kapsam koruması 3 · yetkilendirici
+  kuralları 3 · jeton zamanlaması 3 · abonelik yaşam döngüsü 5 (sahte mqtt istemcisi + sahte
+  zamanlayıcı: taze jeton, yenileme, eski bağlantı olaylarının yok sayılması, yetki / SUBACK reddi,
+  durdurma) · sorgu eşlemesi 2.
+- Gerçek IoT yayını ve tarayıcı aboneliği yerelde denenemedi (IoT uç noktası ve yetkilendirici
+  stage'de) — kubi adımları aşağıda.
+
+**Kullanıcıda bekleyen:** migration YOK. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi`
+infra değişikliğini kubi'ye uygular (41 Lambda env + IAM, yetkilendirici). Kubi adımları:
+1. İki tarayıcı penceresinde (biri gizli olabilir) üretim yetkili hesapla `/uretim/tahta` aç.
+   Başlıkta yeşil noktalı "Canlı" görünmeli.
+2. A'da bir işi sürükle. B'nin tahtası ~1 sn içinde yenilemeden güncellenmeli; göstergeye tıklayınca
+   "Son değişiklik … Plan / saha (başka bir kullanıcı)" yazmalı.
+3. B'de `/uretim/pano`, `/uretim/saha`, `/uretim/ekip` açıkken A'da iş durumu, lot raporu ve ekip
+   değiştir → B'deki ilgili ekran tazelenmeli.
+4. Admin panelinde bir iş talebi oluştur ya da onayla → ilgili kullanıcıda canlı toast gelmeli (yan
+   bulgu düzeltmesi).
+5. Ağı kısa kes / aç → gösterge "Canlı değil", ardından "Canlı"; geri gelince ekran bir kez tazelenmeli.
+
+**Deploy notu:** prod'da 41 üretim Lambda'sının env + IAM'i, yetkilendirici ve frontend env'i değişir;
+kaynak silinmez ya da yeniden oluşmaz. Önce `npx sst diff --stage prod` ile yalnız beklenen farkı gör.
+
+**Kalan:** Faz 5 istatistik ya da 4.5 kalıcı bildirimler (PLAN'da).
+
+## Üretim Planlama — Dilim 4.5: kalıcı üretim bildirimleri (zil) (2026-09-28) *(kullanıcı onayıyla: migration + infra; alıcı yalnız Üretim Planlama rolü; üç uyarı türü; kubi'de tarama yalnız test ederken; branch `feature/production-planning`)*
+
+**Ne yapıldı:** geciken işler, termin riski ve bakımı gelen kalıplar Üretim Planlama rolüne kalıcı zil
+bildirimi + canlı toast olarak gidiyor. Faz 4 tamamlandı.
+
+- **Migration** `20260928160000_add_production_alert_notification_type` (yalnız ekleme):
+  `UserNotificationType.PRODUCTION_ALERT`. Alt tür `data.kind`'da (`JOB_LATE` / `JOB_DUE_RISK` /
+  `MOLD_MAINTENANCE_SOON` / `MOLD_MAINTENANCE_DUE`), tekrar önleme anahtarı `data.alertKey`,
+  panel bağlantısı `data.href`. Yeni bir uyarı türü migration istemez. `/me/notifications` yanıt
+  şeması türü serbest metin tutuyor, 500 riski yok.
+- **Core (saf, testli):**
+  - Tahtanın tahmin hesabı ortak fonksiyonlara çıkarıldı (`jobForecast.ts`: `forecastJobsOnMachines`,
+    `forecastCalendarRange`, `remainingShotsByMold`, `describeForecast` / `describeProjectedEnd`;
+    `moldMaintenance.ts`: `describeMaintenance`). Tahta handler'ı ve tarama AYNI hesabı kullanıyor;
+    4.3'te ön yüzde duran metin fonksiyonları core'dan geliyor (bildirim ve şerit aynı metni verir).
+  - `productionAlerts.ts` kuralları:
+    - gecikme: Başlamadı / Geride / Süresi geçti — iş + planlı bitiş başına bir kez; plan taşınınca
+      yeniden;
+    - termin riski: iş + en yakın termin başına;
+    - kalıp bakımı: "yaklaşıyor" (%85 ya da planlı işlerle aşılacak) ve "geldi" — bakım döngüsü
+      (son bakım sayacı) başına birer;
+    - kullanıcı × anahtar başına tek teslim; canlı mesaj kullanıcı başına tek (çoksa özet).
+- **Repository:**
+  - İşler: `listJobsForAlerts` — sahadaki işler + planlı üretim başı geçmiş planlı işler. Gelecekteki
+    planlı işin gecikmesi / termin riski planlama anında "Öner"de zaten görünür, bildirim üretmez.
+    `sumUpcomingPlannedShotsByMold` gelecekteki baskıları bakım öngörüsüne katar.
+  - Bildirimler: `createNotifications` (toplu) + `listDeliveredProductionAlertKeys` (60 gün). Tekrar
+    önleme için yeni tablo yok; rolü sonradan verilen planlayıcı süren uyarıları bir kez alır.
+- **Tarama:** `functions/src/ProductionAlerts/` (`sweep.ts` bağımlılık enjeksiyonlu, `actions.ts`
+  cron handler'ı). Alıcı yoksa hiç okumaz. Bakımdaki, arızalı ya da emekli kalıp için bakım uyarısı
+  yok. Canlı yayın hatası kalıcı bildirimi etkilemez. Yayın yardımcısı:
+  `functions/shared/realtime/userNotificationPublisher.ts`.
+- **Infra (onaylı):** `infra/productionAlerts.ts` → `sst.aws.Cron`, VPC + veritabanı bağlı.
+  - Prod'da her zaman, 15 dk'da bir.
+  - Diğer stage'lerde YALNIZ `.env`'de `PRODUCTION_ALERTS_ENABLED="true"` iken, 5 dk'da bir
+    (`config.ts` bayrağı, README'de). Neon boşta uyur; sürekli tarama onu gün boyu uyandırırdı.
+  - `iot:Publish` yalnız `…/notifications/users/*` konularına; bildirim konu öneki tek kaynak
+    (`userNotificationTopicPrefix`).
+  - `sst.config.ts`'e eklendi.
+- **Ön yüz:**
+  - Zil üretim paneline eklendi (Canlı göstergesinin yanında).
+  - Zil, `data.href` taşıyan bildirime tıklanınca o sayfayı açıyor. Yalnız uygulama içi yol kabul
+    ediliyor (`notificationHref`, testli: "//alan" ya da tam adres reddedilir).
+  - Tahtada seçili iş URL'de (`?is=<iş kökü>`): bildirimden iş ayrıntısı açık gelir, bağlantı
+    paylaşılabilir. Tasarım dokümanı §8.2'nin öngördüğü "seçili iş URL'de" böylece yapılmış oldu.
+
+**Doğrulama:**
+- `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · testler core
+  849 · functions 589 · frontend 505 ✓ · `next build` "Compiled successfully" · root tsc `infra/` 0
+  hata.
+- **Yerel PostgreSQL 17** (tek kullanımlık küme; test ve küme silindi): tüm migration'lar + yenisi
+  uygulandı, sapma yok. Gerçek repository'ler ve planlama ucuyla kurulan veride:
+  - tarama yalnız başlaması gereken / sahadaki işi aldı; gelecekteki iş yalnız bakım öngörüsüne
+    100 baskıyla katıldı;
+  - yalnız ACTIVE planlayıcıya 3 bildirim gitti (Süresi geçti, Termin riski, Bakım yaklaşıyor);
+    admin ve onay bekleyen kullanıcı almadı; `href` doğru; canlı özet "3 yeni üretim uyarısı";
+  - ikinci tarama 0; bakım kaydından sonra yeni döngüde "yaklaşıyor" yeniden gitti; rolü sonradan
+    verilen planlayıcı süren 3 uyarıyı bir kez aldı, sonra 0.
+- Canlı IoT yayını ve tarayıcı toast'u yerelde denenemedi (kubi adımları).
+
+**Kullanıcıda bekleyen — SIRA ÖNEMLİ:**
+1. kubi migration: `npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`.
+2. `.env`'e `PRODUCTION_ALERTS_ENABLED="true"` ekle, `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi`.
+3. Üretim Planlama rolündeki bir kullanıcıyla: bir işi sahaya ver, ilk lotu planlı saatten geç
+   başlat (ya da planlı işi başlatma). En geç 5 dk içinde zilde "Süresi geçti / Geride / Başlamadı ·
+   İş …" ve toast gelmeli. Tıklayınca tahtada iş ayrıntısı açık gelmeli.
+4. Bir kalıbın sayacını bakım aralığının %85'i üstüne getir → "Bakım yaklaşıyor · Kalıp …";
+   tıklayınca kalıplar sayfası (arama dolu).
+5. Aynı uyarı ikinci taramada tekrar gelmemeli.
+6. Deneme bitince `.env`'deki satırı SİL — açık kalırsa kubi Neon'u gün boyu uyanır.
+
+**Deploy notu:** prod'da yeni zamanlanmış görev (Lambda + EventBridge kuralı) oluşur; migration (4.5,
+yalnız enum değeri) koddan ÖNCE uygulanmalı. `npx sst diff --stage prod` ile kontrol.
+
+**Kalan:** Faz 5 istatistik (PLAN'da). 4.5 açık uçları PLAN'da.
+
+## Üretim Planlama — Dilim 5.1: ürün geçmişi (istatistik) (2026-09-28) *(kullanıcı onayıyla: Faz 5 dikey dilimler; adet kaynağı "kapanıştaki kesin sayım"; migration yok; branch `feature/production-planning`)*
+
+**Ne yapıldı:** Faz 5'in ilk dilimi. Bir ürün modelinin (ölçü / versiyon süzgeçli) pencere içindeki
+her üretimi — makine, kalıp, kaç vardiya, sağlam / fire, plan ↔ gerçek çevrim ve süre — tablo, özet,
+grafik ve Excel olarak.
+
+- **Core (saf, testli):** `productionStats.ts`:
+  - pencere kuralı: varsayılan son 12 ay, en fazla 3 yıl;
+  - `jobRunStats`: raporlu lotlardan brüt / duruş / net çalışma, baskı, gerçek çevrim;
+  - `jobProductionPeriod`: gerçekleşen varsa ilk başlangıç → son rapor ya da şimdi, yoksa plan;
+  - `buildProductHistory`: iş çıktısı başına satır + özet.
+  - **Adet** tamamlanan işte kapanıştaki kesin sayım, sürende raporlu vardiyaların toplamı (kullanıcı
+    kararı; iki sayı hiç karıştırılmaz).
+  - Aile kalıbında her ölçü kendi satırında; başka ürünün gözü dışarıda. Özet çevrimi iş başına bir
+    kez sayılır.
+  - Planlı / sahaya verilmiş (başlamamış) iş geçmişe girmez.
+- **Repository:** `productionStats` — ürün versiyonları (`variantVersionSelect` / `toVariantVersion`
+  yeniden kullanıldı) ve geçmiş işleri.
+  - Geniş üst küme okunuyor: planlı aralığı pencereyle kesişen ya da bir lotu pencerede başlayan iş.
+    Kesin eleme saf modülde. En yeni 500 iş, fazlası `truncated`.
+  - Neden: yerel veritabanı denemesinde, planı pencerede ama gerçek üretimi eski bir iş dar pencerede
+    görünmüştü.
+- **API:** `GET /production/stats/products?productId&sizeId&version&from&to` (planlayıcı yetkisi, açık
+  sorgu doğrulayıcısı, yanıt şeması). Süzgeç seçenekleri (ürün modelinin tüm ölçüleri ve versiyonları)
+  aynı yanıtta — seçenek ve sonuç tek kaynaktan.
+- **Ekran:** `/uretim/istatistikler/urunler` (menüde yeni "Analiz" grubu; genel bakışta 5.2 / 5.3
+  "yakında").
+  - Süzgeç: ürün modeli (aranabilir) → ölçü → versiyon + tarih, hızlı aralıklar (30 gün / 3 ay /
+    12 ay); hepsi URL'de.
+  - Özet kartları: telefonda iki sütun. Fire %5'i, çevrim sapması %10'u aşınca turuncu.
+  - Grafikler: üretim başına sağlam / fire; iş başına plan ↔ gerçek çevrim (en yeni 40).
+  - Tablo: iş no tahtada iş ayrıntısını açar (`?is=`); süren iş rozetli.
+  - Excel: tarayıcıda, `exceljs` tıklanınca yüklenir. Sayılar sayı hücresi, tarihler fabrika saatiyle;
+    toplam satırı var.
+  - Canlı güncelleme: `plan` alanı istatistikleri de tazeler (`statsAll`).
+
+**Doğrulama:**
+- `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · testler core
+  857 · functions 594 · frontend 509 ✓ · `next build` "Compiled successfully" · root tsc `infra/` 0
+  hata.
+- Yeni testler: istatistik çekirdeği 8; uç 3 (gerçek çıktı yanıt şemasına karşı, süzgeçler, 404 / 400);
+  gösterim + Excel 4 (çalışma kitabı üretilip exceljs ile geri okunuyor).
+- **Yerel PostgreSQL 17** (tek kullanımlık küme; test ve küme silindi): tüm migration'lar uygulandı.
+  Planlama ucuyla kurulan aile kalıbı + gerçek vardiya raporu verisinde:
+  - süzgeç seçenekleri ve versiyon eşlemesi (V1 · Siyah · PP) doğru;
+  - bu ürünün iki ölçüsü satır oldu, başka ürünün gözü olmadı;
+  - tamamlanan işte kesin sayım (2.600 / 40), süren işte raporlu toplam (1.000 / 20);
+  - net çalışma 450 dk ve gerçek çevrim doğru;
+  - ölçü ve versiyon süzgeçleri doğru; dar pencerede eski iş elendi; yanıt şeması geçti.
+- **Görsel** (statik render + başsız Chrome, masaüstü + 390 px): özet kartları telefonda tek sütunda
+  çok yer kaplıyordu → iki sütun. Grafikler statik render'da ölçülemediği için görsel kontrol dışında.
+
+**Kullanıcıda bekleyen:** migration YOK. `sst dev --stage kubi` (1 yeni Lambda). Kubi adımları:
+1. Menü → Analiz → Ürün Geçmişi. Ürün modeli seç (vardiya raporu girilmiş işi olan) → özet, grafikler
+   ve tablo.
+2. Ölçü ve versiyon süzgeci, hızlı aralıklar; URL'yi kopyalayıp yeni sekmede açınca aynı görünüm
+   gelmeli.
+3. Tamamlanan işte adet kapanış sayımı, süren işte "Üretimde" rozeti + raporlu toplam olmalı.
+4. İş numarasına tıkla → tahtada iş ayrıntısı açılmalı.
+5. "Excel'e aktar" → dosya açılınca satırlar ve toplam satırı görünmeli.
+
+**Kalan:** 5.2 makine kullanımı ve OEE, 5.3 kalıp istatistikleri + çevrim önerisi (PLAN'da).
+
+## Üretim Planlama — Dilim 5.2: makine kullanımı ve OEE (istatistik) (2026-09-28) *(kullanıcı onayıyla: OEE yalnız raporlu vardiyalardan, makine duruşu kayıtları OEE'ye girmez; migration yok; branch `feature/production-planning`)*
+
+**Ne yapıldı:** Her makinenin vardiya süresinin nereye gittiği (üretim, duruş, makine duruşu, boş) ve
+OEE — özet kartları, zaman grafiği, duruş nedenleri, makine tablosu ve Excel.
+
+- **Core (saf, testli):** `machineStats.ts`:
+  - **Zaman** saat bazlı ve pencereye kırpılmış: vardiya süresi = vardiya içi üretim + makine duruşu +
+    boş (tam toplanır); vardiya dışı üretim ayrı. Kullanım = vardiya içi üretim ÷ vardiya süresi.
+    Aralık hesabı birleştirilmiş aralıklar üzerinde iki işaretçiyle (doğrusal; 1 yılda makine başına
+    ~1.100 vardiya).
+  - **Makine duruşu:** yalnız vardiya içinde ve üretimle ÇAKIŞMAYAN kısım (arıza hem kayıt hem rapor
+    duruşu olarak girilirse iki kez sayılmaz); türler çakışırsa planlı bakım → arıza → diğer sırasıyla
+    bir kez.
+  - **OEE** yalnız pencerede BAŞLAYAN raporlu vardiyalardan (vardiya başladığı pencereye bütün yazılır);
+    kullanılabilirlik, performans, kalite ve toplam oranlar toplanan sürelerden. Duruşlar lot süresini
+    aşamaz (eski veride kırpılır). Seviye: ≥ %85 iyi, %60–85 orta, altı düşük.
+  - **Raporsuz vardiya:** iş kapanırken raporu girilmeden kapanan lot; erken biten işin tamamlanmadan
+    sonraya planlanmış, hiç başlamamış lotu sayılmaz.
+  - Pasif makine yalnız pencerede üretimi ya da raporsuz vardiyası varsa listelenir.
+  - `productionStats.ts`: pencere sınırı ekrana göre (`findStatsRangeIssue(…, maxDays)`; ürün 3 yıl,
+    makine 1 yıl) ve `recentStatsRange`.
+- **Onaylı plan içinde netleşenler (kullanıcıya bildirildi):**
+  - Raporsuz vardiya tanımı daraltıldı. Plandaki "başlamış işin planlı bitişi geçmiş raporsuz lotu"
+    raporlarını eksiksiz giren planlayıcıya da yanlış uyarı verirdi (erken biten işin kullanılmayan
+    lotları, geciken işin henüz gelmemiş lotları).
+  - Pencere ŞİMDİ'de biter: bugünün gelmemiş vardiyaları "boş" sayılmaz.
+  - Zaman dağılımı saat bazlı: vardiyayı başladığı pencereye bütün yazmak, sınırda (ör. 2×12 düzeninde
+    gece vardiyası) vardiya süresiyle toplamı tutturmuyordu.
+- **Repository** (`productionStats`): `listMachineReportedLots` (pencereyle kesişen raporlu lotlar:
+  makine, plan çevrimi, duruşlar + neden ve kategori, sağlam / fire toplamı) ve
+  `listMachineUnreportedLots` (tamamlanan işin raporsuz lotları + tamamlanma anı durum geçmişinden).
+  Makine, alan, vardiya düzeni, takvim istisnası ve duruş okumaları mevcut repository'lerden.
+- **API:** `GET /production/stats/machines?from&to&areaId` (planlayıcı yetkisi, açık sorgu
+  doğrulayıcısı, yanıt şeması). Varsayılan son 30 gün, en fazla 1 yıl; bilinmeyen alan 400. Süzgeç
+  seçenekleri (makinesi olan alanlar) aynı yanıtta.
+- **Ekran:** `/uretim/istatistikler/makineler` (menü: Analiz → Makine Kullanımı ve OEE; genel bakış
+  kartı bağlandı).
+  - Süzgeç: alan + tarih, hızlı aralıklar (7 gün / 30 gün / 3 ay); URL'de (`?alan=&bas=&bit=`).
+  - Özet kartları: OEE (seviye rengi + bileşenler), kullanım, rapor duruşları (plansız / planlı),
+    makine duruşu, raporlu vardiya (raporsuz varsa turuncu uyarı).
+  - Makine başına zaman grafiği, en çok süre kaybettiren 10 duruş nedeni, makine tablosu + toplam,
+    altta kısa tanımlar ("sayılar nereden geliyor").
+  - Excel: "Makineler" (toplam satırıyla) ve "Duruş nedenleri" sayfaları; `exceljs` tıklanınca yüklenir.
+  - Ortak parçalar: tarih süzgeci (`StatsRangeControls`), özet kartı (`StatsSummaryCard`), hata durumu
+    (`StatsErrorState`) — Ürün Geçmişi de bunlara geçti.
+- **Yan düzeltmeler (5.1 sayfası):**
+  - İlk yükleme hata verirse sayfa iskelette takılı kalıyordu → "Yeniden dene" + "Süzgeçleri temizle".
+  - Recharts 3 grafik açıklamasını ada göre sıralıyordu (Fire, Sağlam) → seri sırası korunuyor
+    (`itemSorter={null}`).
+
+**Doğrulama:**
+- `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · testler core
+  866 · functions 599 · frontend 513 ✓ · `next build` "Compiled successfully" · root tsc `infra/` 0
+  hata.
+- Yeni testler: çekirdek 9 (zaman dağılımı, pencereden önce başlayan vardiya, vardiya dışı üretim,
+  çakışan duruşlar, raporsuz vardiya kuralı, OEE, pasif makine, duruş nedenleri); uç 3 (gerçek çıktı
+  yanıt şemasına karşı, varsayılan pencere şimdide biter, alan süzgeci / 400); gösterim + Excel 4
+  (çalışma kitabı exceljs ile geri okunuyor).
+- **Yerel PostgreSQL 17** (tek kullanımlık küme; test ve küme silindi): tüm migration'lar uygulandı.
+  Gerçek repository'ler ve uçla:
+  - pencereyle kesişen raporlu lotlar (pencereden önce başlayan dahil, eski lot hariç) ve alan süzgeci
+    doğru;
+  - raporsuz aday + tamamlanma anı doğru; erken biten işin sonraya planlanmış lotu sayılmadı;
+  - M-01: vardiya 960 dk, üretim 480, planlı bakım 60, boş 420; M-02'de makineye özel tatil (480 dk);
+    pencereden önce başlayan lotun penceredeki 5 saati vardiya dışı üretim oldu, OEE'ye girmedi; pasif
+    makine gizli; makinesiz alan seçeneklerde yok; yanıt şeması geçti.
+- **Görsel** (statik çizim + başsız Chrome, masaüstü + 390 px): kartlar telefonda iki sütun (OEE tam
+  genişlik), tablo kendi kutusunda kayıyor. Recharts statik çizimde ölçü alamadığı için grafik esbuild
+  ile küçük bir sayfaya paketlenip gerçek tarayıcıda çizildi; başsız Chrome'da animasyon ilerlemediği
+  için çubuklar boş göründü, animasyonsuz kopyayla doğrulandı. Bulunan ve düzeltilen: açıklama ada
+  göre sıralıydı; "Boş" kutucuğu çubuktan koyuydu; telefonda açıklama kelimeleri bölünüyordu.
+
+**Kullanıcıda bekleyen:** migration YOK. `sst dev --stage kubi` (1 yeni Lambda). Kubi adımları:
+1. Menü → Analiz → Makine Kullanımı ve OEE. Vardiya raporu girilmiş bir makinede OEE ve bileşenleri,
+   kullanım, zaman grafiği ve duruş nedenleri görünmeli.
+2. Alan süzgeci ve hızlı aralıklar; URL'yi yeni sekmede açınca aynı görünüm gelmeli.
+3. Makineler sayfasından vardiya saatleri içine bir planlı bakım gir → "Makine duruşu" artmalı, OEE
+   değişmemeli.
+4. Raporsuz vardiyası olan bir işi tamamla → tabloda "raporsuz" rozeti, özet kartında turuncu uyarı.
+5. "Excel'e aktar" → "Makineler" (toplam satırıyla) ve "Duruş nedenleri" sayfaları.
+6. Başka sekmede vardiya raporu gir → açık istatistik sayfası kendiliğinden tazelenmeli (canlı
+   güncelleme `plan` alanı istatistikleri de kapsıyor).
+
+**Kalan:** 5.3 kalıp istatistikleri + gerçekleşen çevrim önerisi (PLAN'da); 5.2 açık uçları PLAN'da.
+
+## Üretim Planlama — Dilim 5.3: kalıp istatistikleri ve gerçekleşen çevrim önerisi (2026-09-28) *(kullanıcı onayıyla: öneri eşiği 3 raporlu vardiya + %5 fark; öneri otomatik yazılmaz; migration yok; branch `feature/production-planning`)*
+
+**Ne yapıldı:** Her kalıbın baskı sayacı ve bakım durumu, seçilen aralıkta basılanlar, gerçek çevrimin
+plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklıysa kartı tek tıkla güncelleme.
+**Faz 5 (istatistik) tamam.**
+
+- **Core (saf, testli):** `moldStats.ts`:
+  - Gerçek çevrim 5.1 / 5.2 ile AYNI kural: pencerede başlayan raporlu vardiyalarda (süre − kayıtlı
+    duruş) ÷ baskı. Duruşlar planda makine verimiyle karşılandığı için çevrime girmez (verimle iki kez
+    sayılmasın). Plan çevrimi: işlerin planlama anındaki çevriminin baskı ağırlıklı ortalaması.
+  - Kalıp satırı + kalıp × makine (kart ↔ gerçek ↔ plan, öneri) + kalıp × renk / hammadde.
+  - **Öneri** (`cycleSuggestion`): en az 3 raporlu vardiya ve gerçek çevrim karttakinden (kart ya da
+    değeri yoksa planların varsaydığından) en az %5 farklı; 0,1 sn'ye yuvarlanır; karttakiyle aynıysa
+    ya da 3600 sn'yi aşıyorsa öneri yok.
+  - **Bakım:** güncel seviye + açık işlerin henüz basılmamış baskısıyla öngörü. "Kalan baskı" kuralı
+    tahminle ortak yardımcıya çıkarıldı (`jobForecast.ts` `remainingJobShots`) → sayfa ile zil uyarısı
+    aynı sayıyı verir. Bakım uyarısı yalnız kullanımdaki kalıpta; kullanım dışı kalıp yalnız pencerede
+    üretimi varsa listelenir.
+  - Kart çevrimi sınırı tek yerde (`MAX_CARD_CYCLE_SEC`, kalıp formu doğrulayıcısı da ondan).
+- **Repository:** `productionStats` — `listMoldStatsLots` (pencerede başlayan raporlu lotlar: kalıp,
+  makine, baskı ayarı, plan çevrimi, duruş, sağlam / fire), `listOpenJobShots` (açık işlerin planlanan
+  ve raporlanan baskısı), `listVersionLabels` (baskı ayarı imzası → renk + hammadde; aynı imza farklı
+  ürün modellerinde farklı V koduyla durduğu için kod dönmez, `distinct` ile bir kez).
+  `productionMolds.setMachineProfileCycle` (kart varsa yalnız çevrim, yoksa oluşur).
+- **API:**
+  - `GET /production/stats/molds?from&to` (varsayılan son 90 gün, en fazla 3 yıl; yanıt şeması).
+  - `PATCH /production/molds/{id}/machine-profiles/{machineId}` `{ cycleTimeSec }` — öneriyi karta
+    yazar; tercih / engel işaretine dokunmaz; bilinmeyen makine 400, kalıp 404. Yazma ucu olduğu için
+    `withProductionChange("definitions")` + dar izinli route (koruma testi geçti).
+- **Ekran:** `/uretim/istatistikler/kaliplar` (menü: Analiz → Kalıp İstatistikleri; genel bakış kartı
+  bağlandı).
+  - Süzgeç: arama (kod / ad / makine), tarih + hızlı aralıklar, "Çevrim önerisi olanlar", "Bakım uyarısı
+    olanlar"; hepsi URL'de (`?q=&oneri=&bakim=&bas=&bit=`), açık kalıp da (`&kalip=`).
+  - Özet kartları, kalıp tablosu (bakım: seviye + "planlı işlerle aşılacak"; çevrim: gerçek / plan + fark).
+  - Kalıp ayrıntısı (dialog, uzun dialog deseni): makine kartları (geniş ekranda tablo, telefonda kart —
+    "Karta uygula" yana kaymadan görünsün diye) ve renk / hammadde. "Karta uygula" onay ister; açıklama
+    kartta ne değişeceğini ve yalnız sonraki planları etkilediğini söyler.
+  - Excel: "Kalıplar", "Makine kartları" (öneri dahil), "Renk ve hammadde"; süzülmüş satırlar.
+
+**Doğrulama:**
+- `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · testler core
+  871 · functions 607 · frontend 517 ✓ · `next build` "Compiled successfully" · root tsc `infra/` 0
+  hata.
+- Yeni testler: çekirdek 5 (öneri eşiği ve yuvarlama, kart yoksa plan, makine / versiyon kırılımı,
+  bakım öngörüsü, kullanım dışı kalıp, özet); uçlar 4 (gerçek çıktı yanıt şemasına karşı, varsayılan
+  90 gün, bozuk pencere 400; karta yazma + 400 / 404); gösterim + Excel 4 (kitap exceljs ile geri
+  okunuyor).
+- **Yerel PostgreSQL 17** (tek kullanımlık küme; test ve küme silindi): tüm migration'lar uygulandı.
+  Gerçek repository'ler ve uçlarla:
+  - pencere dışındaki eski lot elendi; açık işlerin kalanı 21.800 (süren iş 20.000 − 1.200 + planlı
+    3.000) → "yaklaşıyor", "planlı işlerle aşılacak";
+  - aynı imza iki ürün modelinde → etiket bir kez (Siyah · PP);
+  - M-01 önerisi 24,0 sn (kart 20,0), M-02 tek vardiya → öneri yok; kullanım dışı kalıp gizli;
+  - karta yazma: mevcut kart güncellendi ("tercih" korundu), olmayan kart oluştu, bilinmeyen kalıp 404;
+    yazdıktan sonra öneri kalktı; yanıt şeması geçti.
+- **Görsel** (esbuild ile paketlenip gerçek tarayıcıda, masaüstü + 390 px): liste ve ayrıntı düzgün.
+  Bulunan ve düzeltilen: telefonda "Karta uygula" tablonun sağında kalıp ancak yana kaydırınca
+  görünüyordu → dar ekranda makine kartları; kartta "Gerçek" değeri ikiye bölünüyordu → tek satır.
+
+**Kullanıcıda bekleyen:** migration YOK. `sst dev --stage kubi` (2 yeni Lambda). Kubi adımları:
+1. Menü → Analiz → Kalıp İstatistikleri. Vardiya raporu girilmiş kalıplarda baskı, fire ve
+   gerçek / plan çevrimi görünmeli.
+2. Bir kalıbın ayrıntısını aç (kod ya da "öneri" düğmesi): makine kartları ve renk / hammadde.
+3. Aynı makinede en az 3 raporlu vardiyası olan ve gerçek çevrimi karttan %5+ farklı kalıpta "Karta
+   uygula" → onay → toast; öneri kalkmalı. Kalıplar sayfasında o makinenin kart çevrimi yeni değeri
+   göstermeli; o kalıpla yeni "Öner" planı bu çevrimi kullanmalı.
+4. "Çevrim önerisi olanlar" / "Bakım uyarısı olanlar" süzgeçleri ve arama; URL'yi yeni sekmede aç →
+   aynı görünüm (açık ayrıntı dahil).
+5. "Excel'e aktar" → üç sayfa.
+
+**Kalan:** Faz 5 tamam. Sıradaki: Faz 1–5 kubi doğrulaması ve prod'a çıkış; Faz 6 opsiyonel
+(PLAN'da). 5.3 açık uçları PLAN'da.
+
+## Üretim Planlama — demo ve kullanım kılavuzu (2026-09-29) *(kullanıcı talebiyle; yalnız doküman)*
+
+- **Ne:** `docs/production-planning-demo.md` — haftalık demo için kısa yol haritası (Faz 1–5), "nasıl yapıldı"
+  ve kanıt (üretime özel 410 test; canlı gösterim komutu), demo öncesi kubi hazırlığı, 14 adımlık demo akışı,
+  ekran ekran kullanım kılavuzu ve sırayla girilecek örnek veriler (3 makine, 3 kalıp, 4 emir, 3 geçmiş vardiya
+  raporu). `production-planning.md` başlığından bağlandı.
+- **Doğrulama:** örnek verilerin sonuçları gerçek motorlardan geçirildi (geçici test, silindi): uygunluk matrisi
+  (K-103 × M-02 ✗ kalıp kalınlığı olarak düzeltildi), E1 = 5.103 baskı, OEE %81,7 (%93,3 × %88,9 × %98,4),
+  K-101 çevrim önerisi 22,5 sn, bakım "yaklaşıyor / planlı işlerle aşılacak". Düğme adları koddan alındı.
+  Planlama hep "şimdi"den ileri yapıldığı için geçmiş veri, vardiya raporuna geçmiş saat girilerek oluşturuluyor
+  (kural buna izin veriyor: yalnız bitiş gelecekte olamaz; rapor PLANLI lota da girilebilir).
+- **Kalan:** kullanıcı kubi'de örnek verileri girip demoyu prova eder.
+
+## Üretim formları — alan hizası ve üst üste binen etiketler (2026-09-29) *(kullanıcı talebiyle; görsel düzeltme)*
+
+- **Gözlem (kullanıcı):** Hammadde Üretim Bilgisi dialog'unda kutular hizasız, yazılar üst üste.
+- **Kök neden (başsız Chrome'da ölçüldü):**
+  - `Label` bileşeni `flex items-center leading-none` ve satır kaydırmıyor → dar sütunda
+    "Yoğunluk (g/cm³) (opsiyonel)" sütuna sığmayıp yan alanın üstüne taşıyordu; kutu da yan sütunun altına giriyordu.
+  - shadcn `FormItem` (`grid gap-2`) ızgarada satır yüksekliğine gerilir ve fazla yüksekliği kendi satırlarına
+    dağıtır → aynı satırda açıklaması (ya da doğrulama hatası) olan bir alan varsa diğerlerinin etiketi ve kutusu
+    aşağı kayıyordu. Aynı durum makine formunda da vardı ("Açılma stroku", "Vardiya düzeni").
+- **Düzeltme:**
+  - `FormNumberField`: etiket parçaları sığmazsa alt satıra geçer (`flex-wrap`), alan gerilmez (`content-start`).
+  - Hammadde dialog'u: üç sütun → iki sütun.
+  - Üretim formlarının çok sütunlu ızgaralarına `items-start` (makine, kalıp, emir, vardiya raporu, hammadde) —
+    açıklama ya da hata çıkan satırda da kutular hizalı kalır.
+  - Makine ve kalıp formundaki "Robot" kutusu sabit `sm:mt-6` yerine `self-end`: yanında alan varsa onun kutusuyla
+    aynı hizada, tek başına kaldığı satırda fazladan boşluk yok.
+  - Genel `FormItem` / `Label` bileşenlerine dokunulmadı (tüm uygulamayı etkiler).
+- **Doğrulama:** bileşenler esbuild ile paketlenip gerçek tarayıcıda çizildi — hammadde (masaüstü + 390 px), makine
+  (1280 / 820 px) ve kalıp (1100 / 1024 px) formları düzeltme öncesi ve sonrası karşılaştırıldı. frontend
+  `typecheck` ✓ · lint 0 hata (159 uyarı) · frontend testleri 517 ✓ · `next build` "Compiled successfully".
+- **Kubi:** Tanımlar → Hammadde Bilgisi → bir hammaddeyi düzenle (kurutmayı işaretle); Makineler → Yeni Makine;
+  Kalıplar → Yeni Kalıp — etiketler taşmamalı, aynı satırdaki kutular aynı hizada olmalı.
+
+## Üretim — iş süresi gösterimi: çalışma süresi ile takvim ayrıldı (2026-09-29) *(kullanıcı bildirimi; hesap doğru, gösterim yanıltıcıydı)*
+
+- **Bildirim (kullanıcı):** 20.000 adet · 4 göz · 20 sn · %2 fire · 45 dk bağlama için elle yapılan hesap, programın
+  gösterdiğinden uzun çıktı: "program daha kısa sürede üretilecek gibi hesaplıyor" (iş 1005, varsayılan düzen 1 × 12 saat).
+- **İnceleme — motor hesabı doğru, elle hesapla aynı:**
+  - baskı = ⌈20.000 ÷ (4 × 0,98)⌉ = **5.103**; üretim = 5.103 × 20 sn ÷ 0,85 = **2.001 dk (33 sa 21 dk)**;
+    + 45 dk bağlama = **34 sa 6 dk** çalışma.
+  - Lotlar 30.09 08:45–20:00 (1.721) · 01.10 08:00–20:00 (1.836) · 02.10 08:00–18:06 (1.546) = 5.103; planlı bitiş
+    02.10 18:06 — ekrandakiyle aynı.
+- **Kök neden (gösterim):** iki ekran süreyi 24 saatlik GÜNLE yazıyordu (`formatDurationMinutes`):
+  - Öner'in "Süre" sütunu 34 sa 6 dk'yı **"1 gün 10 sa"** yazıyordu → günde 12 saat çalışan fabrikada "1,5 günde biter"
+    diye okunuyordu.
+  - İş ayrıntısındaki "Toplam süre", bağlama başı → planlı bitiş TAKVİM aralığını (geceler dahil 58 sa) **"2 gün 10 sa"**
+    diye yazıyordu → ne çalışma süresiydi ne de fabrika günü sayısı.
+- **Düzeltme:**
+  - core `productionTime.formatWorkMinutes`: çalışma süresi saatle ("34 sa 6 dk"), gün yok. `formatDurationMinutes`
+    takvim süresi olarak kaldı (gecikme, duruş, lot aralığı — oralarda anlamı doğru).
+  - `features/production/shared/jobDurations.ts`: `jobWorkMinutes` (motorun `computeProductionMinutes` formülü, ikinci
+    bir hesap yok) + `jobCalendarDays` (işin kapladığı fabrika günleri, ilk ve son gün dahil).
+  - Öner: sütun "Çalışma süresi", alt satır "bağlama X dk · takvimde N gün".
+  - İş ayrıntısı: "Toplam süre" yerine "Çalışma süresi" (alt satır: bağlama + üretim · verim) ve "Takvimde" (N gün ·
+    tarih aralığı). Telefonda etiket tek satır, değer sağa yaslı.
+  - Ürün Geçmişi "Süre (net / plan)" de saatle.
+  - `docs/production-planning-demo.md` kullanım rehberine iki sürenin anlamı eklendi.
+- **Doğrulama:**
+  - Yeni testler: `productionTime.test.ts` (2.046 dk → "34 sa 6 dk"; takvim biçimiyle "1 gün 10 sa") ve
+    `jobDurations.test.ts` (iş 1005: 34 sa 6 dk; 30.09 08:00 → 02.10 18:06 = 3 gün).
+  - İki dialog iş 1005'in değerleriyle esbuild + başsız Chrome'da çizildi (masaüstü + 390 px).
+  - Canlı uygulamada giriş yapılmadı: giriş Cognito üzerinden, şifreyi ajan girmez.
+  - `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · testler core 872 · functions 607 ·
+    frontend 519 ✓ · `next build` ✓.
+- **Kubi:** Emirler → bir emirde **Öner** → "Çalışma süresi" sütunu (ör. 34 sa 6 dk · takvimde 3 gün); Tahta → işe
+  tıkla → "Çalışma süresi" ve "Takvimde"; İstatistikler → Ürün Geçmişi → süre sütunu saatle.
+
+## Üretim — Planlama önizlemesi (Öner) kart düzenine geçti, uyarılar kısaldı (2026-09-30) *(kullanıcı talebiyle; UI/UX)*
+
+- **Gözlem (kullanıcı):** MacBook Air'de Öner penceresindeki 9 sütunlu tablo yatay kaydırma istiyordu; uygunluk
+  uyarıları ("Baskı ağırlığı: …", "Merkezleme bileziği: …") ilk hücrede uzun metin olarak çok yer kaplıyordu.
+- **Düzeltme:**
+  - Tablo kaldırıldı; her makine × kalıp adayı bir kart (`OrderCandidateCard`). Altı değer kabın genişliğine göre
+    dizilir (`repeat(auto-fill, minmax(8rem, 1fr))`) — yatay kaydırma yok, telefonda iki sütun.
+  - Uyarılar tek satırlık özet ("2 uyarı · Baskı ağırlığı · Merkezleme bileziği"); ayrıntı tıklayınca açılır
+    (`Collapsible`). Notu başlık + ayrıntıya ayıran saf yardımcı: `orders/utils/candidateNotes.ts` (testli).
+  - Vardiya lotları da kartın içinde açılır; dialog'daki `expanded` durumu kalktı. "Tercih edilen" artık yazılı rozet.
+  - Dialog genişliği 72rem → 62rem.
+- **Doğrulama:** esbuild + başsız Chrome'da kullanıcının örneğindeki iki uzun uyarıyla çizildi (1470 px ve 390 px;
+  uyarı ve lotlar açık). frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · frontend testleri 521 ✓ ·
+  `next build` "Compiled successfully".
+- **Kubi:** Emirler → Öner: kartlar kaydırmasız sığmalı; uyarılı adayda sarı satıra tıklayınca ayrıntı açılmalı;
+  "N vardiya lotu" lotları açmalı; Planla eskisi gibi çalışmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

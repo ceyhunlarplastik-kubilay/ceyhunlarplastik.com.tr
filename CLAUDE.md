@@ -182,7 +182,32 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `--user-data-dir`, kendi CSS'i için build çıktısı `.next/static/chunks/*.css`). macOS'ta
   pencere ~500px'in altına İNMEZ: `--window-size=390,…` sayfayı daha geniş dizip görüntüyü
   kırpar. Telefon genişliği için sayfayı 390px genişliğinde bir `<iframe>` içinde aç. Süreç
-  bazen kapanmaz — bir bekçi süresiyle çalıştır.
+  bazen kapanmaz — bir bekçi süresiyle çalıştır. Recharts grafikleri statik çizimde (`renderToStaticMarkup`)
+  hiç çizilmez; başsız Chrome'da da animasyon ilerlemediği için çubuklar BOŞ görünür (hata değil).
+  Grafiği görmek için bileşeni `esbuild` ile küçük bir sayfaya paketle (`--tsconfig` frontend'inki) ve
+  kopyada `isAnimationActive={false}` ver (2026-09-28, üretim 5.2). Paketlenen sayfa HTTP istemcisini
+  içe alıyorsa tarayıcıda `process is not defined` ile boş kalır: HTML'e bundle'dan önce
+  `<script>window.process={env:{}}</script>` koy. Dialog / React Query kullanan bileşeni
+  `QueryClientProvider` ile sar.
+- Recharts 3 `Legend` öğeleri ADA göre sıralar (`itemSorter` varsayılanı `"value"`): açıklama çubuk /
+  çizgi sırasından kopar. Seri sırası için `<ChartLegend … itemSorter={null} />`.
+- Çok sütunlu form ızgarasında shadcn `FormItem` (`grid gap-2`) satır yüksekliğine GERİLİR ve fazla yüksekliği
+  kendi satırlarına dağıtır: aynı satırda açıklaması ya da doğrulama hatası olan bir alan varken diğerlerinin
+  etiketi ve kutusu aşağı kayar. Izgaraya `items-start` (ya da alana `content-start`) ver. `Label` de
+  `flex leading-none` ve satır KAYDIRMAZ: "ad (birim) (opsiyonel)" gibi etiket dar sütunda yan alanın üstüne taşar
+  — sütunu genişlet ya da etikete `flex-wrap` ver (`features/production/shared/components/FormNumberField` örneği).
+- Görsel kontrolde `.next` CSS'ini kullanıyorsan yeni eklediğin Tailwind sınıfları o CSS'te YOKTUR (Tailwind yalnız
+  derleme anında kodda geçen sınıfları üretir): değişiklikten sonra `next build`'i yeniden çalıştır, yoksa düzeltme
+  ekranda "işe yaramamış" görünür.
 - Client component'e ham API objesi / büyük DTO'yu prop olarak geçme — RSC flight
   payload'una serialize olup tarayıcıya iner (6MB/performans sınıfının kök nedeni).
   Server'da daralt/grupla, client'a görüntülenecek kadarını ver.
+- SST `Realtime` bileşeninin `endpoint`'i ŞEMASIZ bir host adıdır. Lambda'da `IoTDataPlaneClient`'a
+  böyle verilirse AWS SDK v3 `TypeError: Invalid URL` atar (yerelde ölçüldü, 2026-09-28; mevcut iki
+  yayıncı bu yüzden muhtemelen hiç yayın yapmıyordu). `iotDataEndpointUrl` ile `https://` ekle.
+  Realtime'ı `link` etmek `iot:Publish`'i `*`'a açar; dar izin için uç noktayı env ile ver, izni
+  konu ARN'ine yaz.
+- Tarayıcıda `useSession()`'ın `idToken`'ı aynı sekmede kendiliğinden YENİLENMEZ. Uzun ömürlü
+  bağlantılar (MQTT / Realtime) jetonu her bağlantıda `getSession()` ile taze almalı ve süresi
+  dolmadan yenilemeli (`features/realtime/lib/realtimeSubscription.ts`). Yoksa bağlantı bir saat
+  sonra hata vermeden susar.

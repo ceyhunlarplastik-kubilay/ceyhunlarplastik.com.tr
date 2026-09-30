@@ -24,14 +24,147 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   lotu `1000-1`…), saf planlama motoru (core, frontend'le `@core/*` üzerinden paylaşılır),
   ProtectedApi `/production/*`, planlama tahtası + kanban UX'i, kütüphane kararı (kendi
   tahtamız: `@dnd-kit/core` + date-fns + shadcn), açık sorular (§13).
-- **Durum:** Faz 0 (plan) hazır, 2026-09-25; kod değişikliği yok.
-- **Sıradaki:** §13 açık sorularının cevabı + **Dilim 1.1** onayı — `production_planner`
-  ("Üretim Planlama") rolü uçtan uca + `/uretim` panel iskeleti. Cognito grubu additive bir
-  infra değişikliği; prod'a ancak kullanıcı deploy ederse gider.
+- **Durum:** Faz 0 (plan) ✅ · **Dilim 1.1** (rol + `/uretim` iskeleti) ✅ · **Dilim 1.2**
+  (tanım şeması + migration + ölçü koruması) ✅ — ikisi kubi'de kullanıcı tarafından
+  doğrulandı (migration uygulandı, giriş/çıkış sorunsuz). **Dilim 1.3** (parkur/alan +
+  vardiya düzenleri + makineler) ✅ kubi'de doğrulandı. **Dilim 1.4** (kalıplar + göz grupları
+  + makine kartları + hammadde bilgisi: 9 route + 2 ekran) ✅ kubi'de doğrulandı (örnek kalıplar
+  girildi). **Dilim 1.5** (operatörler + takvim istisnaları + makine duruşları: 11 route,
+  `/uretim/operatorler`, vardiya sayfasına takvim, makine sayfasına duruşlar; migration yok) ✅
+  kubi'de doğrulandı. **Dilim 1.6** (uyumluluk motoru + `/uretim/uyumluluk` matrisi + makineye
+  `maxDaylightMm`; yeni migration) ✅ kubi'de doğrulandı (migration uygulandı, matris açıldı).
+  **Faz 1 (tanımlar) tamam.** **Dilim 2.1** (üretim emirleri: şema + migration + 6 route +
+  `/uretim/emirler`) ✅ kod hazır, 2026-09-25 LOG — kubi migration'ı + doğrulama kullanıcıda.
+  **Dilim 2.2** (planlama motoru + emir "Öner" önizlemesi; 1 route, migration yok) ✅ kod hazır.
+  **Dilim 2.3** (işler ve vardiya lotları + "Planla"; 2 route, yeni migration) ✅ kod hazır,
+  2026-09-25 LOG — 2.1–2.3 kubi doğrulaması kullanıcıda (2.1 migration'ı uygulandı).
+- Tanım dilimleri **dikey** (API + ekran birlikte, her dilim kubi'de tıklanarak denenebilsin)
+  — doküman §10.
+  **Dilim 3.1** (salt-okunur planlama tahtası `/uretim/tahta`; 1 route, migration yok) ✅ kod
+  hazır, 2026-09-26 LOG — kubi doğrulaması kullanıcıda.
+  **Dilim 3.2** (tahtada taşıma: sürükle-bırak + "Taşı" formu, `version` kilidi; 1 route,
+  migration yok, yeni bağımlılık `@dnd-kit/core`) ✅ kod hazır, 2026-09-26 LOG — kubi
+  doğrulaması kullanıcıda.
+  **Dilim 3.3** (bekleyen emirler paneli + "Öner" + "sonrakileri kaydır"; route yok, migration
+  yok) ✅ kod hazır, 2026-09-26 LOG — kubi doğrulaması kullanıcıda.
+  **Dilim 3.4** (durum panosu `/uretim/pano`; 2 route, migration yok) ✅ kod hazır, 2026-09-26
+  LOG — kubi doğrulaması kullanıcıda.
+  **Dilim 3.5** (vardiya ekibi + lotlar + notlar + QR etiket; migration
+  `20260926150000_add_production_shift_assignments_and_lot_notes`, 8 route, yeni bağımlılık
+  `qrcode.react`) ✅ kod hazır, 2026-09-28 LOG — migration + kubi doğrulaması kullanıcıda.
+  **Faz 3 tamam.**
+  **Dilim 4.2** (vardiya raporu; migration `20260928100000_add_production_shift_reports`, 7 route)
+  ✅ kod hazır, 2026-09-28 LOG — migration + kubi doğrulaması kullanıcıda.
+  **Dilim 4.3** (planlanan ↔ gerçekleşen: tahmin, gecikme uyarısı + "sonrakileri kaydır" önerisi,
+  kalıp bakımı; 2 route, migration yok) ✅ kod hazır, 2026-09-28 LOG — kubi doğrulaması kullanıcıda.
+  **Dilim 4.4** (canlı tahta — Realtime; migration yok, infra değişikliği: 41 üretim yazma route'una
+  dar `iot:Publish` + yetkilendiriciye rol kontrolü) ✅ kod hazır, 2026-09-28 LOG — kubi doğrulaması
+  kullanıcıda.
+  **Dilim 4.5** (kalıcı üretim bildirimleri: gecikme, termin riski, kalıp bakımı — zil + canlı toast;
+  migration `20260928160000_add_production_alert_notification_type`, infra: zamanlanmış tarama) ✅
+  kod hazır, 2026-09-28 LOG — migration + kubi doğrulaması kullanıcıda. **Faz 4 tamam** (4.1
+  operatör hesapları ertelendi).
+  **Faz 5 (dikey dilimler, 2026-09-28 onayı):** **Dilim 5.1** (ürün geçmişi: 1 route, ekran + Excel;
+  migration yok) ✅ kod hazır, 2026-09-28 LOG — kubi doğrulaması kullanıcıda. **Dilim 5.2** (makine
+  kullanımı ve OEE: 1 route, ekran + Excel; migration yok) ✅ kod hazır, 2026-09-28 LOG — kubi
+  doğrulaması kullanıcıda. **Dilim 5.3** (kalıp istatistikleri + makine kartına çevrim önerisi: 2
+  route, ekran + Excel; migration yok) ✅ kod hazır, 2026-09-28 LOG — kubi doğrulaması kullanıcıda.
+  **Faz 5 tamam.**
+- **Sıradaki:** Faz 1–5 kubi doğrulaması (kullanıcıda; migration'lar LOG'da; demo akışı ve örnek veriler
+  [docs/production-planning-demo.md](docs/production-planning-demo.md)) ve prod'a çıkış planı.
+  **Faz 6** (doküman §10, opsiyonel: otomatik planlayıcı, sipariş durumunun otomatik "Üretimde"ye
+  geçmesi, hammadde ihtiyacı, insert reçetesi, sayaç entegrasyonu) ayrı karar + kısa planla.
+- **5.3'ten açık uçlar (talep gelirse):** tahta / uyarı tahmini hâlâ plan çevrimiyle — gerçek hız
+  yalnız karta uygulanınca sonraki planlara girer; kalıp bağlama süresi önerisi yok (kanban tıklama
+  anına bağlı veri güvenilir değil); kart makine başına tek çevrim (kart varken hammadde katsayısı
+  devre dışı) — renk / hammadde ayrımı gerekirse kart × hammadde ailesi; Kalıplar (Tanımlar)
+  sayfasında öneri rozeti yok; makine verimi (%85) için gerçekleşen kullanılabilirliğe dayalı öneri
+  yok.
+- **5.2'den açık uçlar (talep gelirse):** süre ve OEE yalnız raporlu vardiyalardan — süren vardiya
+  rapor girilene kadar "boş" görünür (anlık veri 4.1 / sayaç entegrasyonuyla); "raporsuz vardiya" yalnız
+  iş kapanırken raporsuz kalanları sayar, sahadaki işin geciken raporu ayrıca sayılmaz (4.5'in "lot
+  raporu bekliyor" uyarısıyla birlikte düşünülebilir); makine durum geçmişi yok — pasif makine
+  listelenirse pencerenin tamamı vardiya süresine girer; `ProductionLot.actualStartAt` üzerinde indeks
+  yok (lot sayısı çok büyürse indeks migration'ı); günlük / haftalık eğilim grafiği yok (pencere
+  toplamı).
+- **5.1'den açık uçlar (talep gelirse):** raporu hiç girilmemiş vardiyalar gerçek çevrime katılmaz
+  (yalnız raporlu vardiyalar); ürün listesi yalnız kullanılabilir kalıbı olan ürün modellerini
+  gösteriyor — kalıbı emekliye ayrılmış ürünün geçmişi için "üretilmiş ürünler" sözlüğü gerekebilir;
+  tek sorguda en yeni 500 iş (aralık daraltılır).
+- **4.5'ten açık uçlar (talep gelirse):** e-posta ile bildirim (bugün yalnız zil + canlı toast);
+  kullanıcı başına bildirim tercihleri (tür kapatma); "lot raporu bekliyor" uyarısı (vardiya bitti,
+  rapor yok); tarama aralığı sabit (prod 15 dk).
+- **4.4'ten açık uçlar (talep gelirse):** başka planlayıcının değişikliğinde toast (bilinçli olarak
+  yok — kullanıcı sessiz tazeleme seçti); bildirim zili ile üretim panelinin tek MQTT bağlantısını
+  paylaşması (bugün aynı sayfada ikisi birden yok, gerek olmadı).
+- **4.3'ten açık uçlar (talep gelirse):** tahmin kalan baskıyı PLANDAKİ çevrimle yürütüyor (5.3
+  gerçek çevrimi yalnız makine kartına öneri olarak getirdi; süren işin tahmini gerçek hızla
+  yapılmıyor); bayat PLANLI işler (planlı bitişi geçmiş, hiç
+  başlamamış) tahtada yalnız kendi aralığında görünür — "başlamamış işler" listesi / toplu yeniden
+  planlama; bakım geçmişi tutulmuyor (yalnız son bakım günü + sayaç) — bakım kaydı tablosu
+  gerekirse migration; "Bakım yapıldı" bugün yalnız "şimdi" ile (uç `performedAt` alıyor, arayüzde
+  tarih seçimi yok).
+- **4.2'den açık uçlar (talep gelirse):** raporda lot ekibini de düzenleme (bugün lot
+  ayrıntısında); iş tamamlandıktan sonra rapor düzeltme (bugün kilitli); anlık olay akışı / operatör
+  ekranı 4.1 ile.
+- **3.5'ten küçük açık uçlar (talep gelirse):** tahta satırında ve pano kartında o vardiyanın
+  ekibi; not düzenleme (bugün yalnız ekle / sil); ekip için "haftalık şablon".
+- **3.4'ten kalan:** tamamlanan işi yeniden açma / iş toplamını düzeltme (4.2 durum geçmişi ve lot
+  saatlerini getirdi).
+- **Küçük açık uç:** üretim emrini müşteri siparişi kalemine (`OrderItem`) bağlama — talep gelirse.
+- **Küçük açık uçlar (talep gelirse):** müşteri kalıbında sahip müşteri seçimi (şema hazır:
+  `Mold.ownerCustomerId`) — dar bir müşteri sözlüğü ucu gerekir; resmî tatilleri yıla göre tek
+  tıkla ekleme (dinî bayramlar yıllık tablo ister); yarım gün (arife) takvim istisnası.
+- **Kararlar (kullanıcı, 2026-09-25):** günde 12 / 16 / 24 saat = vardiya düzeni; lot kökü id
+  gibi otomatik artan (standart yok) + `-1 -2 -3`; operatör hesabı yok (notları planlayıcı
+  yazar); bakalit dahil değil; aile kalıbında farklı ürün modelleri olabilir (Faz 2 şeması
+  buna göre: iş BASKI planlar, `ProductionJobOutput`/`ProductionLotOutput`).
+- **Bekleyen girdi:** şirketin makine/kalıp listesi (gelince formatına göre toplu aktarım dilimi).
 - **Test disiplini:** yalnız bu branch + kubi stage.
-- Etki: **infra** (Cognito grubu; Faz 4'te opsiyonel Realtime topic), **core** (şema +
+- Etki: **infra** (Cognito grubu ✅; ileride opsiyonel Realtime topic), **core** (şema +
   `helpers/production/` motoru), **functions** (ProtectedApi `/production/*`, ~40 route),
-  **frontend** (`/uretim`, `/operator`, `features/production/**`).
+  **frontend** (`/uretim`, `features/production/**`).
+
+### Varyant maliyeti (kendi üretim) — plan hazır, kullanıcı kararı bekliyor · kapsam: orta *(kullanıcı talebiyle, 2026-09-29; "not olarak düş, düşünmem gereken bir şey var" — onaysız başlanmaz)*
+- **Hedef:** kendi ürettiğimiz her varyant (ürün + ölçü + renk/hammadde) için SAĞLAM parça başı üretim
+  maliyeti ve kırılımı. İlk sürüm yalnız HESAPLAR ve gösterir; katalogdaki hiçbir fiyatı değiştirmez.
+- **Hesap (sağlam parça başı):**
+  - parça ağırlığı = kalıptaki parça ağırlığı × (varyant hammaddesinin yoğunluğu ÷ ağırlığın tartıldığı
+    hammaddenin yoğunluğu);
+  - yolluk payı = kalıbın baskı başı yolluk ağırlığı ÷ toplam göz — **yolluk tamamı maliyete girer**
+    (kullanıcı kararı, 2026-09-29; sıcak yolluklu kalıpta yolluk ağırlığı 0);
+  - hammadde = (parça + yolluk payı) ÷ (1 − fire oranı) × kg fiyatı — `÷ (1 − fire)` planlama motorundaki
+    baskı hesabıyla aynı (`computeShotCount`); ilk taslaktaki `× (1 + fire)` yaklaşımı düzeltildi;
+  - makine = çevrim ÷ verim ÷ göz ÷ (1 − fire) × saat maliyeti (çevrim planlamayla aynı zincirden:
+    `resolveCycleTimeSec`, kart > standart × hammadde katsayısı);
+  - kalıp bağlama parti başına ayrı (bağlama süresi × saat maliyeti; "1.000'lik partide parça başına" payı);
+  - makine: kalıbın tercih edilen makinesi, yoksa uyumluluk motorunun önerdiği; ayrıntıda diğer uygun
+    makineler; eksik veri uydurulmaz ("eksik: parça ağırlığı / yoğunluk / kg fiyatı / saat maliyeti").
+- **Yeni veri (migration, yalnız ekleme):** `MaterialProcessProfile` kg fiyatı + para birimi + fiyat tarihi
+  (katalogdaki `Material`'a DEĞİL — public yanıtlara sızmasın); `Mold` "parça ağırlıkları şu hammaddeyle
+  tartıldı" (referans hammadde, `SetNull`; aile kalıbında tüm gözler aynı baskıda aynı hammaddeyle dolduğu
+  için kalıp düzeyinde tek alan yeter).
+- **Dilimler:** M1 veri (migration + hammadde formuna kg fiyatı + kalıp formuna referans hammadde) · M2 hesap +
+  ekran (saf `variantCost.ts` + testler, `GET` uç, Analiz → Varyant Maliyeti, Excel; yetki: üretim planlama +
+  admin/owner).
+- **Plan dışı (sonra, ayrı kararla):** hesaplanan maliyeti katalogdaki "kendi üretim" tedarikçi fiyatına
+  (`ProductVariantSupplier.price`) yazmak — kendi üretimin katalogda nasıl temsil edildiği kararı gerekir
+  (tasarım dokümanı §13 soru 9); versiyonda birden çok hammadde / masterbatch oranı (bugün oran yok: ana
+  hammadde, birden çoksa en pahalısı); gerçekleşen maliyet (raporlardaki gerçek çevrim ve fireyle); enerji /
+  işçilik ayrı kalem değil (makine saat maliyetine dahil); para birimi TL varsayılır.
+
+### Ürün modeli silme — ölçü değeri olan ürün FK ile 500 veriyor · kapsam: küçük-orta *(yan bulgu, 2026-09-25, denetlenmedi)*
+- **Gözlem:** üretim planlama Dilim 1.2'nin yerel Postgres doğrulamasında, ölçü şablonu +
+  ölçü değeri olan bir ürün `prisma.product.delete` ile silinirken
+  `ProductSizeValue_requirementId_fkey` (ProductSizeValue → ProductMeasurementRequirement
+  `Restrict`) ile düştü: Postgres zincirleme silmede şablonu, değerlerden önce silmeye
+  çalışıyor. `deleteProductHandler` P2025 dışındaki her hatayı "Failed to delete product"
+  (500) yapıyor → kullanıcı sebebini göremiyor. Muhtemelen varyantı olan ürünlerde de
+  benzer bir `Restrict` zinciri (`ProductVariant → ProductSize`) var — ÖLÇÜLMEDİ.
+- **Karar gerekir:** ürün modeli silme gerçekten kullanılıyor mu? Kullanılıyorsa silme
+  transaction'ında sıralı temizlik (değerler → ölçüler/varyantlar → ürün) + referans
+  engelleri (`variantDeletionBlockers` deseni); kullanılmıyorsa arayüzden kaldırma.
+- Etki: **core** (product repository), **functions** (`deleteProductHandler`).
 
 ### Google ile giriş — G2b + G3 (kubi testinden sonra) · kapsam: orta *(kullanıcı talebiyle, branch `feat/google-identity-provider`)*
 - **Durum:** G1 (altyapı + PreSignUp bağlama) ve G2a (NextAuth sağlayıcısı + buton) ✅ kod
@@ -272,6 +405,22 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
+- **Üretim bildirimleri (4.5) kubi testi:** önce migration
+  (`npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`),
+  sonra `.env`'e `PRODUCTION_ALERTS_ENABLED="true"` ekleyip `sst dev --stage kubi` (tarama 5 dk'da
+  bir). Deneme bitince satırı SİL — açık kalırsa kubi Neon'u gün boyu uyanır.
+- **Realtime yan bulgusu (2026-09-28, 4.4):** Lambda'daki IoT yayıncıları (`publishUserAccessRealtime`,
+  `publishBusinessRequestRealtime`) SST'nin şemasız uç noktasını SDK'ya veriyordu → `Invalid URL`;
+  düzeltildi (`iotDataEndpointUrl`). Deploy sonrası iş talebi / erişim toast'larının canlı geldiğini
+  doğrula; gerekirse prod CloudWatch'ta bu iki abonenin eski hatalarına bak (incelenmedi).
+- **Üretim planlama (branch `feature/production-planning`):** kubi migration'ı
+  (`20260925120000_add_production_master_data`) UYGULANDI, Dilim 1.1/1.2 doğrulandı
+  (kullanıcı, 2026-09-25); Dilim 1.3–1.6 de doğrulandı (1.6 migration'ı kubi'de uygulandı).
+  **Kalan: Dilim 2.1 — önce kubi migration'ı** (`20260926090000_add_production_orders`; komut
+  LOG'da) UYGULANDI (kullanıcı). **Kalan: 2.3 migration'ı**
+  (`20260926120000_add_production_jobs_and_lots`), sonra `/uretim/emirler` + "Öner" + "Planla" testi.
+  Prod'a giderken sıra: önce migration'lar (VPC tüneli, README), sonra deploy — yeni kod
+  `MoldOutput` tablosunu ve `maxDaylightMm` sütununu sorguluyor.
 - **⚠️ PageHero banner'ı yorumda (2026-09-08, LOG)** — `components/sections/PageHero.tsx`'teki `<PageHeroBanner .../>` çağrısı kullanıcının isteğiyle geçici olarak yorumda; 13 public sayfada görsel/başlık banner'ı şu an görünmüyor, yalnız breadcrumb var. **Bu haliyle prod'a deploy EDİLMEMELİ.** Banner geri istenince tek satırlık yorum kaldırma.
 - **Tedarikçi sözlüğü teknik resmi CDN 404 düzeltmesi deploy edilmeli** (2026-09-08, LOG) — `infra/router.ts`'e `/product-supplier-codes` bucket route'u eklendi (kod hazır, commit edilmedi). `sst deploy --stage prod` sonrası `https://cdn.ceyhunlarplastik.xyz/product-supplier-codes/...` URL'lerinin açıldığını doğrula.
 - **SNS e-posta aboneliği onayı** — `kubilayuysal.ceyhunlarplastik@gmail.com` adresine gelen AWS "Subscription Confirmation" linkine tıklanmalı. Tıklanana kadar 6MB payload alarmı + concurrency/throttle alarmları tetiklense de **bildirim gönderilmez** (istek 3 günde düşer). Teyit: `aws sns list-subscriptions-by-topic` → `SubscriptionArn` "PendingConfirmation" değil.
