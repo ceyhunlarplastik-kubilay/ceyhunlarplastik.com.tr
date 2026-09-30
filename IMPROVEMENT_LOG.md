@@ -11170,6 +11170,17 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   hata yok, **`Replaced` 0**; RDS / VPC / S3 kovası / CloudFront / kullanıcı havuzu diff'te yok.
 - **Ders:** CLAUDE.md'deki `--noEmit` tuzağına `.sst/platform` kontrolü eklendi.
 
+## Admin tedarikçi varyant listesi 500 — yanıt şemasında bayat `colorId` (2026-09-30) *(prod hatası; kullanıcı bildirimi)*
+
+- **Belirti (prod):** Admin → Tedarikçiler → varyant listesi boş / hata. CloudWatch: `GET /product-variant-suppliers`
+  → "Response object failed validation", her satırda `/body/payload/data/N/variant` → `must have required property 'colorId'`.
+- **Kök neden:** `validators/productVariantSuppliers.ts` `variantSchema.colorId` ZORUNLUYDU; repository ise ham
+  varyantı döndürüyor ve renk versiyon sistemine taşındığından beri (`version.colorId`) satırda `colorId` yok.
+  Üretim planlama dalıyla ilgisi yok; bayat şema satırı.
+- **Düzeltme:** alan `.nullable().optional()`. Koruma: `functions/productVariantSuppliers/responseShape.test.ts`
+  (ham satırı liste ve tekil yanıt şemasından geçirir). `typecheck:backend` ✓ · functions 621 ✓.
+- **Kullanıcıda:** commit + prod deploy; sonra Admin → Tedarikçiler → bir tedarikçinin varyant listesi açılmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

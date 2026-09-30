@@ -81,7 +81,9 @@ const variantSchema = z.object({
     versionCode: z.string().nullable().optional(),
     sizeCode: z.number().nullable().optional(),
     fullCode: z.string(),
-    colorId: z.uuid().nullable(),
+    // Renk artık versiyonda (`version.colorId`); ham varyant satırında `colorId` YOK. Zorunlu kaldıkça
+    // liste ucu "Response object failed validation" ile 500 veriyordu (prod, 2026-09-30).
+    colorId: z.uuid().nullable().optional(),
     product: z.object({
         id: z.uuid(),
         code: z.string(),
