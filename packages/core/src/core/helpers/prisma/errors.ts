@@ -50,3 +50,11 @@ export function isDatabaseConnectionCapacityError(error: unknown): boolean {
         message.includes(pattern),
     )
 }
+
+/**
+ * Prisma'nın bilinen istek hatası ve kodu eşleşiyor mu — P2002 tekillik, P2025
+ * kayıt yok, P2003 yabancı anahtar. Handler'lar bunu HTTP koduna çevirir.
+ */
+export function isPrismaErrorCode(error: unknown, code: string): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === code
+}

@@ -16,6 +16,9 @@
  * fiyat/kampanya/müşteri ataması/asset ile ilişkiliyse ve keeper'da aynı versiyon
  * zaten varsa, o kopya ölçü DOKUNULMADAN bırakılır (kısmi birleştirme) ve uyarı
  * loglanır. Çağıran bir transaction içinde olmalıdır.
+ *
+ * Kopyanın kalıp gözleri (`MoldOutput`, üretim planlama) keeper'a taşınır: ölçüyü
+ * `Restrict` ile tuttukları için taşınmasalar kopyanın silinmesi FK hatasıyla düşerdi.
  */
 
 import { prisma } from "@/core/db/prisma"
@@ -31,6 +34,7 @@ export type MergeProductSizesResult = {
     mergedSizes: number
     movedVariants: number
     movedSupplierLinks: number
+    movedMoldOutputs: number
     skippedSizes: number
 }
 
@@ -46,6 +50,47 @@ async function variantHasExternalReferences(tx: TransactionClient, variantId: st
     return orderItems + requestItems + specialPrices + assignments + campaignItems + assets > 0
 }
 
+/**
+ * Kopya ölçünün kalıp gözlerini keeper'a taşır. Aynı kalıbın keeper'da da gözü varsa
+ * iki kayıt aslında AYNI ölçünün gözleridir: göz sayıları toplanır, kopya satır silinir
+ * (`@@unique([moldId, productSizeId])` iki satıra izin vermez).
+ */
+async function moveMoldOutputsToKeeper(
+    tx: TransactionClient,
+    duplicateSizeId: string,
+    keeperSizeId: string,
+): Promise<number> {
+    const outputs = await tx.moldOutput.findMany({
+        where: { productSizeId: duplicateSizeId },
+        select: { id: true, moldId: true, cavities: true },
+    })
+    if (outputs.length === 0) return 0
+
+    const keeperOutputs = await tx.moldOutput.findMany({
+        where: { productSizeId: keeperSizeId, moldId: { in: outputs.map((output) => output.moldId) } },
+        select: { id: true, moldId: true, cavities: true },
+    })
+    const keeperOutputByMold = new Map(keeperOutputs.map((output) => [output.moldId, output]))
+
+    for (const output of outputs) {
+        const keeperOutput = keeperOutputByMold.get(output.moldId)
+        if (keeperOutput) {
+            await tx.moldOutput.update({
+                where: { id: keeperOutput.id },
+                data: { cavities: keeperOutput.cavities + output.cavities },
+            })
+            await tx.moldOutput.delete({ where: { id: output.id } })
+            continue
+        }
+        await tx.moldOutput.update({
+            where: { id: output.id },
+            data: { productSizeId: keeperSizeId },
+        })
+    }
+
+    return outputs.length
+}
+
 export async function mergeProductSizesByRequiredSignature(
     tx: TransactionClient,
     productId: string,
@@ -54,6 +99,7 @@ export async function mergeProductSizesByRequiredSignature(
         mergedSizes: 0,
         movedVariants: 0,
         movedSupplierLinks: 0,
+        movedMoldOutputs: 0,
         skippedSizes: 0,
     }
 
@@ -182,11 +228,14 @@ export async function mergeProductSizesByRequiredSignature(
                 await tx.productVariant.delete({ where: { id: variant.id } })
             }
 
+            // 3) Kalıp gözlerini keeper'a taşı — yoksa silme `Restrict` FK'sine takılır.
+            result.movedMoldOutputs += await moveMoldOutputsToKeeper(tx, duplicate.id, keeper.id)
+
             await tx.productSize.delete({ where: { id: duplicate.id } })
             result.mergedSizes += 1
         }
 
-        // 3) Keeper'ın imza/sortKey'ini birleşmiş değerlere göre tazele.
+        // 4) Keeper'ın imza/sortKey'ini birleşmiş değerlere göre tazele.
         const refreshed = await tx.productSize.findUnique({
             where: { id: keeper.id },
             select: { values: { select: { requirementId: true, value: true } } },

@@ -11,6 +11,7 @@ const GROUP_LABELS: Record<UserGroup, string> = {
     sales_director: "Satış Direktörü",
     customer: "Müşteri Portalı",
     content_editor: "Veri Girişi",
+    production_planner: "Üretim Planlama",
 }
 
 const ACCESS_STATUS_LABELS: Record<UserAccessStatus, string> = {

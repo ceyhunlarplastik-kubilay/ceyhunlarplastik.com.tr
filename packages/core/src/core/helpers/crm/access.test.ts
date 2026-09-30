@@ -13,6 +13,7 @@ function user(overrides: Partial<IAuthenticatedUser> = {}): IAuthenticatedUser {
         isSupplier: false,
         isPurchasing: false,
         isContentEditor: false,
+        isProductionPlanner: false,
         ...overrides,
     } as IAuthenticatedUser
 }

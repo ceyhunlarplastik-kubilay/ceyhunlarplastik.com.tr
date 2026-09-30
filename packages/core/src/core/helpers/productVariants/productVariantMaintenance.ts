@@ -182,11 +182,17 @@ export async function recalculateProductVariantCodes(
  * tanımdır ve numaraları kalıcıdır: kullanılmayan bir kombinasyon da sözlükte
  * durur, çünkü ileride kullanılacak olabilir ve numarası korunmalıdır. Silme
  * yalnız açık bir yönetici eylemidir (`DELETE /products/{id}/variant-versions/{id}`).
+ *
+ * Bir KALIBIN bastığı ölçü de (üretim planlama, `MoldOutput`) varyantı kalmasa bile
+ * SİLİNMEZ: kalıp tanımı ölçüye `Restrict` ile bağlı — silmeye kalkmak FK hatasıyla
+ * tüm varyant silme işlemini düşürürdü; ayrıca kalıp o ölçüyü basmaya devam ediyor.
  */
 export async function removeOrphanSizes(
     tx: TransactionClient,
     productId: string,
 ): Promise<{ sizes: number }> {
-    const sizes = await tx.productSize.deleteMany({ where: { productId, variants: { none: {} } } })
+    const sizes = await tx.productSize.deleteMany({
+        where: { productId, variants: { none: {} }, moldOutputs: { none: {} } },
+    })
     return { sizes: sizes.count }
 }

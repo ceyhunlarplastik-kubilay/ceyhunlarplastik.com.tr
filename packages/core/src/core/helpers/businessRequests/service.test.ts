@@ -35,6 +35,7 @@ function buildUser(flags: Partial<IAuthenticatedUser> = {}): IAuthenticatedUser 
         isSalesDirector: false,
         isCustomer: false,
         isContentEditor: false,
+        isProductionPlanner: false,
         ...flags,
     }
 }

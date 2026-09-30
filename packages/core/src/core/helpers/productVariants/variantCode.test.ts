@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
+    buildProductSizeCode,
     buildVariantFullCode,
     buildVariantSupplierFullCode,
     formatSupplierCode,
@@ -126,5 +127,16 @@ describe("parseVariantFullCode", () => {
     it("eski biçimi yeni biçim gibi okumaz", () => {
         // Eski kod "10.5.A.V1.8" — 3. segment harf, son segment sayı.
         expect(parseVariantFullCode("10.5.A.V1.8")).toBeNull()
+    })
+})
+
+describe("buildProductSizeCode", () => {
+    it("ürün modeli kodu + ölçü kodu → ölçü kodu", () => {
+        expect(buildProductSizeCode(" 10.5 ", 8)).toBe("10.5.8")
+    })
+
+    it("geçersiz ölçü kodunu ve boş ürün kodunu reddeder", () => {
+        expect(() => buildProductSizeCode("10.5", 0)).toThrow(RangeError)
+        expect(() => buildProductSizeCode(" ", 1)).toThrow(RangeError)
     })
 })

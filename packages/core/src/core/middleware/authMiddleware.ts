@@ -4,6 +4,7 @@ import { APIGatewayProxyResultV2 } from "aws-lambda";
 import createError from "http-errors";
 
 import { prisma } from "@/core/db/prisma";
+import { isKnownUserGroup } from "@/core/helpers/userAccess/groups";
 import { buildUserDisplayName } from "@/core/helpers/users/displayName";
 import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types";
 
@@ -23,7 +24,6 @@ const ROLE_HIERARCHY = {
 } as const;
 
 type Role = keyof typeof ROLE_HIERARCHY;
-const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "sales_director", "supplier", "customer", "content_editor", "user"] as const;
 
 const normalizeGroups = (groups: string[]): string[] => {
   const cleaned = groups
@@ -41,7 +41,7 @@ const parseCognitoGroups = (rawGroups: unknown): string[] => {
         .replace(/[\[\]"]/g, "")
         .split(/[,\s]+/))
       .map((group) => group.trim().toLowerCase())
-      .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])));
+      .filter(isKnownUserGroup));
   }
 
   if (typeof rawGroups !== "string") return [];
@@ -56,7 +56,7 @@ const parseCognitoGroups = (rawGroups: unknown): string[] => {
   return normalizeGroups(normalized
     .split(/[,\s]+/)
     .map((group) => group.trim().toLowerCase())
-    .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])));
+    .filter(isKnownUserGroup));
 };
 
 const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
@@ -167,6 +167,7 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
       isSalesDirector: user.groups.includes("sales_director"),
       isCustomer: user.groups.includes("customer"),
       isContentEditor: user.groups.includes("content_editor"),
+      isProductionPlanner: user.groups.includes("production_planner"),
     };
 
     // 🔐 Role check

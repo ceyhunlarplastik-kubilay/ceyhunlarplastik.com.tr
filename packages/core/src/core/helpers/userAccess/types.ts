@@ -3,11 +3,14 @@ import type { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/
 import type { IPrismaUserRepository, UserAccessStatus } from "@/core/helpers/prisma/users/repository"
 import type { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 
-export const ALL_USER_GROUPS = ["owner", "admin", "user", "supplier", "purchasing", "sales", "sales_director", "customer", "content_editor"] as const
-export const BUSINESS_USER_GROUPS = ["user", "supplier", "purchasing", "sales", "sales_director", "customer", "content_editor"] as const
-export const PRIVILEGED_USER_GROUPS = ["admin", "owner"] as const
-
-export type UserGroup = (typeof ALL_USER_GROUPS)[number]
+// Grup listesi saf `groups.ts`'te (frontend de oradan okur); mevcut import'lar
+// kırılmasın diye buradan da yeniden dışa aktarılır.
+export {
+    ALL_USER_GROUPS,
+    BUSINESS_USER_GROUPS,
+    PRIVILEGED_USER_GROUPS,
+    type UserGroup,
+} from "./groups"
 
 export type UserAccessUpdateEventDetail = {
     userId: string

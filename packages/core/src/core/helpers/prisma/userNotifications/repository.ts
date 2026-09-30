@@ -2,6 +2,7 @@ import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { alertDeliveryKey } from "@/core/helpers/production/productionAlerts"
 import type { Prisma } from "@/prisma/generated/prisma/client"
 
 export type UserNotificationType =
@@ -11,6 +12,16 @@ export type UserNotificationType =
     | "REQUEST_CREATED"
     | "APPROVAL_REQUIRED"
     | "REQUEST_DECIDED"
+    /** Üretim uyarısı (4.5); alt tür `data.kind`, tekrar önleme anahtarı `data.alertKey`. */
+    | "PRODUCTION_ALERT"
+
+export type NotificationWrite = {
+    userId: string
+    type: UserNotificationType
+    title: string
+    message: string
+    data?: Record<string, unknown> | null
+}
 
 export interface IUserNotificationRepository {
     createNotification(input: {
@@ -48,6 +59,13 @@ export interface IUserNotificationRepository {
         }
         unreadCount: number
     }>
+    /** Toplu yazım (tek sorgu); yazılan satır sayısı. */
+    createNotifications(rows: NotificationWrite[]): Promise<number>
+    /**
+     * Kullanıcılara `since`'ten beri teslim edilmiş üretim uyarısı anahtarları — `userId|alertKey`
+     * (`core/helpers/production/productionAlerts.ts` `alertDeliveryKey`).
+     */
+    listDeliveredProductionAlertKeys(input: { userIds: string[]; since: Date }): Promise<Set<string>>
     markAsRead(userId: string, notificationId: string): Promise<{
         id: string
         userId: string
@@ -121,6 +139,36 @@ export const userNotificationRepository = (): IUserNotificationRepository => {
         }
     }
 
+    const createNotifications = async (rows: NotificationWrite[]) => {
+        if (rows.length === 0) return 0
+        const result = await prisma.userNotification.createMany({
+            data: rows.map((row) => ({
+                userId: row.userId,
+                type: row.type,
+                title: row.title,
+                message: row.message,
+                data: row.data ? row.data as Prisma.InputJsonValue : undefined,
+            })),
+        })
+        return result.count
+    }
+
+    const listDeliveredProductionAlertKeys = async ({ userIds, since }: { userIds: string[]; since: Date }) => {
+        if (userIds.length === 0) return new Set<string>()
+        const rows = await prisma.userNotification.findMany({
+            where: { userId: { in: userIds }, type: "PRODUCTION_ALERT", createdAt: { gte: since } },
+            select: { userId: true, data: true },
+        })
+        const keys = new Set<string>()
+        for (const row of rows) {
+            const alertKey = row.data && typeof row.data === "object" && !Array.isArray(row.data)
+                ? (row.data as Record<string, unknown>).alertKey
+                : undefined
+            if (typeof alertKey === "string") keys.add(alertDeliveryKey(row.userId, alertKey))
+        }
+        return keys
+    }
+
     const markAsRead = async (userId: string, notificationId: string) => {
         const existing = await prisma.userNotification.findFirst({
             where: {
@@ -143,6 +191,8 @@ export const userNotificationRepository = (): IUserNotificationRepository => {
 
     return {
         createNotification,
+        createNotifications,
+        listDeliveredProductionAlertKeys,
         listNotifications,
         markAsRead,
     }

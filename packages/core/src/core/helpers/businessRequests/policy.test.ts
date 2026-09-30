@@ -24,6 +24,7 @@ function buildUser(flags: Partial<IAuthenticatedUser> = {}): IAuthenticatedUser 
         isSalesDirector: false,
         isCustomer: false,
         isContentEditor: false,
+        isProductionPlanner: false,
         ...flags,
     }
 }
@@ -57,6 +58,13 @@ describe("getRequesterApprovalRole", () => {
         } catch (error) {
             expect((error as HttpError).statusCode).toBe(403)
         }
+    })
+
+    it("does not let a production planner open workflow requests", () => {
+        // Üretim planlama rolü satış/satın alma iş taleplerinin tarafı değildir.
+        const attempt = () => getRequesterApprovalRole(buildUser({ isProductionPlanner: true }))
+
+        expect(attempt).toThrowError(HttpError)
     })
 })
 

@@ -363,6 +363,12 @@ export interface IPrismaProductRepository {
     createProduct(data: Prisma.ProductCreateInput): Promise<ProductWithRelations>
     updateProduct(id: string, data: Prisma.ProductUpdateInput): Promise<ProductWithRelations>
     deleteProduct(id: string): Promise<ProductWithRelations>
+    /**
+     * Ürün modelinin ölçülerini basan kalıp gözü sayısı (üretim planlama). `MoldOutput`
+     * ölçüyü `Restrict` ile tutar: sıfırdan büyükse ürün silinemez — silme handler'ı
+     * FK hatasına (500) düşmeden önce bununla anlaşılır bir 409 döndürür.
+     */
+    countMoldOutputs(productId: string): Promise<number>
 }
 
 export const productRepository = (): IPrismaProductRepository => {
@@ -772,6 +778,9 @@ export const productRepository = (): IPrismaProductRepository => {
             include: baseInclude
         })
 
+    const countMoldOutputs = (productId: string) =>
+        prisma.moldOutput.count({ where: { productSize: { productId } } })
+
     return {
         listProducts,
         getProduct,
@@ -780,5 +789,6 @@ export const productRepository = (): IPrismaProductRepository => {
         createProduct,
         updateProduct,
         deleteProduct,
+        countMoldOutputs,
     }
 }

@@ -134,6 +134,17 @@ describe("authMiddleware — Cognito group parsing (via auto-create)", () => {
         }))
     })
 
+    it("keeps the production_planner group (a missing entry would silently drop the role)", async () => {
+        await run(buildEvent(baseClaims({ "cognito:groups": '["production_planner"]' })))
+
+        expect(create).toHaveBeenLastCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                groups: ["production_planner"],
+                accessStatus: "ACTIVE",
+            }),
+        }))
+    })
+
     it("defaults to the no-panel user group with PENDING_REVIEW when no groups exist", async () => {
         // Yeni kullanıcı PENDING_REVIEW ile yaratılır ve AYNI istekte 403 alır
         // (allowInactive'siz route) — hesap oluşur ama panele giremez; /hesabim
@@ -196,6 +207,21 @@ describe("authMiddleware — permission groups", () => {
 
         const event = await run(buildEvent(baseClaims()), { requiredPermissionGroups: ["sales"] })
         expect(event.user.isSales).toBe(true)
+    })
+
+    it("derives isProductionPlanner and admits the planner to production routes only", async () => {
+        findUnique.mockResolvedValue(buildDbUser({ groups: ["production_planner"] }) as any)
+
+        const event = await run(buildEvent(baseClaims()), {
+            requiredPermissionGroups: ["production_planner", "admin", "owner"],
+        })
+        expect(event.user.isProductionPlanner).toBe(true)
+        expect(event.user.isAdmin).toBe(false)
+
+        await expectHttpError(
+            run(buildEvent(baseClaims()), { requiredPermissionGroups: ["sales", "admin", "owner"] }),
+            403,
+        )
     })
 
     it("lets higher core roles satisfy lower core requirements (hierarchy)", async () => {

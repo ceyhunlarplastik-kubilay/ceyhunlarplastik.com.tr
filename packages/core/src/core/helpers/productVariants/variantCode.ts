@@ -117,8 +117,11 @@ export type VariantFullCodeParts = {
     versionOrder: number
 }
 
-/** "10.5" + 8 + 1 → "10.5.8.V1" */
-export function buildVariantFullCode({ productCode, sizeCode, versionOrder }: VariantFullCodeParts): string {
+/**
+ * "10.5" + 8 → "10.5.8" — ürün modelinin ÖLÇÜ kodu. Üretim planlamada kalıplar varyanta
+ * değil ölçüye bağlandığı için tek başına da gösterilir; varyant kodu bunun üzerine kurulur.
+ */
+export function buildProductSizeCode(productCode: string, sizeCode: number): string {
     const normalizedProductCode = productCode.trim()
     if (!normalizedProductCode) {
         throw new RangeError("product code must not be empty")
@@ -127,7 +130,12 @@ export function buildVariantFullCode({ productCode, sizeCode, versionOrder }: Va
         throw new RangeError(`size code must be a positive integer, received: ${sizeCode}`)
     }
 
-    return `${normalizedProductCode}.${sizeCode}.${formatVersionCode(versionOrder)}`
+    return `${normalizedProductCode}.${sizeCode}`
+}
+
+/** "10.5" + 8 + 1 → "10.5.8.V1" */
+export function buildVariantFullCode({ productCode, sizeCode, versionOrder }: VariantFullCodeParts): string {
+    return `${buildProductSizeCode(productCode, sizeCode)}.${formatVersionCode(versionOrder)}`
 }
 
 /** "10.5.8.V1" + "A" → "10.5.8.V1.A" */
