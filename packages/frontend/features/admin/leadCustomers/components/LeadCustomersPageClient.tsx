@@ -22,6 +22,7 @@ import { AdminListPagination } from "@/features/admin/shared/components/AdminLis
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { BulkSelectionBar } from "@/features/admin/shared/components/BulkSelectionBar"
+import { PERMANENT_DELETE_CONFIRMATION } from "@/features/admin/shared/components/ConfirmDeleteDialog"
 import { useBulkSelection } from "@/features/admin/shared/hooks/useBulkSelection"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { GeoAddressFilterFields } from "@/features/geo/components/GeoAddressFilterFields"
@@ -39,12 +40,6 @@ type Props = {
     workspaceLabel: string
 }
 
-/**
- * Silme geri alınamaz; AWS'in kaynak silmede istediği gibi kullanıcı bu ifadeyi
- * harfi harfine yazmadan düğme açılmaz. TEKİL ve TOPLU silmede aynı ifade
- * (kullanıcı kararı): potansiyel müşteri silmek her iki durumda da kritik.
- */
-const DELETE_CONFIRMATION = "KALICI OLARAK SİL"
 
 /** `null` = kapalı; `customer: null` = yeni kayıt; `customer` dolu = düzenleme. */
 type ProfileDialogState = { customer: LeadCustomer | null } | null
@@ -270,7 +265,9 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                         onDelete={handleBulkDelete}
                         itemLabel="potansiyel müşteri"
                         itemNames={selectedNames}
-                        confirmationPhrase={DELETE_CONFIRMATION}
+                        // TEKİL ve TOPLU silmede aynı ifade (kullanıcı kararı): potansiyel
+                        // müşteri silmek her iki durumda da kritik.
+                        confirmationPhrase={PERMANENT_DELETE_CONFIRMATION}
                         confirmDescription={
                             <>
                                 Bu işlem geri alınamaz. Kayıtların adresleri, ziyaretleri ve profil

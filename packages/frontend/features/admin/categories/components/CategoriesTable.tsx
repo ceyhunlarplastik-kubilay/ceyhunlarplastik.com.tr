@@ -26,10 +26,12 @@ import {
 
 import { EditCategoryDialog } from "@/features/admin/categories/components/EditCategoryDialog";
 import { CategoryCreateForm } from "@/features/admin/categories/components/CategoryCreateForm";
+import {
+    ConfirmDeleteDialog,
+    PERMANENT_DELETE_CONFIRMATION,
+} from "@/features/admin/shared/components/ConfirmDeleteDialog";
 
 import { useDeleteCategory } from "@/features/admin/categories/hooks/useDeleteCategory";
-import { useSession } from "next-auth/react";
-import { toast } from "sonner";
 
 type Props = {
     categories: Category[];
@@ -61,29 +63,9 @@ function countByType(category: Category) {
 }
 
 export function CategoriesTable({ categories }: Props) {
-    const { data: session } = useSession();
     const deleteMutation = useDeleteCategory();
 
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-    const handleDelete = (category: Category) => {
-        if (!session?.idToken) {
-            toast.error("Unauthorized");
-            return;
-        }
-
-        const ok = window.confirm(
-            `“${category.name}” kategorisini silmek istediğine emin misin?\nBu işlem geri alınamaz.`
-        );
-
-        if (!ok) return;
-
-        deleteMutation.mutate(
-            {
-                id: category.id,
-            }
-        );
-    };
 
     return (
         <div className="space-y-6">
@@ -193,14 +175,32 @@ export function CategoriesTable({ categories }: Props) {
                                             <Pencil className="h-4 w-4" />
                                         </Button>
 
-                                        <Button
-                                            size="sm"
-                                            variant="destructive"
-                                            onClick={() => handleDelete(category)}
-                                            disabled={deleteMutation.isPending}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        {/* Silme kaskad çalışır (ürün modelleri, varyantlar, çeviriler,
+                                            görseller): tarayıcı onayı yerine ne gideceğini anlatan ve
+                                            ifadeyi yazdıran ortak diyalog. */}
+                                        <ConfirmDeleteDialog
+                                            trigger={
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    aria-label={`${category.name} kategorisini sil`}
+                                                    disabled={deleteMutation.isPending}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            }
+                                            title={`“${category.code} · ${category.name}” kategorisi silinsin mi?`}
+                                            description={
+                                                <>
+                                                    Bu işlem geri alınamaz. Kategorinin çevirileri ve görselleri
+                                                    ile bu kategorideki <strong>tüm ürün modelleri ve
+                                                    varyantları</strong> da kalıcı olarak silinir.
+                                                </>
+                                            }
+                                            confirmationPhrase={PERMANENT_DELETE_CONFIRMATION}
+                                            confirmLabel="Kategoriyi sil"
+                                            onConfirm={() => deleteMutation.mutate({ id: category.id })}
+                                        />
 
                                     </TableCell>
                                 </TableRow>

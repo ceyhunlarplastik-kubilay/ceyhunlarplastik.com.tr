@@ -70,6 +70,14 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   çözüm şablon: görsel yalnız var olan kayda, sunucunun ürettiği anahtar + PENDING satırla eklenir
   (`createCategoryAssetUploadHandler`, `categoryAssetContentTypes.ts`).
 
+### Kalan `window.confirm` silmeleri → ortak `ConfirmDeleteDialog` · kapsam: küçük, opsiyonel *(2026-10-01, kategori silmesi geçirildi)*
+- **Kural (AGENTS.md § UI components):** geri alınamaz silme ortak diyalogla onaylanır; kaskad / geri alınamaz
+  silmede `PERMANENT_DELETE_CONFIRMATION` yazdırılır.
+- **Hâlâ tarayıcı onayı kullananlar (2026-10-01 taraması):** `ProductsGrid` (ürün modeli — kaskad, öncelikli),
+  `MaterialsTable` (2), `MeasurementTypesTable`, `ColorsTable`, `ProductImageGallery`, ürün `AssetGrid` /
+  `AssetPreviewPanel`, `CampaignsPageClient`, `CustomerSpecialPricesPageClient` (pasifleştirme — ifade gerekmez),
+  `CustomerAddressFormDialog`.
+
 ### Üretim Planlama (APS + MES-lite) — Faz 1-6 · kapsam: büyük *(kullanıcı talebiyle, branch `feature/production-planning`)*
 - **Tasarım + yol haritası:** [docs/production-planning.md](docs/production-planning.md) —
   veri modeli (makine / kalıp → `ProductSize` / vardiya düzeni / üretim emri → iş → vardiya

@@ -165,6 +165,11 @@ request validators cannot use `.refine()` (see CLAUDE.md).
 
 Do not introduce custom visual primitives if an equivalent shadcn/ui component already exists.
 
+Irreversible deletes confirm through the shared `features/admin/shared/components/ConfirmDeleteDialog`, never
+`window.confirm`: say what goes with the record (cascades) in `description`, and when the delete cascades or cannot
+be undone pass `confirmationPhrase={PERMANENT_DELETE_CONFIRMATION}` (the typed "KALICI OLARAK SİL" — one constant,
+exported from the same file). Bulk deletes use the same dialog through `BulkSelectionBar`.
+
 For a searchable single-select backed by a SERVER search (large lists such as customers), use the
 shared `components/ui/searchable-select.tsx` with `onSearchChange` (turns off client filtering)
 and `selectedLabel` (label of a value not in the current results) — do not hand-roll another
@@ -576,10 +581,19 @@ When adding audit logging to a model (or touching an audited one — today: `Cat
 - read the previous state inside the transaction AFTER locking the row (`SELECT … FOR UPDATE`), otherwise two
   concurrent updates record a stale "before"
 - `AuditLog` is append-only: `writeAuditLog` is the only writer and there is no update / delete path
-- do NOT add `createdByUserId` / `updatedByUserId` columns to audited catalog models: `mapProductWithAssets` spreads
-  the raw category row (`localizeCategory`) into PUBLIC product responses and ~10 repositories carry
-  `category: true` rows, so a new column leaks to anonymous visitors. "Created by / last changed by" is derived from
-  the log (`summary` of `GET /audit-logs`)
+- "who did it" has two meanings; keep them apart (decision 2026-10-01, applies to EVERY model):
+  - ACCOUNTABILITY (who created / changed this row, when, what) lives ONLY in `AuditLog`. Do not add generic
+    `createdById` / `updatedById` columns for it: `updatedById` keeps only the last writer, it is a second source that
+    can disagree with the log, every such FK needs a `User` back-relation, and on catalog models it leaks —
+    `mapProductWithAssets` spreads the raw category row (`localizeCategory`) into PUBLIC product responses and ~10
+    repositories carry `category: true` rows. "Created by / last changed by" is derived from the log (`summary` of
+    `GET /audit-logs`)
+  - OWNERSHIP that drives a business rule (who may see / edit it, whose list it appears in, who requested / approved
+    it) is a model field with a business name, an index and a deliberate `onDelete`. The existing
+    `CustomerVisit.ownerUserId`, `BusinessRequest.requestedByUserId`, `Customer.assignedSalesUserId` and
+    `CustomerVariantSpecialPrice.approvedByUserId` are this kind and stay
+  - keep `createdAt` / `updatedAt` on every model (sorting, freshness). `updatedAt` moves on every write, the log only
+    on a real change — they are allowed to differ
 - a new audited model = its name in `AUDIT_ENTITY_TYPES` (`core/helpers/audit/types.ts`), a snapshot helper, audited
   repository writes, and an entry in `auditCoverage.test.ts` (the `Record<AuditEntityType, …>` there does not compile
   until it is added). That test fails when any other file writes the model's Prisma delegates directly

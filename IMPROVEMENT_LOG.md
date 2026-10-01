@@ -11299,6 +11299,29 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   4. Düzenle → görsel sürükle-bırak → yükleniyor, ardından ACTIVE.
   5. Dosya seçicide SVG / HTML seçilemiyor; dropzone'a bırakılan desteklenmeyen dosya "yüklenemedi" toast'ı verir.
 
+## Kategori silme onayı ortak diyaloğa + `createdBy` kararı (2026-10-01) *(kullanıcı talebiyle)*
+
+- **Soru (kullanıcı):** Category'de `createdAt` / `updatedAt` var ama `createdById` yok; bu ve diğer modeller için
+  gerekli mi? **Karar (AGENTS.md'ye kural olarak yazıldı):** iki ayrı kavram. *Hesap verebilirlik* (kim oluşturdu /
+  değiştirdi) yalnız `AuditLog`'da — genel `createdById` / `updatedById` kolonu eklenmez (`updatedById` yalnız son
+  yazanı tutar, log ile ayrışabilen ikinci kaynak, model başına `User` geri-ilişkisi, katalog modellerinde public
+  sızıntı). *İş sahipliği* (yetki / liste / onay kuralını besleyen) iş adıyla modelin alanıdır; mevcut
+  `ownerUserId`, `requestedByUserId`, `assignedSalesUserId`, `approvedByUserId` bu türdür ve kalır.
+  `createdAt` / `updatedAt` her modelde kalır.
+- **Diyalog:** "KALICI OLARAK SİL" onayı zaten ortak bileşendi (`features/admin/shared/components/ConfirmDeleteDialog`,
+  ~20 kullanım). Yapılan: ifade tek sabite alındı (`PERMANENT_DELETE_CONFIRMATION`; potansiyel müşteri kartı ve
+  sayfasındaki iki yerel kopya kaldırıldı), sabit `id="confirm-delete-phrase"` → `useId` (aynı sayfada birden çok
+  diyalogda etiket ↔ alan bağı karışmasın). Kategori silmesi `window.confirm`'den bu diyaloğa geçti: başlıkta kod +
+  ad, açıklamada kaskadla gidenler (çeviriler, görseller, kategorideki tüm ürün modelleri ve varyantları), ifade
+  yazılmadan "Kategoriyi sil" pasif. Kural AGENTS.md § UI components'a yazıldı.
+- **Doğrulama:** frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · frontend 542 test ✓. Diyalog esbuild + başsız
+  Chrome'da çizildi: ifade boşken düğme pasif, yazılınca aktif. Kubi'de ÇALIŞTIRILMADI.
+- **Kalan (PLAN):** 11 yerde hâlâ `window.confirm`. Ürünü olan kategoriyi silmeyi engelleme (409) kararı PLAN'da
+  (audit log maddesi, yan bulgular).
+- **Kullanıcıda bekleyen (kubi):** `/admin/categories` → bir test kategorisinin çöp kutusu → diyalog açılır; ifadeyi
+  yazmadan düğme pasif; yazınca sil → kategori listeden düşer, `AuditLog`'da DELETE kaydı (Prisma Studio). Veri
+  girişi → potansiyel müşteri tekil ve toplu silme aynı ifadeyle çalışmaya devam eder.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
