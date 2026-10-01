@@ -122,6 +122,16 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   yalnız tekillik kontrolü + yazma içersin. Ayrıca transaction içindeki
   gidiş-dönüş sayısını düşük tut: yüksek gecikmeli bağlantıda her sorgu süreye
   eklenir.
+- `packages/core/prisma.config.ts` bağlantıyı `DIRECT_URL ?? DATABASE_URL` sırasıyla okur: ortamda
+  `DIRECT_URL` varsa (`sst shell --target Prisma` onu stage'in veritabanına ayarlar) komut satırında
+  verdiğin `DATABASE_URL` YOK SAYILIR ve prisma CLI stage veritabanında çalışır. Yerel / geçici bir
+  veritabanına karşı `prisma migrate deploy` çalıştırmadan önce `unset DIRECT_URL` yap ve sonucu o
+  veritabanının `_prisma_migrations` tablosunda doğrula. Sorguları hiçbir stage'e dokunmadan denemenin
+  yolu (2026-09-30, audit log): Homebrew `postgresql@17` ile scratchpad'de `initdb`, `pg_ctl … -o "-p 54329
+  -c listen_addresses=127.0.0.1 -c unix_socket_directories=''"` (TCP'den bağlan), `prisma migrate deploy`,
+  sonra `packages/core/src` altında GEÇİCİ bir vitest dosyasında `vi.mock("@/core/db/prisma")` ile gerçek
+  `PrismaClient` + `PrismaPg` ver. İş bitince dosyayı sil ve `pg_ctl stop` — komutları `&&` ile zincirleme,
+  biri düşerse sunucu açık kalır.
 - Harici HTTP çağrısını (Google Places gibi) `prisma.$transaction` İÇİNDE yapma:
   varsayılan 5 sn'lik interaktif transaction süresi ağ gecikmesiyle aşılır (P2028) ve
   tüm iş geri alınır; servis kapalıysa akış hiç tamamlanamaz. Çözümü önce hazırla,
@@ -130,6 +140,11 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `required` yapar ve request validator'ın ajv'si (`strict: true`) şemayı hiç derlemez
   (`strictRequired`). Doğrusu `z.partialRecord(...)` — bilinmeyen anahtarı ve değer
   kısıtlarını (max length vb.) yine uygular.
+- Zod 4 `z.uuid()` RFC'ye KATI uyar (sürüm nibble'ı 1-8, varyant nibble'ı 8/9/a/b): test
+  fixture'ındaki `11111111-1111-…` / `22222222-2222-…` gibi sahte id'leri REDDEDER (yaşandı,
+  2026-09-30: `GET /audit-logs` sözleşme testi kendi fixture'ında düştü). Prisma'nın `uuid()`
+  id'leri v4 olduğu için gerçek veri geçer. Modelden bağımsız bir id alanında (`entityId` gibi)
+  `z.uuid()` kullanma: her modelin id'si uuid değil (`ActivityLog` `cuid()`), `z.string().min(1).max(64)` yaz.
 - Response validator'ı handler'ın çıktısıyla senkron tutmak TypeScript'in İŞİ DEĞİL:
   Zod şeması bağımsız bir bildirimdir, handler'ın dönüş tipiyle bağlı değildir. Bir
   alanı helper'ın sonucundan kaldırıp şemadan kaldırmazsan derleme ve tüm testler
@@ -194,7 +209,11 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   kopyada `isAnimationActive={false}` ver (2026-09-28, üretim 5.2). Paketlenen sayfa HTTP istemcisini
   içe alıyorsa tarayıcıda `process is not defined` ile boş kalır: HTML'e bundle'dan önce
   `<script>window.process={env:{}}</script>` koy. Dialog / React Query kullanan bileşeni
-  `QueryClientProvider` ile sar.
+  `QueryClientProvider` ile sar. Giriş dosyası `packages/frontend` İÇİNDE durmalı (dışarıdaki dosya
+  `node_modules`'ü çözemez; işi bitince sil). Oturum / görsel / API isteyen bileşen için esbuild JS API'sinde
+  bir `onResolve` eklentisiyle `next-auth/react`, `next/image` ve `@/lib/http/client`'ı sahte modüllere
+  yönlendir (2026-09-30, kategori geçmişi). Radix sekmesini script'le açmak için tetikleyiciye
+  `mousedown` olayı gönderip `focus()` çağırmak çalıştı.
 - Recharts 3 `Legend` öğeleri ADA göre sıralar (`itemSorter` varsayılanı `"value"`): açıklama çubuk /
   çizgi sırasından kopar. Seri sırası için `<ChartLegend … itemSorter={null} />`.
 - Çok sütunlu form ızgarasında shadcn `FormItem` (`grid gap-2`) satır yüksekliğine GERİLİR ve fazla yüksekliği

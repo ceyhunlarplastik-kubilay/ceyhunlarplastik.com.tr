@@ -11181,6 +11181,90 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   (ham satırı liste ve tekil yanıt şemasından geçirir). `typecheck:backend` ✓ · functions 621 ✓.
 - **Kullanıcıda:** commit + prod deploy; sonra Admin → Tedarikçiler → bir tedarikçinin varyant listesi açılmalı.
 
+## Audit logging — Dilim 1: `AuditLog` altyapısı + Category yazma yolları (2026-09-30) *(kullanıcı talebiyle; "backend API açıkları" işinin ilk adımı)*
+
+- **İhtiyaç:** katalog verisinde kimin neyi değiştirdiği hiçbir yerde tutulmuyordu (`Category`'de yalnız
+  `createdAt` / `updatedAt`). Mevcut `ActivityLog` iş talebi olaylarının asenkron zaman tüneli; alan bazlı
+  önce / sonra taşımıyor ve değişiklikle aynı transaction'da değil.
+- **Kararlar (kullanıcı):** modelden bağımsız tek `AuditLog` tablosu · `Category`'ye `createdBy` / `updatedBy`
+  kolonu EKLENMEDİ, bilgi log'dan türetilir (gerekçe: `mapProductWithAssets` kategori satırını `localizeCategory`
+  ile olduğu gibi yayıyor → yeni kolon public ürün yanıtlarına sızardı; ayrıca model başına migration ve
+  `User`'a 2 geri-ilişki) · geçmişi yalnız admin / owner görür · Dilim 1 + 2 arka arkaya.
+- **Yapılan:**
+  - Şema: `AuditLog` + `AuditAction` / `AuditActorType` enum'ları, `User.auditLogs` · migration
+    `20260930180000_add_audit_log` (yalnız yeni tablo; mevcut tablolara dokunmaz).
+  - Çekirdek `core/helpers/audit/`: `types.ts` (saf; `AUDIT_ENTITY_TYPES`), `auditContext.ts`
+    (`buildAuditContextFromEvent` — aktör yalnız `event.user`'dan; uç, API Gateway `requestId`, IP, user-agent),
+    `auditDiff.ts` (`diffAuditSnapshots`: alan yolu → değer haritalarının farkı; boş ↔ boş fark değil),
+    `writeAuditLog.ts` (tablonun TEK yazıcısı, `tx` ile çağrılır).
+  - `core/helpers/categories/categoryAudit.ts`: denetlenen alanların izin listesi (`code`, `name`, `slug`,
+    `allowedAttributeValueIds`, `translations.<dil>.name|slug`). TR çevirisi legacy kolonların aynasıyken
+    ayrıca yazılmaz; görseller (`Asset`) kapsam dışı.
+  - `categoryRepository`: `createCategory` / `updateCategory` / `deleteCategory` artık `AuditContext`'i zorunlu
+    alır ve interaktif transaction'da çalışır (satır kilidi `SELECT … FOR UPDATE` → önceki hâl → değişiklik →
+    kayıt). Değişen alan yoksa kayıt yazılmaz. Silmede `metadata.cascade` (ürün sayısı + görsel anahtarları).
+    `createCategoryInTransaction` dışa açık: tedarikçi "kategori oluştur" talebinin onayı
+    (`businessRequests/service.ts`) artık buradan geçer; `approveBusinessRequestDecision` `audit` alır, iki
+    `decide` handler'ı onu istekten kurar (aktör = onaylayan, talep id'si metadata'da).
+  - Koruma: `auditCoverage.test.ts` — `category` / `categoryTranslation` delegelerine repository dışında
+    doğrudan yazan dosya olursa düşer; `AuditLog`'a `writeAuditLog` dışında yazan ya da güncelleyen / silen
+    olursa düşer. API dışı 4 script bilinen istisna olarak listeli.
+- **Doğrulama:** yeni testler core 40 (diff, bağlam, yazıcı, kategori snapshot'ı, repository — mock'lu
+  transaction, kapsam) + functions 5 (handler'lar bağlamı geçiriyor; kimliksiz istek 401 ve hiçbir şey
+  yazmıyor / silmiyor). **Gerçek Postgres'te denendi** (scratchpad'de geçici yerel PostgreSQL 17.6, hiçbir
+  stage'e dokunulmadı): 96 migration'ın tamamı boş veritabanına temiz uygulandı; geçici bir entegrasyon testi
+  8 senaryoyu doğruladı — oluştur, güncelle (çeviri upsert / silme + izinli değerler), değişiklik yokken kayıt
+  yok, **kayıt yazılamazsa değişiklik geri alınıyor** (olmayan aktör → FK hatası → ad değişmedi), **eşzamanlı
+  iki güncelleme zincir oluşturuyor**, okuma + özet, silmede kaskad metadata'sı ve geçmişin kalması, kullanıcı
+  silinince `actorUserId` NULL + künye yerinde. Satır kilidi mutasyonla sınandı: kilit kaldırılınca eşzamanlılık
+  senaryosu 3 / 3 düştü, geri konunca geçti. Geçici test ve veritabanı silindi. Migration SQL'i
+  `prisma migrate diff` çıktısıyla birebir.
+- **Bilinen boşluklar (PLAN'da):** kategori görselleri, operatör CLI'ları (çeviriler prod'a ağırlıkla CLI ile
+  yazılıyor), denetim öncesi kayıtların geçmişi yok, DB seviyesinde değiştirilemezlik ve saklama süresi.
+- **Yan bulgular (PLAN'da, düzeltilmedi):** `DELETE /categories/{id}` S3'ü veritabanından önce siliyor; ürünleri
+  uyarısız kaskad siliyor ve `content_editor`'a açık; satır içi görsel yazımı transaction dışında.
+
+## Audit logging — Dilim 2: `GET /audit-logs` + "Değişiklik Geçmişi" sekmesi (2026-09-30)
+
+- **Yapılan:**
+  - Core: `prisma/auditLogs/repository.ts` (yalnız OKUMA: bir kaydın geçmişi sayfalı + CREATE ve en yeni kayıt),
+    `audit/auditLogDto.ts` (yanıt izin listesi — `actorCognitoSub` dönmez; bozuk `changes` JSON'ı 500'e düşürmez;
+    "oluşturan / son değiştiren" özeti).
+  - Uç: `GET /audit-logs?entityType=&entityId=&page=&limit=` (AdminApi, `requiredPermissionGroups: ["admin"]` —
+    owner hiyerarşiyle geçer). Modelden bağımsız: sonraki modeller yeni route istemez. Request validator'da
+    `entityType` `AUDIT_ENTITY_TYPES`'tan, `entityId` bilerek `z.uuid()` DEĞİL. Response validator var.
+    `infra/AdminApi.ts`'e 1 route (1 yeni Lambda).
+  - Arayüz: `features/admin/auditLogs` (genel — `EntityAuditHistory` özet + kayıt listesi + sayfalama,
+    `AuditLogTimeline`, `AuditPresenter` sözleşmesi, `canViewAuditLogs`). Kategoriye özel
+    `categoryAuditPresentation.ts` (alan etiketleri, izinli değer id → "Attribute: Değer", kaskad satırı) ve
+    `CategoryAuditHistory`. `EditCategoryDialog`'a yalnız admin / owner'a görünen "Yönetim | Değişiklik Geçmişi"
+    sekmesi; yönetim paneli gizlenir ama mount'ta kalır (süren yükleme kuyruğu kaybolmasın).
+- **Doğrulama:** functions +15 (`auditLogContract.test.ts`: handler'ın gerçek çıktısı response şemasından,
+  istek request şemasından geçiyor — bu test fixture'daki sahte uuid'yi ilk koşuda yakaladı, ders CLAUDE.md'de),
+  core +12, frontend +21. Geçmiş paneli ve dialog esbuild + başsız Chrome'da çizildi: 1360 px, 390 px, boş
+  durum; dialog'da admin (iki sekme) ve veri girişi (sekme yok) görünümü. `typecheck:backend` ✓ · frontend
+  `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · testler core 925 · functions 641 · frontend 542 ✓ ·
+  `next build` ✓ · infra `tsc --noEmit` filtreli ✓ · i18n kataloglarına dokunulmadı.
+  **Kubi'de ÇALIŞTIRILMADI** — uç, yetki ve arayüz akışı aşağıdaki adımlarla doğrulanacak.
+- **Kullanıcıda bekleyen (kubi):**
+  1. `export AWS_PROFILE=ceyhunlar-prod && npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`
+     → `20260930180000_add_audit_log`. Migration'dan ÖNCE kategori yazma uçları 500 verir (kayıt yazılamayan
+     değişiklik bilinçli olarak geri alınır).
+  2. `npx sst dev --stage kubi` (yeniden başlat: yeni `GET /audit-logs` rotası).
+  3. Admin ile `/admin/categories`: test kategorisi oluştur → düzenle → **Değişiklik Geçmişi**: "Oluşturuldu"
+     (Kod, Ad, Slug), Oluşturan = sen.
+  4. Yönetim → Türkçe adı değiştir → Çevirileri Kaydet → Geçmiş: "Güncellendi", Ad (Türkçe) eski → yeni,
+     Slug (Türkçe) eski → yeni.
+  5. Bir dile çeviri ekle / değiştir → `Ad (<dil>)` satırı. İzinli attribute değeri ekle / çıkar → Güncelle →
+     "Eklendi (n): Attribute: Değer".
+  6. Yalnız görsel yükle ya da hiçbir şeyi değiştirmeden kaydet → yeni kayıt OLUŞMAMALI.
+  7. `content_editor` ile `/veri-girisi/categories`: sekme GÖRÜNMEMELİ; yaptığı değişiklik admin'in gördüğü
+     geçmişte "Veri girişi" rolüyle çıkmalı.
+  8. Test kategorisini sil → Prisma Studio (`npx sst shell --stage kubi --target Prisma` →
+     `cd packages/core && npx prisma studio`) → `AuditLog`: `action = DELETE`, `metadata.cascade`.
+  9. Prod'dan önce: `npx sst diff --stage prod` (salt okunur) — beklenen: 1 yeni Lambda + 1 route ve değişen
+     kategori / iş talebi Lambda kodları. **Prod sırası: önce `migrate deploy`, sonra `sst deploy`.**
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
