@@ -321,6 +321,14 @@ adminApi.route("POST /categories/assets/presign", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 
+/*----------------------- AUDIT LOGS -----------------------*/
+// Denetim kayıtlarının OKUMA ucu (yalnız admin / owner). Yazma ucu yok: kayıt, değişikliği
+// yapan ucun transaction'ında yazılır (bkz. core/helpers/audit).
+adminApi.route("GET /audit-logs", {
+    handler: `${folderPrefix}/auditLogs/actions.listAuditLogs`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- COLORS -----------------------*/
 adminApi.route("POST /colors", {
     handler: `${folderPrefix}/colors/actions.createColor`,

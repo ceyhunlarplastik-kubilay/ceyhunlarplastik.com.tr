@@ -20,8 +20,12 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 import { CategoryAssetManager } from "./CategoryAssetManager";
+import { CategoryAuditHistory } from "./CategoryAuditHistory";
+import { canViewAuditLogs } from "@/features/admin/auditLogs/utils/canViewAuditLogs";
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
 import { useUpdateCategory } from "@/features/admin/categories/hooks/useUpdateCategory";
 import { buildCategoryTranslationUpdatePayload } from "@/features/admin/categories/utils/buildCategoryTranslationUpdatePayload";
@@ -46,6 +50,8 @@ type Props = {
 };
 
 const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"];
+
+type DialogView = "manage" | "history";
 
 /* -------------------------- */
 /* ZOD */
@@ -75,6 +81,10 @@ export function EditCategoryDialog({
         initialCategory.allowedAttributeValueIds ?? []
     );
     const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE);
+    const [view, setView] = useState<DialogView>("manage");
+
+    // Geçmiş yalnız admin / owner'a açık (uç da öyle); veri girişi rolü sekmeyi görmez.
+    const canViewHistory = canViewAuditLogs(session?.user?.groups);
 
     const authHeader = useMemo(() => {
         if (!session?.idToken) return null;
@@ -202,7 +212,22 @@ export function EditCategoryDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid grid-cols-12 gap-6">
+                {canViewHistory && (
+                    <Tabs
+                        value={view}
+                        onValueChange={(next) => setView(next as DialogView)}
+                        className="mb-4"
+                    >
+                        <TabsList>
+                            <TabsTrigger value="manage">Yönetim</TabsTrigger>
+                            <TabsTrigger value="history">Değişiklik Geçmişi</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                )}
+
+                {/* Yönetim paneli gizlenir ama MOUNT'ta kalır: sekme değişince süren
+                    yükleme kuyruğu ve kaydedilmemiş form değerleri kaybolmasın. */}
+                <div className={cn("grid grid-cols-12 gap-6", view === "history" && "hidden")}>
 
                     {/* LEFT PANEL */}
 
@@ -331,6 +356,10 @@ export function EditCategoryDialog({
                     </div>
 
                 </div>
+
+                {canViewHistory && view === "history" && (
+                    <CategoryAuditHistory categoryId={category.id} />
+                )}
             </DialogContent>
         </Dialog>
     );
