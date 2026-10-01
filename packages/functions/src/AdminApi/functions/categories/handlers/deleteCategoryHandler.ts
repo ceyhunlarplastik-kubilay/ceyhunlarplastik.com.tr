@@ -3,6 +3,7 @@ import { deleteS3Objects } from "@/core/helpers/s3/deleteObjects"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IDeleteCategoryDependencies, IDeleteCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { Prisma } from "@/prisma/generated/prisma/client"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 
 export const deleteCategoryHandler = ({ categoryRepository, assetRepository }: IDeleteCategoryDependencies) => {
     return async (event: IDeleteCategoryEvent) => {
@@ -10,12 +11,14 @@ export const deleteCategoryHandler = ({ categoryRepository, assetRepository }: I
 
         if (!id) throw new createError.BadRequest("Category id is required");
 
+        const audit = buildAuditContextFromEvent(event)
+
         try {
             const assets = await assetRepository.listAssetsByCategoryId(id);
             const assetKeys = assets.map(a => a.key);
             await deleteS3Objects(assetKeys);
 
-            const category = await categoryRepository.deleteCategory(id);
+            const category = await categoryRepository.deleteCategory(id, audit);
 
             return apiResponseDTO({
                 statusCode: 200,

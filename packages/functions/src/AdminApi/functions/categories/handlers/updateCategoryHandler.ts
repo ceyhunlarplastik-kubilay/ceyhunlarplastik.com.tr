@@ -9,6 +9,7 @@ import {
     normalizeCategoryTranslations,
 } from "@/core/helpers/categories/categoryTranslations"
 import { DEFAULT_LOCALE } from "@/core/i18n/locales"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 
 export const updateCategoryHandler = ({
     categoryRepository,
@@ -35,6 +36,7 @@ export const updateCategoryHandler = ({
             )
 
         const { name, translations, removeTranslationLocales, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+        const audit = buildAuditContextFromEvent(event)
 
         const removableLocales = new Set<string>(removeTranslationLocales ?? [])
         const conflictingLocales = translations
@@ -102,7 +104,7 @@ export const updateCategoryHandler = ({
 
             // 1️⃣ Category update — yönetim dialog'u PENDING_UPLOAD asset'leri de
             // görmeli (rozetle); liste/public yalnız ACTIVE alır.
-            let category = await categoryRepository.updateCategory(id, updateData, { includeAllAssets: true })
+            let category = await categoryRepository.updateCategory(id, updateData, audit, { includeAllAssets: true })
 
             // 2️⃣ Yeni asset geldiyse lifecycle yönetimi
             if (assetType && assetKey && mimeType) {

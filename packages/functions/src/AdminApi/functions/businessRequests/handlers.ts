@@ -2,6 +2,7 @@ import { SFNClient, SendTaskSuccessCommand } from "@aws-sdk/client-sfn"
 import createError from "http-errors"
 
 import { approveBusinessRequestDecision, counterBusinessRequestDecision, rejectBusinessRequestDecision } from "@/core/helpers/businessRequests/service"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import type {
@@ -112,6 +113,7 @@ export const decideAdminBusinessRequestHandler =
                 ? await approveBusinessRequestDecision({
                     requestId: existing.id,
                     user,
+                    audit: buildAuditContextFromEvent(event),
                     note: event.body.note,
                 })
                 : await rejectBusinessRequestDecision({

@@ -9,12 +9,23 @@ import {
     localizeCategory,
     type LocalizedCategory,
 } from "@/core/helpers/categories/localizeCategory"
+import { categoryAuditLabel, toCategoryAuditSnapshot } from "@/core/helpers/categories/categoryAudit"
+import { diffAuditSnapshots } from "@/core/helpers/audit/auditDiff"
+import { writeAuditLog } from "@/core/helpers/audit/writeAuditLog"
 import { Prisma } from "@/prisma/generated/prisma/client"
 
+import type { AuditContext, AuditMetadata } from "@/core/helpers/audit/types"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type { Category } from "@/prisma/generated/prisma/client"
 
 const CATEGORY_MAX_LIMIT = 500
+
+// Client `$extends`'li olduğu için `Prisma.TransactionClient` uymuyor.
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+// Denetimli yazmalar interaktif transaction ister: önceki hâl okunur, değişiklik yapılır,
+// fark AYNI transaction'da yazılır. Varsayılan 5 sn Neon'da dar kalabiliyor.
+const categoryWriteTransactionOptions = { timeout: 15_000, maxWait: 10_000 } as const
 
 // Public / liste okumaları yalnız doğrulanmış asset'leri görür. Presign akışında
 // oluşan PENDING_UPLOAD satırları S3 ObjectCreated onayına kadar gizlenir
@@ -42,6 +53,45 @@ const pickCategoryInclude = (includeAllAssets = false) =>
 
 type CategoryWithRelations = Prisma.CategoryGetPayload<{ include: typeof categoryInclude }>
 
+/**
+ * Önceki hâli okumadan ÖNCE satırı kilitler. Kilitsiz okumada eşzamanlı iki güncellemenin
+ * ikincisi, birincinin commit'inden önceki hâli "önce" diye kaydederdi — denetim kaydı
+ * gerçek sırayı yansıtmazdı.
+ */
+const lockCategoryRow = (tx: TransactionClient, id: string) =>
+    tx.$queryRaw`SELECT "id" FROM "Category" WHERE "id" = ${id} FOR UPDATE`
+
+/**
+ * Kategoriyi oluşturur ve denetim kaydını AYNI transaction'da yazar.
+ *
+ * Zaten bir transaction içinde olan çağıranlar (iş talebi onayı) için dışa açık; diğer
+ * her yer `categoryRepository().createCategory` kullanır. Kategoriye yazan başka bir yol
+ * AÇMA: `auditCoverage.test.ts` bu dosya dışındaki doğrudan yazmayı yakalar.
+ */
+export async function createCategoryInTransaction(
+    tx: TransactionClient,
+    data: Prisma.CategoryCreateInput,
+    audit: AuditContext,
+    metadata?: AuditMetadata,
+) {
+    const category = await tx.category.create({
+        data,
+        include: pickCategoryInclude(),
+    })
+
+    await writeAuditLog(tx, {
+        entityType: "Category",
+        entityId: category.id,
+        entityLabel: categoryAuditLabel(category),
+        action: "CREATE",
+        changes: diffAuditSnapshots(null, toCategoryAuditSnapshot(category)),
+        metadata,
+        context: audit,
+    })
+
+    return category
+}
+
 export interface IPrismaCategoryRepository {
     listCategories(query: IPaginationQuery & { locale?: SupportedLocale }): Promise<{
         data: LocalizedCategory<CategoryWithRelations>[]
@@ -54,9 +104,10 @@ export interface IPrismaCategoryRepository {
     }>
     getCategory(id: string, locale?: SupportedLocale, opts?: { includeAllAssets?: boolean }): Promise<LocalizedCategory<CategoryWithRelations>>
     getCategoryBySlug(slug: string, locale?: SupportedLocale): Promise<LocalizedCategory<CategoryWithRelations>>
-    createCategory(data: Prisma.CategoryCreateInput): Promise<LocalizedCategory<CategoryWithRelations>>
-    updateCategory(id: string, data: Prisma.CategoryUpdateInput, opts?: { includeAllAssets?: boolean }): Promise<LocalizedCategory<CategoryWithRelations>>
-    deleteCategory(id: string): Promise<Category>
+    // Yazan her metod `audit`'i ZORUNLU alır: denetim kaydı değişiklikle aynı transaction'da yazılır.
+    createCategory(data: Prisma.CategoryCreateInput, audit: AuditContext): Promise<LocalizedCategory<CategoryWithRelations>>
+    updateCategory(id: string, data: Prisma.CategoryUpdateInput, audit: AuditContext, opts?: { includeAllAssets?: boolean }): Promise<LocalizedCategory<CategoryWithRelations>>
+    deleteCategory(id: string, audit: AuditContext): Promise<Category>
 }
 
 export const categoryRepository = (): IPrismaCategoryRepository => {
@@ -201,11 +252,11 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
         return localizeCategory(legacyCategory, locale)
     }
 
-    const createCategory = async (data: Prisma.CategoryCreateInput) => {
-        const category = await prisma.category.create({
-            data,
-            include: pickCategoryInclude(),
-        })
+    const createCategory = async (data: Prisma.CategoryCreateInput, audit: AuditContext) => {
+        const category = await prisma.$transaction(
+            (tx) => createCategoryInTransaction(tx, data, audit),
+            categoryWriteTransactionOptions,
+        )
 
         return localizeCategory(category, DEFAULT_LOCALE)
     }
@@ -213,19 +264,80 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
     const updateCategory = async (
         id: string,
         data: Prisma.CategoryUpdateInput,
+        audit: AuditContext,
         opts?: { includeAllAssets?: boolean },
     ) => {
-        const category = await prisma.category.update({
-            where: { id },
-            data,
-            include: pickCategoryInclude(opts?.includeAllAssets),
-        })
+        const category = await prisma.$transaction(async (tx) => {
+            await lockCategoryRow(tx, id)
+
+            const before = await tx.category.findUniqueOrThrow({
+                where: { id },
+                include: { translations: true },
+            })
+            const updated = await tx.category.update({
+                where: { id },
+                data,
+                include: pickCategoryInclude(opts?.includeAllAssets),
+            })
+
+            // Fark, ham satırlardan alınır (`localizeCategory` ad/slug'ı çeviriyle ezer).
+            const changes = diffAuditSnapshots(
+                toCategoryAuditSnapshot(before),
+                toCategoryAuditSnapshot(updated),
+            )
+
+            // Denetlenen hiçbir alan değişmediyse (aynı değerle kaydetme, yalnız görsel
+            // ekleme) kayıt yazılmaz: boş kayıt geçmişi kirletir.
+            if (changes.length > 0) {
+                await writeAuditLog(tx, {
+                    entityType: "Category",
+                    entityId: id,
+                    entityLabel: categoryAuditLabel(updated),
+                    action: "UPDATE",
+                    changes,
+                    context: audit,
+                })
+            }
+
+            return updated
+        }, categoryWriteTransactionOptions)
 
         return localizeCategory(category, DEFAULT_LOCALE)
     }
 
-    const deleteCategory = (id: string) =>
-        prisma.category.delete({ where: { id } })
+    const deleteCategory = (id: string, audit: AuditContext) =>
+        prisma.$transaction(async (tx) => {
+            await lockCategoryRow(tx, id)
+
+            const before = await tx.category.findUniqueOrThrow({
+                where: { id },
+                include: {
+                    translations: true,
+                    assets: { select: { key: true } },
+                    _count: { select: { products: true } },
+                },
+            })
+            const category = await tx.category.delete({ where: { id } })
+
+            await writeAuditLog(tx, {
+                entityType: "Category",
+                entityId: id,
+                entityLabel: categoryAuditLabel(before),
+                action: "DELETE",
+                changes: diffAuditSnapshots(toCategoryAuditSnapshot(before), null),
+                // Silme kaskad çalışır (ürünler, çeviriler, görseller): bu satır, gidenlerin
+                // kaydının kaldığı TEK yerdir.
+                metadata: {
+                    cascade: {
+                        productCount: before._count.products,
+                        assetKeys: before.assets.map((asset) => asset.key),
+                    },
+                },
+                context: audit,
+            })
+
+            return category
+        }, categoryWriteTransactionOptions)
 
     return {
         listCategories,

@@ -8,6 +8,7 @@ import {
     CategoryTranslationInputError,
     normalizeCategoryTranslations,
 } from "@/core/helpers/categories/categoryTranslations"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 
 export const createCategoryHandler = ({ categoryRepository, assetRepository, productAttributeValueRepository }: ICreateCategoryDependencies) => {
     return async (event: ICreateCategoryEvent) => {
@@ -23,6 +24,8 @@ export const createCategoryHandler = ({ categoryRepository, assetRepository, pro
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`)
 
         const { code, name, translations, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+        const audit = buildAuditContextFromEvent(event)
+
         try {
             const normalized = normalizeCategoryTranslations({
                 legacyName: name,
@@ -41,7 +44,7 @@ export const createCategoryHandler = ({ categoryRepository, assetRepository, pro
                 translations: {
                     create: normalized.translations,
                 },
-            })
+            }, audit)
 
             // ✅ Asset kaydı: client S3'e upload ettiyse sadece DB kaydı oluştur
             if (assetType && assetKey && mimeType) {
