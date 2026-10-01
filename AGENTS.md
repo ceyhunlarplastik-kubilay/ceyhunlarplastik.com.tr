@@ -583,6 +583,11 @@ When adding audit logging to a model (or touching an audited one — today: `Cat
 - a new audited model = its name in `AUDIT_ENTITY_TYPES` (`core/helpers/audit/types.ts`), a snapshot helper, audited
   repository writes, and an entry in `auditCoverage.test.ts` (the `Record<AuditEntityType, …>` there does not compile
   until it is added). That test fails when any other file writes the model's Prisma delegates directly
+- category images are added ONLY through `POST /categories/assets/presign` for an EXISTING category: the server
+  mints the key (folder from the category's stored slug) and the PENDING_UPLOAD row together, and the S3 event
+  activates it. Never accept an asset key from the client in a create / update body, and keep `contentType` on the
+  allowlist (`core/helpers/assets/categoryAssetContentTypes.ts` — no SVG / HTML). Product and material uploads still
+  use the old client-key pattern (IMPROVEMENT_PLAN)
 - reading is one generic endpoint, `GET /audit-logs?entityType=&entityId=` (AdminApi, admin / owner only — the rows
   carry other employees' names, e-mails and IP addresses; a role that can EDIT a record does not get its history).
   The UI is the generic `features/admin/auditLogs` (`EntityAuditHistory` + a per-model `AuditPresenter`, e.g.

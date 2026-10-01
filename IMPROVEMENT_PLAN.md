@@ -63,8 +63,12 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   - Aynı uç, kategorinin altındaki TÜM ürünleri uyarısız kaskad siliyor ve `content_editor`'a da açık.
     Karar gerekir: ürünü olan kategori için 409 engeli ve / veya silmeyi admin'e daraltma. (Denetim kaydı
     artık kaç ürünün gittiğini tutuyor: `metadata.cascade`.)
-  - `POST|PUT /categories` satır içi görseli kategori transaction'ının DIŞINDA yazıyor: görsel yazımı
-    düşerse kategori değişikliği kalır, istek 500 döner.
+- **Aynı açık ürün ve materyal görsellerinde (2026-10-01, kod okumasından — düzeltilmedi):** kategoride
+  kapatılan desen (istemcinin gönderdiği `assetKey`'i doğrulamadan ACTIVE satır yazmak, presign'da izin
+  listesiz `contentType`) `CreateProductDialog` / `updateProduct` (`assetKey`), ürün `AssetUploader` /
+  `ProductAssetsUploader` ve `MaterialFormDialog` / `updateMaterial` akışlarında duruyor. Kategorideki
+  çözüm şablon: görsel yalnız var olan kayda, sunucunun ürettiği anahtar + PENDING satırla eklenir
+  (`createCategoryAssetUploadHandler`, `categoryAssetContentTypes.ts`).
 
 ### Üretim Planlama (APS + MES-lite) — Faz 1-6 · kapsam: büyük *(kullanıcı talebiyle, branch `feature/production-planning`)*
 - **Tasarım + yol haritası:** [docs/production-planning.md](docs/production-planning.md) —
@@ -453,9 +457,8 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
-- **Audit log (Dilim 1-2) kubi testi + commit** (2026-09-30) — migration
-  `20260930180000_add_audit_log` + adım adım doğrulama LOG'daki "Audit logging — Dilim 2" notunun
-  "Kullanıcıda bekleyen" bölümünde. **Prod sırası: ÖNCE `migrate deploy`, SONRA `sst deploy`** — tersi
+- **Audit log** — Dilim 1-2 kubi'de doğrulandı ve commit'lendi (2026-10-01). Kalan: kategori görseli
+  dilimi (LOG, 2026-10-01) kubi testi + commit, sonra prod. **Prod sırası: ÖNCE `migrate deploy`, SONRA `sst deploy`** — tersi
   olursa kategori yazma uçları tablo bulunamadığı için 500 verir (denetim kaydı yazılamayan değişiklik
   bilinçli olarak geri alınır).
 - **Üretim bildirimleri (4.5) kubi testi:** önce migration

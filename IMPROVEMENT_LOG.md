@@ -11265,6 +11265,40 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   9. Prod'dan önce: `npx sst diff --stage prod` (salt okunur) — beklenen: 1 yeni Lambda + 1 route ve değişen
      kategori / iş talebi Lambda kodları. **Prod sırası: önce `migrate deploy`, sonra `sst deploy`.**
 
+## Kategori görseli yalnız presign ile — istemci anahtarına güven kaldırıldı (2026-10-01) *(kullanıcı talebiyle; prod öncesi audit log incelemesi)*
+
+- **Kullanıcının fark ettiği:** `POST /categories` kategoriyi + denetim kaydını commit edip görseli AYRI yazıyordu;
+  görsel yazımı düşerse kategori kalıyor, istek 500, tekrar deneme 409.
+- **İncelemede çıkan asıl açık:** oluşturma formu presign'ı `categoryId` OLMADAN çağırıyordu — sunucu anahtar
+  üretip hiçbir yere kaydetmiyor, sonra `POST /categories` bu anahtarı istemciden geri alıp doğrulamadan
+  ACTIVE görsel satırı yazıyordu. İstemci var olmayan bir dosyayı ya da başka bir kaydın dosyasını
+  (`products/...`) bağlayabiliyordu (o kategori silinince başka kaydın dosyası S3'ten silinirdi). Presign
+  `contentType`'ı izin listesiz imzalıyordu (`text/html` CDN'den servis edilebilirdi), klasörü istemcinin
+  slug'ından kuruyordu; dosya kategori oluşmadan yüklendiği için başarısız oluşturmada S3'te sahipsiz kalıyordu.
+- **Yapılan (karar: kullanıcı, öneri B — "anahtarı yalnız sunucu üretsin"):**
+  - `POST /categories` ve `PUT /categories/{id}`'den görsel alanları kalktı (`assetType/assetRole/assetKey/mimeType`);
+    iç body katı olduğu için gelirse 400. İki handler artık tek transaction'lık kategori + denetim yazması.
+  - `POST /categories/assets/presign`: `categoryId` + `assetType` zorunlu; kategori yoksa 404; klasör DB'deki
+    slug'dan; `contentType` izin listesi + asset tipiyle uyum (`core/helpers/assets/categoryAssetContentTypes.ts`,
+    saf — frontend dosya seçicinin `accept`'i aynı listeden). SVG ve HTML hiçbir tipte yok.
+  - Form: önce kategori oluşur, sonra `categoryId` ile presign + yükleme (PENDING → S3 olayı ACTIVE). Yükleme
+    düşerse kategori kalır, kullanıcıya "düzenleden tekrar yükleyin" denir. `AssetUploader` istemci slug'ını
+    göndermiyor.
+- **Doğrulama:** functions +15 (presign handler: kayıttaki slug, 404, izinsiz tip / tip uyuşmazlığı / eksik alan
+  400; `categoryRequestContract.test.ts`: görsel alanlı create/update reddi, presign şeması), core +4.
+  `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı) · core 929 · functions 656 ·
+  frontend 542 ✓. Migration / infra değişikliği yok. Kubi'de ÇALIŞTIRILMADI.
+- **Kalan:** görsel ekleme / silme hâlâ denetim kaydı üretmiyor (PLAN — Asset dilimi). Ürün ve materyal
+  görsellerinde aynı açık (PLAN).
+- **Kullanıcıda bekleyen (kubi):**
+  1. `sst dev`'i yeniden başlat (migration yok).
+  2. Yeni Kategori → görsel seçerek oluştur → kategori listede; düzenle → görsel "İşleniyor" rozetinden kısa
+     sürede normale dönmeli; Değişiklik Geçmişi'nde yalnız "Oluşturuldu" kaydı.
+  3. Görselsiz oluştur → sorunsuz. Var olan bir kodla oluştur → 409, S3'e dosya YÜKLENMEMİŞ olmalı (yükleme
+     artık oluşturmadan sonra).
+  4. Düzenle → görsel sürükle-bırak → yükleniyor, ardından ACTIVE.
+  5. Dosya seçicide SVG / HTML seçilemiyor; dropzone'a bırakılan desteklenmeyen dosya "yüklenemedi" toast'ı verir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

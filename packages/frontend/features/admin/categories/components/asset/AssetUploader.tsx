@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import axios from "axios"
-import slugify from "slugify"
 import { toast } from "sonner"
 
 import { UploadDropzone } from "./UploadDropzone"
@@ -56,19 +55,12 @@ export function AssetUploader({
 
     const uploadFile = async (upload: Upload) => {
         try {
-            const slug = slugify(category.name, {
-                lower: true,
-                strict: true,
-                locale: "tr"
-            })
-
             // Presign artık PENDING_UPLOAD Asset satırını da oluşturur. S3'e PUT
             // bitince kayıt için beklemeye gerek yok: S3 ObjectCreated event'i
             // satırı ACTIVE'e çevirir (confirmCategoryAssetUpload). Buradaki tek
             // refetch geçici — Slice 3 optimistic + reconciler ile kaldıracak.
             const presigned = await presignMutation.mutateAsync({
                 categoryId: category.id,
-                categorySlug: slug,
                 assetRole: activeRole,
                 assetType: resolveAssetType(upload.file.type),
                 fileName: upload.file.name,

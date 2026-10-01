@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { localeSchema, targetLocaleSchema, REMOVABLE_TRANSLATION_LOCALES_MAX, TRANSLATIONS_ARRAY_MAX } from "@/core/helpers/validation/localeSchema"
+import { ALL_CATEGORY_ASSET_CONTENT_TYPES } from "@/core/helpers/assets/categoryAssetContentTypes"
 
 
 const categoryTranslationInputSchema = z.object({
@@ -70,10 +71,9 @@ export const createCategoryValidator = validatorWrapper(
             name: z.string().min(2).max(100),
             translations: z.array(categoryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             allowedAttributeValueIds: z.array(z.uuid()).optional(),
-            assetType: assetTypeEnum.optional(),
-            assetRole: assetRoleEnum.optional(),
-            assetKey: z.string().optional(),
-            mimeType: z.string().optional(),
+            // Görsel alanları BİLİNÇLİ olarak yok: görsel, kategori oluştuktan sonra
+            // `POST /categories/assets/presign` ile eklenir — anahtarı ve satırı yalnız
+            // sunucu üretir. İç body KATI olduğu için `assetKey` gönderen istek 400 alır.
         }),
     }),
     {
@@ -127,10 +127,7 @@ export const updateCategoryValidator = validatorWrapper(
             translations: z.array(categoryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             removeTranslationLocales: z.array(targetLocaleSchema).max(REMOVABLE_TRANSLATION_LOCALES_MAX).optional(),
             allowedAttributeValueIds: z.array(z.uuid()).optional(),
-            assetType: assetTypeEnum.optional(),
-            assetRole: assetRoleEnum.optional(),
-            assetKey: z.string().optional(),
-            mimeType: z.string().optional(),
+            // Görsel alanları yok — bkz. createCategoryValidator.
         }),
     }),
     {
@@ -183,23 +180,23 @@ export const listCategoryResponseValidator = z.toJSONSchema(
     }).loose()
 )
 
-// categoryId + assetType verilirse presign, PENDING_UPLOAD Asset satırını da
-// oluşturur (AssetUploader akışı — S3 event'i sonra ACTIVE'e çevirir). İkisi de
-// verilmezse yalnız presign döner ve satırı çağıran oluşturur (CategoryCreateForm
-// — kategori + asset tek-atışta, henüz categoryId yok).
+// Kategori görseli eklemenin TEK yolu: presign, var olan kategori için anahtarı ve
+// PENDING_UPLOAD Asset satırını BİRLİKTE üretir; S3 ObjectCreated olayı satırı ACTIVE'e
+// çevirir (confirmCategoryAssetUpload). İstemci anahtar seçemez, klasör kategorinin
+// DB'deki slug'ından gelir. `contentType` izin listesinde olmalı (asset tipiyle uyumu
+// handler denetler: `isAllowedCategoryAssetContentType`).
 export const createCategoryAssetUploadValidator = validatorWrapper(
     z.object({
         body: z.object({
-            categoryId: z.uuid().optional(),
-            categorySlug: z.string().min(1),
+            categoryId: z.uuid(),
             assetRole: assetRoleEnum,
-            assetType: assetTypeEnum.optional(),
-            fileName: z.string().min(1),
-            contentType: z.string().min(1),
+            assetType: assetTypeEnum,
+            fileName: z.string().min(1).max(255),
+            contentType: z.enum(ALL_CATEGORY_ASSET_CONTENT_TYPES),
         }),
     }),
     {
         requiredRootFields: ["body"],
-        requiredBodyFields: ["categorySlug", "assetRole", "fileName", "contentType"]
+        requiredBodyFields: ["categoryId", "assetRole", "assetType", "fileName", "contentType"]
     }
 )
