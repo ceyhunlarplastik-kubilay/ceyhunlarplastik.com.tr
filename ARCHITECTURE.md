@@ -385,7 +385,8 @@ This workflow is the canonical approval engine:
 - `BusinessRequestItem`
   Optional line items for variant-based portal requests such as quote/order style carts.
 - `ActivityLog`
-  Event-driven audit stream persisted from workflow events.
+  Event-driven activity timeline persisted from workflow events (asynchronous, request-scoped).
+  Not the data-change audit trail — that is `AuditLog`, see "Audit log" under Core and Data Layer.
 
 Current design split:
 - PostgreSQL is the business source of truth.
@@ -683,6 +684,37 @@ Use repositories for:
 
 Do not duplicate complex Prisma query trees across multiple Lambda handlers if they can be owned by a repository.
 
+### Audit log
+`AuditLog` is the data-change audit trail: who changed which record, when, from which endpoint, and each changed
+field's value before and after. It is rolled out model by model; today it covers `Category` (fields + translations).
+
+How it differs from `ActivityLog`:
+
+| | `AuditLog` | `ActivityLog` |
+|---|---|---|
+| Records | field-level changes of a row | business-request workflow events |
+| Written | in the SAME DB transaction as the change | asynchronously by an EventBridge subscriber |
+| Keyed by | `entityType` + `entityId` (no FK — survives deletion) | `requestId` (FK to `BusinessRequest`) |
+| Guarantee | no change without a record, no record without a change | best effort |
+
+Write path (`packages/core/src/core/helpers/audit/`):
+- The handler builds an `AuditContext` from the request with `buildAuditContextFromEvent`: the actor is the
+  DB `User` that `authMiddleware` resolved from the verified Cognito token, plus the route key, the API Gateway
+  request id (the same value as the `correlationId` in CloudWatch), source IP and user agent.
+- The repository's write method (the context is a required parameter) opens a transaction, locks the row, reads the
+  previous state, applies the change and calls `writeAuditLog(tx, …)` with the field-level diff
+  (`diffAuditSnapshots` over the model's allowlisted snapshot, e.g. `toCategoryAuditSnapshot`).
+- The actor's identity at the time of the event (name, e-mail, groups, Cognito sub) is copied into the row, so the
+  record stays readable after the user is renamed, regrouped or deleted (`actorUserId` then becomes NULL).
+- Deletes store the last state plus what the cascade removed (`metadata.cascade`).
+
+Read path: `GET /audit-logs?entityType=&entityId=` on the Admin API (admin / owner only) returns a record's history,
+newest first, with a `summary` of who created it and who changed it last. Audited models carry no
+`createdBy` / `updatedBy` columns — that information is derived from the log.
+
+Known gaps (tracked in `IMPROVEMENT_PLAN.md`): category images (`Asset`) and operator CLI scripts do not write
+audit records yet; rows created before the rollout have no history.
+
 ### CRM and portal model
 The customer side is no longer only a passive lead table.
 
@@ -885,6 +917,8 @@ Typical authenticated operational flow:
 4. API Gateway authorizer provides JWT claims to the Lambda.
 5. `authMiddleware` parses claims and synchronizes user state.
 6. Handler validates input, performs repository/domain work, and returns a typed response.
+7. For an audited model the handler also passes an `AuditContext` to the repository, which writes the `AuditLog`
+   row in the same transaction as the change (see "Audit log").
 
 ### Customer portal flow
 Current customer portal lifecycle:

@@ -165,6 +165,11 @@ request validators cannot use `.refine()` (see CLAUDE.md).
 
 Do not introduce custom visual primitives if an equivalent shadcn/ui component already exists.
 
+Irreversible deletes confirm through the shared `features/admin/shared/components/ConfirmDeleteDialog`, never
+`window.confirm`: say what goes with the record (cascades) in `description`, and when the delete cascades or cannot
+be undone pass `confirmationPhrase={PERMANENT_DELETE_CONFIRMATION}` (the typed "KALICI OLARAK SİL" — one constant,
+exported from the same file). Bulk deletes use the same dialog through `BulkSelectionBar`.
+
 For a searchable single-select backed by a SERVER search (large lists such as customers), use the
 shared `components/ui/searchable-select.tsx` with `onSearchChange` (turns off client filtering)
 and `selectedLabel` (label of a value not in the current results) — do not hand-roll another
@@ -557,6 +562,50 @@ When extending production planning (`/uretim`, design in `docs/production-planni
   `computeProductionMinutes` as the engine). The CALENDAR span (factory days the job covers, nights included) is a
   day count (`jobCalendarDays`). `formatDurationMinutes` writes 24-hour days: use it only for calendar quantities
   (delays, downtimes, lot spans). On a 12-hour factory a 34-hour job shown as "1 gün 10 sa" looked shorter than it is
+
+When adding audit logging to a model (or touching an audited one — today: `Category`):
+- `AuditLog` records data changes (who, when, from where, which field, before → after). It is NOT `ActivityLog`
+  (the event-driven business-request timeline). One generic table for every model: `entityType` + `entityId`, no FK to
+  the audited row, so the history survives deletion
+- the record is written in the SAME transaction as the change, with that transaction's `tx`
+  (`core/helpers/audit/writeAuditLog.ts`). If the audit insert fails the change rolls back; never write it after the
+  fact, through an event, or with the global `prisma`
+- every repository write method of an audited model takes an `AuditContext` as a REQUIRED parameter; handlers build it
+  with `buildAuditContextFromEvent(event)`. The actor comes ONLY from `event.user` (verified by `authMiddleware`) —
+  never from the body, query or headers. A service that writes inside its own transaction receives the context from
+  the handler (`approveBusinessRequestDecision({ audit })`) and calls the repository's `…InTransaction` function
+- the audited state is an explicit ALLOWLIST per model (`toCategoryAuditSnapshot` in
+  `core/helpers/categories/categoryAudit.ts`): a flat `field path → value` map built from the RAW Prisma row, diffed
+  by the generic `diffAuditSnapshots`. A field missing there is not recorded; secrets and tokens must never be added.
+  An update that changes no audited field writes no row
+- read the previous state inside the transaction AFTER locking the row (`SELECT … FOR UPDATE`), otherwise two
+  concurrent updates record a stale "before"
+- `AuditLog` is append-only: `writeAuditLog` is the only writer and there is no update / delete path
+- "who did it" has two meanings; keep them apart (decision 2026-10-01, applies to EVERY model):
+  - ACCOUNTABILITY (who created / changed this row, when, what) lives ONLY in `AuditLog`. Do not add generic
+    `createdById` / `updatedById` columns for it: `updatedById` keeps only the last writer, it is a second source that
+    can disagree with the log, every such FK needs a `User` back-relation, and on catalog models it leaks —
+    `mapProductWithAssets` spreads the raw category row (`localizeCategory`) into PUBLIC product responses and ~10
+    repositories carry `category: true` rows. "Created by / last changed by" is derived from the log (`summary` of
+    `GET /audit-logs`)
+  - OWNERSHIP that drives a business rule (who may see / edit it, whose list it appears in, who requested / approved
+    it) is a model field with a business name, an index and a deliberate `onDelete`. The existing
+    `CustomerVisit.ownerUserId`, `BusinessRequest.requestedByUserId`, `Customer.assignedSalesUserId` and
+    `CustomerVariantSpecialPrice.approvedByUserId` are this kind and stay
+  - keep `createdAt` / `updatedAt` on every model (sorting, freshness). `updatedAt` moves on every write, the log only
+    on a real change — they are allowed to differ
+- a new audited model = its name in `AUDIT_ENTITY_TYPES` (`core/helpers/audit/types.ts`), a snapshot helper, audited
+  repository writes, and an entry in `auditCoverage.test.ts` (the `Record<AuditEntityType, …>` there does not compile
+  until it is added). That test fails when any other file writes the model's Prisma delegates directly
+- category images are added ONLY through `POST /categories/assets/presign` for an EXISTING category: the server
+  mints the key (folder from the category's stored slug) and the PENDING_UPLOAD row together, and the S3 event
+  activates it. Never accept an asset key from the client in a create / update body, and keep `contentType` on the
+  allowlist (`core/helpers/assets/categoryAssetContentTypes.ts` — no SVG / HTML). Product and material uploads still
+  use the old client-key pattern (IMPROVEMENT_PLAN)
+- reading is one generic endpoint, `GET /audit-logs?entityType=&entityId=` (AdminApi, admin / owner only — the rows
+  carry other employees' names, e-mails and IP addresses; a role that can EDIT a record does not get its history).
+  The UI is the generic `features/admin/auditLogs` (`EntityAuditHistory` + a per-model `AuditPresenter`, e.g.
+  `categories/utils/categoryAuditPresentation.ts`, whose field labels must match the snapshot's field paths)
 
 ## Database Rules
 

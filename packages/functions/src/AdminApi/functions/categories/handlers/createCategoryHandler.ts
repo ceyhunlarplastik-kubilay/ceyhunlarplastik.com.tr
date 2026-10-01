@@ -8,21 +8,25 @@ import {
     CategoryTranslationInputError,
     normalizeCategoryTranslations,
 } from "@/core/helpers/categories/categoryTranslations"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 
-export const createCategoryHandler = ({ categoryRepository, assetRepository, productAttributeValueRepository }: ICreateCategoryDependencies) => {
+export const createCategoryHandler = ({ categoryRepository, productAttributeValueRepository }: ICreateCategoryDependencies) => {
     return async (event: ICreateCategoryEvent) => {
         const body = event.body
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least  one field must be provided");
 
-        const allowedFields = ["code", "name", "translations", "allowedAttributeValueIds", "assetType", "assetRole", "assetKey", "mimeType"] as const
+        // Görsel burada YOK: kategori oluştuktan sonra presign ile eklenir (anahtarı yalnız sunucu üretir).
+        const allowedFields = ["code", "name", "translations", "allowedAttributeValueIds"] as const
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
         )
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`)
 
-        const { code, name, translations, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+        const { code, name, translations, allowedAttributeValueIds } = body
+        const audit = buildAuditContextFromEvent(event)
+
         try {
             const normalized = normalizeCategoryTranslations({
                 legacyName: name,
@@ -33,7 +37,7 @@ export const createCategoryHandler = ({ categoryRepository, assetRepository, pro
 
             await assertNoIndustrialAttributeValues(productAttributeValueRepository, allowedAttributeValueIds)
 
-            let category = await categoryRepository.createCategory({
+            const category = await categoryRepository.createCategory({
                 code,
                 name: turkish.name,
                 slug: turkish.slug,
@@ -41,21 +45,7 @@ export const createCategoryHandler = ({ categoryRepository, assetRepository, pro
                 translations: {
                     create: normalized.translations,
                 },
-            })
-
-            // ✅ Asset kaydı: client S3'e upload ettiyse sadece DB kaydı oluştur
-            if (assetType && assetKey && mimeType) {
-
-                await assetRepository.createAsset({
-                    key: assetKey,
-                    mimeType,
-                    type: assetType,
-                    role: assetRole ?? "PRIMARY",
-                    category: { connect: { id: category.id } },
-                })
-
-                category = await categoryRepository.getCategory(category.id) as typeof category
-            }
+            }, audit)
 
             return apiResponseDTO({
                 statusCode: 201,

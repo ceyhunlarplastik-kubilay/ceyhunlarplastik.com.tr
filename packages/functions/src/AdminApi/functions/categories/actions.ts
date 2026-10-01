@@ -44,7 +44,6 @@ export const createCategory = lambdaHandler(
     async (event) => {
         const deps: ICreateCategoryDependencies = {
             categoryRepository: categoryRepository(),
-            assetRepository: assetRepository(),
             productAttributeValueRepository: productAttributeValueRepository(),
         }
 
@@ -130,7 +129,6 @@ export const updateCategory = lambdaHandler(
     async (event) => {
         const deps: IUpdateCategoryDependencies = {
             categoryRepository: categoryRepository(),
-            assetRepository: assetRepository(),
             productAttributeValueRepository: productAttributeValueRepository(),
         }
         return updateCategoryHandler(deps)(
@@ -146,6 +144,7 @@ export const updateCategory = lambdaHandler(
 export const createCategoryAssetUpload = lambdaHandler(
     async (event) => {
         const deps: ICreateCategoryAssetUploadDependencies = {
+            categoryRepository: categoryRepository(),
             assetRepository: assetRepository(),
         }
 

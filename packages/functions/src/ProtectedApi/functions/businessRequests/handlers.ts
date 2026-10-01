@@ -5,6 +5,7 @@ import { prisma } from "@/core/db/prisma"
 
 import { approveBusinessRequestDecision, assertAllowedCustomerRequestType, counterBusinessRequestDecision, createCustomerBusinessRequest, createSupplierBusinessRequest, rejectBusinessRequestDecision } from "@/core/helpers/businessRequests/service"
 import { normalizeSupplierProfileApprovalPayload, normalizeSupplierVariantPricingApprovalPayload, snapshotSupplierProfile, snapshotSupplierVariantPricing } from "@/core/helpers/businessRequests/supplierPayloads"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import type {
@@ -672,6 +673,7 @@ export const decideBusinessRequestHandler =
                 ? await approveBusinessRequestDecision({
                     requestId: existing.id,
                     user,
+                    audit: buildAuditContextFromEvent(event),
                     note: event.body.note,
                 })
                 : await rejectBusinessRequestDecision({

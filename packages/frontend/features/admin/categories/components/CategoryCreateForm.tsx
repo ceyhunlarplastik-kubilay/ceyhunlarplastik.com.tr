@@ -14,6 +14,8 @@ import {
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, UploadCloud } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { useCreateCategory } from "../hooks/useCreateCategory"
 import { presignCategoryAsset } from "../api/presignCategoryAsset"
 import type { AssetRole, AssetType } from "@/features/public/assets/types"
@@ -56,6 +58,7 @@ import {
     nameTranslationFormSchema,
 } from "@/features/admin/shared/translations/nameTranslations"
 import { buildTranslationSlug } from "@core/i18n/translationSlug"
+import { CATEGORY_ASSET_CONTENT_TYPES } from "@core/helpers/assets/categoryAssetContentTypes"
 
 type Props = {
     onCreated?: (category: Category) => void
@@ -71,20 +74,13 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
+// Dosya seçici sunucunun izin listesiyle aynı tipleri sunar (presign aynı listeyi uygular).
 function getAcceptByType(assetType: AssetType) {
-    switch (assetType) {
-        case "IMAGE":
-            return "image/*"
-        case "VIDEO":
-            return "video/*"
-        case "PDF":
-            return "application/pdf"
-        default:
-            return "*"
-    }
+    return CATEGORY_ASSET_CONTENT_TYPES[assetType].join(",")
 }
 
 export function CategoryCreateForm({ onCreated }: Props) {
+    const queryClient = useQueryClient()
     const createMutation = useCreateCategory()
     const [open, setOpen] = useState(false)
     const [file, setFile] = useState<File | null>(null)
@@ -123,31 +119,38 @@ export function CategoryCreateForm({ onCreated }: Props) {
         return buildTranslationSlug(name, activeLocale) || slugPreview
     }, [activeLocale, slugPreview, watchedTranslations])
 
+    // Görsel, kategori OLUŞTUKTAN sonra eklenir: sunucu anahtarı + PENDING_UPLOAD satırını
+    // birlikte üretir, S3 olayı satırı ACTIVE'e çevirir. Yükleme düşerse kategori kalır ve
+    // görsel düzenleme dialogundan tekrar eklenir; sahipsiz S3 dosyası ya da istemcinin
+    // seçtiği bir anahtar oluşmaz.
+    async function uploadInitialAsset(categoryId: string, selected: File) {
+        try {
+            const presigned = await presignCategoryAsset({
+                categoryId,
+                assetRole,
+                assetType,
+                fileName: selected.name,
+                contentType: selected.type,
+            })
+
+            await axios.put(presigned.uploadUrl, selected, {
+                headers: { "Content-Type": selected.type },
+                onUploadProgress: (event) => {
+                    const percent = Math.round((event.loaded * 100) / (event.total || 1))
+                    setUploadProgress(percent)
+                },
+            })
+
+            toast.success(`${selected.name} yüklendi — arka planda işleniyor`)
+        } catch {
+            toast.error("Kategori oluşturuldu ama görsel yüklenemedi. Düzenle ekranından tekrar yükleyebilirsiniz.")
+        } finally {
+            void queryClient.invalidateQueries({ queryKey: ["admin-categories"] })
+        }
+    }
+
     async function onSubmit(values: FormValues) {
         try {
-            let assetKey: string | undefined
-            let mimeType: string | undefined
-
-            if (file) {
-                const presigned = await presignCategoryAsset({
-                    categorySlug: slugPreview,
-                    assetRole,
-                    fileName: file.name,
-                    contentType: file.type,
-                })
-
-                await axios.put(presigned.uploadUrl, file, {
-                    headers: { "Content-Type": file.type },
-                    onUploadProgress: (event) => {
-                        const percent = Math.round((event.loaded * 100) / (event.total || 1))
-                        setUploadProgress(percent)
-                    },
-                })
-
-                assetKey = presigned.key
-                mimeType = file.type
-            }
-
             const category = await createMutation.mutateAsync({
                 code: values.code,
                 name: values.name,
@@ -155,11 +158,11 @@ export function CategoryCreateForm({ onCreated }: Props) {
                     translations: values.translations,
                 }).translations,
                 allowedAttributeValueIds,
-                assetType,
-                assetRole,
-                assetKey,
-                mimeType,
             })
+
+            if (file) {
+                await uploadInitialAsset(category.id, file)
+            }
 
             onCreated?.(category)
             form.reset({

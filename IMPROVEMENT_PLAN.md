@@ -18,6 +18,66 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
+### Audit logging (denetim kaydı) — yayılım · kapsam: büyük, dilim dilim *(kullanıcı talebiyle, 2026-09-30; "backend API açıkları" işinin ilk adımı)*
+- **Yapıldı (LOG, 2026-09-30):** Dilim 1 — `AuditLog` tablosu + çekirdek (`core/helpers/audit`) + `Category`'nin
+  tüm API yazma yolları (oluştur / güncelle / sil / tedarikçi kategori talebi onayı). Dilim 2 —
+  `GET /audit-logs` + kategori dialogunda "Değişiklik Geçmişi" sekmesi. Kubi doğrulaması kullanıcıda
+  (aşağıda "Kullanıcıda Bekleyen Adımlar").
+- **Kararlar (kullanıcı, 2026-09-30):** modelden bağımsız tek `AuditLog` tablosu · denetlenen modele
+  `createdBy` / `updatedBy` kolonu EKLENMEZ, bilgi log'dan türetilir (gerekçe AGENTS.md'de) · geçmişi
+  yalnız admin / owner görür.
+- **Sıradaki dilimler (her biri ayrı onayla):**
+  1. **Kategori görselleri — `Asset`.** Bugün görsel ekleme / silme / rol değişimi geçmişte GÖRÜNMEZ.
+     Kapsam: `POST|PUT|DELETE /assets`, `POST /categories/assets/presign` (PENDING satır),
+     `POST|PUT /categories` içindeki satır içi görsel yazımı, `confirmCategoryAssetUpload` (S3 olayı —
+     insan aktörü bilmez: yükleyen, presign anında satıra damgalanmalı, onay `SYSTEM` aktörle yazılmalı).
+     Tasarım kararı: `Asset` altı farklı sahibe bağlı; kaydın sahibinin geçmişinde nasıl görüneceği
+     (`entityType: "Category"` altında `assets` alanı mı, ayrı `Asset` kaydı + üst kayıt bağı mı).
+  2. **Operatör CLI'ları (`SYSTEM` aktör).** Çeviriler prod'a ağırlıkla CLI ile yazılıyor ve kayıt üretmiyor.
+     Envanter `core/helpers/audit/auditCoverage.test.ts` → `unauditedScripts`
+     (`translate-category-translations`, `backfill-category-translations`,
+     `backfill-product-industrial-usages`, `fillCategorySlugs`).
+  3. **Diğer modeller.** Öneri sırası: `Product` (+ çeviriler, attribute bağları) → `ProductAttribute` /
+     `ProductAttributeValue` → `Supplier` → `ProductVariantSupplier` (fiyat alanları) → `Customer`
+     (ticari alanlar) → `CustomerVariantSpecialPrice` → kullanıcı rol / erişim değişiklikleri.
+     Her model için: snapshot izin listesi (hangi alan kayda girer — ticari / gizli alan kararı),
+     repository yazma yolları, arayüz sunucusu (`AuditPresenter`).
+  4. **Genel "Denetim Kayıtları" sayfası (admin).** Model / kullanıcı / tarih filtresi. Silinen bir kaydın
+     geçmişine arayüzden ulaşmanın TEK yolu bu olacak (bugün silinen kategorinin `DELETE` kaydı yalnız
+     veritabanında görülür). `GET /audit-logs` bugün `entityType` + `entityId`'yi zorunlu tutuyor.
+- **Sertleştirme (karar gerekir):**
+  - **DB seviyesinde değiştirilemezlik:** bugün "yalnız eklenir" kuralı uygulama katmanında
+    (tek yazıcı + kapsam testi). `AuditLog` için UPDATE / DELETE'i reddeden bir trigger eklenebilir;
+    dikkat: `actorUser` FK'sı `SetNull` — kullanıcı silme bu tabloyu günceller, trigger o kolona izin
+    vermeli ya da FK kaldırılmalı.
+  - **Saklama süresi + KVKK:** tablo süresiz büyür; IP adresi ve e-posta kişisel veri. Süre ve
+    silme / anonimleştirme politikası iş kararı. Budama yapılırsa `CREATE` kayıtları korunmalı
+    ("oluşturan" bilgisinin tek kaynağı).
+  - **Uygulama dışı ikinci iz:** veritabanına yazma yetkisi olan biri izi de silebilir; CloudWatch yapısal
+    logu ya da S3 Object Lock'a dışa aktarım buna karşı.
+- **Yan bulgular (2026-09-30, kod okumasından — ölçülmedi, bu işte düzeltilmedi):**
+  - `DELETE /categories/{id}` S3 nesnelerini veritabanı silmesinden ÖNCE siliyor
+    (`deleteCategoryHandler`). Silme düşerse (kategori silmesi ürünlere kaskad eder; aşağıdaki "Ürün
+    modeli silme" maddesindeki `Restrict` zincirine burada da takılabilir) görseller gitmiş, kayıt kalmış
+    olur. Doğrusu önce DB (+ denetim kaydı), sonra S3.
+  - Aynı uç, kategorinin altındaki TÜM ürünleri uyarısız kaskad siliyor ve `content_editor`'a da açık.
+    Karar gerekir: ürünü olan kategori için 409 engeli ve / veya silmeyi admin'e daraltma. (Denetim kaydı
+    artık kaç ürünün gittiğini tutuyor: `metadata.cascade`.)
+- **Aynı açık ürün ve materyal görsellerinde (2026-10-01, kod okumasından — düzeltilmedi):** kategoride
+  kapatılan desen (istemcinin gönderdiği `assetKey`'i doğrulamadan ACTIVE satır yazmak, presign'da izin
+  listesiz `contentType`) `CreateProductDialog` / `updateProduct` (`assetKey`), ürün `AssetUploader` /
+  `ProductAssetsUploader` ve `MaterialFormDialog` / `updateMaterial` akışlarında duruyor. Kategorideki
+  çözüm şablon: görsel yalnız var olan kayda, sunucunun ürettiği anahtar + PENDING satırla eklenir
+  (`createCategoryAssetUploadHandler`, `categoryAssetContentTypes.ts`).
+
+### Kalan `window.confirm` silmeleri → ortak `ConfirmDeleteDialog` · kapsam: küçük, opsiyonel *(2026-10-01, kategori silmesi geçirildi)*
+- **Kural (AGENTS.md § UI components):** geri alınamaz silme ortak diyalogla onaylanır; kaskad / geri alınamaz
+  silmede `PERMANENT_DELETE_CONFIRMATION` yazdırılır.
+- **Hâlâ tarayıcı onayı kullananlar (2026-10-01 taraması):** `ProductsGrid` (ürün modeli — kaskad, öncelikli),
+  `MaterialsTable` (2), `MeasurementTypesTable`, `ColorsTable`, `ProductImageGallery`, ürün `AssetGrid` /
+  `AssetPreviewPanel`, `CampaignsPageClient`, `CustomerSpecialPricesPageClient` (pasifleştirme — ifade gerekmez),
+  `CustomerAddressFormDialog`.
+
 ### Üretim Planlama (APS + MES-lite) — Faz 1-6 · kapsam: büyük *(kullanıcı talebiyle, branch `feature/production-planning`)*
 - **Tasarım + yol haritası:** [docs/production-planning.md](docs/production-planning.md) —
   veri modeli (makine / kalıp → `ProductSize` / vardiya düzeni / üretim emri → iş → vardiya
@@ -405,6 +465,10 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
+- **Audit log** — Dilim 1-2 kubi'de doğrulandı ve commit'lendi (2026-10-01). Kalan: kategori görseli
+  dilimi (LOG, 2026-10-01) kubi testi + commit, sonra prod. **Prod sırası: ÖNCE `migrate deploy`, SONRA `sst deploy`** — tersi
+  olursa kategori yazma uçları tablo bulunamadığı için 500 verir (denetim kaydı yazılamayan değişiklik
+  bilinçli olarak geri alınır).
 - **Üretim bildirimleri (4.5) kubi testi:** önce migration
   (`npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`),
   sonra `.env`'e `PRODUCTION_ALERTS_ENABLED="true"` ekleyip `sst dev --stage kubi` (tarama 5 dk'da

@@ -9,10 +9,10 @@ import {
     normalizeCategoryTranslations,
 } from "@/core/helpers/categories/categoryTranslations"
 import { DEFAULT_LOCALE } from "@/core/i18n/locales"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 
 export const updateCategoryHandler = ({
     categoryRepository,
-    assetRepository,
     productAttributeValueRepository,
 }: IUpdateCategoryDependencies) => {
     return async (event: IUpdateCategoryEvent) => {
@@ -23,7 +23,8 @@ export const updateCategoryHandler = ({
         if (!body || Object.keys(body).length === 0)
             throw new createError.BadRequest("At least one field must be provided")
 
-        const allowedFields = ["name", "translations", "removeTranslationLocales", "allowedAttributeValueIds", "assetType", "assetRole", "assetKey", "mimeType"] as const
+        // Görsel burada YOK: `POST /categories/assets/presign` ile eklenir.
+        const allowedFields = ["name", "translations", "removeTranslationLocales", "allowedAttributeValueIds"] as const
 
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
@@ -34,7 +35,8 @@ export const updateCategoryHandler = ({
                 `Invalid fields provided: ${invalidFields.join(", ")}`
             )
 
-        const { name, translations, removeTranslationLocales, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+        const { name, translations, removeTranslationLocales, allowedAttributeValueIds } = body
+        const audit = buildAuditContextFromEvent(event)
 
         const removableLocales = new Set<string>(removeTranslationLocales ?? [])
         const conflictingLocales = translations
@@ -100,27 +102,9 @@ export const updateCategoryHandler = ({
                 }),
             }
 
-            // 1️⃣ Category update — yönetim dialog'u PENDING_UPLOAD asset'leri de
-            // görmeli (rozetle); liste/public yalnız ACTIVE alır.
-            let category = await categoryRepository.updateCategory(id, updateData, { includeAllAssets: true })
-
-            // 2️⃣ Yeni asset geldiyse lifecycle yönetimi
-            if (assetType && assetKey && mimeType) {
-
-                if (assetRole === "PRIMARY") {
-                    await assetRepository.unsetCategoryPrimaryAssets(id)
-                }
-
-                await assetRepository.createAsset({
-                    key: assetKey,
-                    mimeType,
-                    type: assetType,
-                    role: assetRole ?? "GALLERY",
-                    category: { connect: { id } },
-                })
-
-                category = await categoryRepository.getCategory(id, undefined, { includeAllAssets: true }) as typeof category
-            }
+            // Yönetim dialog'u PENDING_UPLOAD asset'leri de görmeli (rozetle);
+            // liste/public yalnız ACTIVE alır.
+            const category = await categoryRepository.updateCategory(id, updateData, audit, { includeAllAssets: true })
 
             return apiResponseDTO({
                 statusCode: 200,

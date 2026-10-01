@@ -101,6 +101,7 @@ export const ModelName = {
   BusinessRequestItem: 'BusinessRequestItem',
   BusinessRequestApprovalStep: 'BusinessRequestApprovalStep',
   ActivityLog: 'ActivityLog',
+  AuditLog: 'AuditLog',
   Material: 'Material',
   MaterialTranslation: 'MaterialTranslation',
   Asset: 'Asset',
@@ -1025,6 +1026,30 @@ export const ActivityLogScalarFieldEnum = {
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  entityLabel: 'entityLabel',
+  action: 'action',
+  actorType: 'actorType',
+  actorUserId: 'actorUserId',
+  actorCognitoSub: 'actorCognitoSub',
+  actorEmail: 'actorEmail',
+  actorName: 'actorName',
+  actorGroups: 'actorGroups',
+  source: 'source',
+  requestId: 'requestId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  changes: 'changes',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
 export const MaterialScalarFieldEnum = {

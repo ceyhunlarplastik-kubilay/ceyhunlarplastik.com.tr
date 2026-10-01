@@ -9,12 +9,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { resolveCustomerNameParts } from "@core/helpers/crm/customerDisplayName"
 import { formatWebsiteLabel } from "@core/helpers/crm/customerWebsite"
-import { ConfirmDeleteDialog } from "@/features/admin/shared/components/ConfirmDeleteDialog"
+import {
+    ConfirmDeleteDialog,
+    PERMANENT_DELETE_CONFIRMATION,
+} from "@/features/admin/shared/components/ConfirmDeleteDialog"
 import type { LeadCustomer } from "@/features/admin/leadCustomers/api/types"
 import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 import { LeadCustomerDetailPanel } from "./LeadCustomerDetailPanel"
-
-const DELETE_CONFIRMATION = "KALICI OLARAK SİL"
 
 export function LeadCustomerCard({
     customer,
@@ -193,7 +194,7 @@ export function LeadCustomerCard({
                                     olan kayıtlar silinmez.
                                 </>
                             }
-                            confirmationPhrase={DELETE_CONFIRMATION}
+                            confirmationPhrase={PERMANENT_DELETE_CONFIRMATION}
                             onConfirm={onDelete}
                         />
                     ) : null}

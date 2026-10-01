@@ -11,10 +11,6 @@ export interface ICreateCategoryBody {
     name: string
     translations?: CategoryTranslationInput[]
     allowedAttributeValueIds?: string[]
-    assetType?: AssetType
-    assetRole?: AssetRole
-    assetKey?: string
-    mimeType?: string
 }
 
 export type RemovableCategoryTranslationLocale = TargetLocale
@@ -52,10 +48,6 @@ export type IUpdateCategoryEvent =
             translations?: CategoryTranslationInput[]
             removeTranslationLocales?: RemovableCategoryTranslationLocale[]
             allowedAttributeValueIds?: string[]
-            assetKey?: string
-            assetRole?: AssetRole
-            mimeType?: string
-            assetType?: AssetType
         }>
     }
 
@@ -72,7 +64,6 @@ export interface IListCategoriesDependencies {
 
 export interface ICreateCategoryDependencies {
     categoryRepository: IPrismaCategoryRepository
-    assetRepository: IPrismaAssetRepository
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
 }
 
@@ -87,18 +78,14 @@ export interface IDeleteCategoryDependencies {
 
 export interface IUpdateCategoryDependencies {
     categoryRepository: IPrismaCategoryRepository,
-    assetRepository: IPrismaAssetRepository,
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
 }
 
-// ✅ Presign request
-// categoryId + assetType birlikte verilirse handler PENDING_UPLOAD Asset satırını
-// da yazar; verilmezse yalnız presign döner (kategori + asset tek-atışta oluşturma).
+// Presign: var olan kategori için anahtar + PENDING_UPLOAD Asset satırı birlikte üretilir.
 export interface ICreateCategoryAssetUploadBody {
-    categoryId?: string
-    categorySlug: string
+    categoryId: string
     assetRole: AssetRole
-    assetType?: AssetType
+    assetType: AssetType
     fileName: string
     contentType: string
 }
@@ -106,5 +93,6 @@ export interface ICreateCategoryAssetUploadBody {
 export type ICreateCategoryAssetUploadEvent = IAPIGatewayProxyEventWithUserGeneric<Partial<ICreateCategoryAssetUploadBody>, {}>
 
 export interface ICreateCategoryAssetUploadDependencies {
+    categoryRepository: IPrismaCategoryRepository
     assetRepository: IPrismaAssetRepository
 }

@@ -12,10 +12,6 @@ export type UpdateCategoryParams = {
     }>
     removeTranslationLocales?: TargetLocale[]
     allowedAttributeValueIds?: string[]
-    assetKey?: string
-    assetRole?: string
-    assetType?: string
-    mimeType?: string
 }
 
 export async function updateCategory(params: UpdateCategoryParams) {

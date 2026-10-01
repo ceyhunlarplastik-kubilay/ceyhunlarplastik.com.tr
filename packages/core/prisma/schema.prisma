@@ -65,6 +65,7 @@ model User {
   reportedProductionLots          ProductionLot[]               @relation("ProductionLotReportedBy")
   createdProductionStops          ProductionStop[]              @relation("ProductionStopCreatedBy")
   productionJobStatusChanges      ProductionJobStatusChange[]   @relation("ProductionJobStatusChangeUser")
+  auditLogs                       AuditLog[]                    @relation("AuditLogActor")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1734,6 +1735,69 @@ model ActivityLog {
   @@index([requestId, createdAt])
   @@index([actorUserId, createdAt])
   @@index([eventType, createdAt])
+}
+
+///////////////////////////////////////////////////////
+// AUDIT LOG
+// Veri değişikliği denetim kaydı: kim, ne zaman, nereden, neyi, neyden neye.
+// `ActivityLog` ile KARIŞTIRMA: o, iş talebi akışının olay-tabanlı (asenkron) zaman
+// tüneli; bu tablo değişiklikle AYNI transaction'da yazılır (kayıt yazılamazsa
+// değişiklik de geri alınır) ve yalnız EKLENİR — güncelleme/silme yolu yoktur.
+// Kurallar: AGENTS.md § "When adding audit logging to a model".
+///////////////////////////////////////////////////////
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum AuditActorType {
+  /// Kimliği doğrulanmış API kullanıcısı (Cognito JWT → authMiddleware → User).
+  USER
+  /// İnsan olmayan aktör: olay tetikli Lambda, cron, operatör CLI'ı.
+  SYSTEM
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  /// Model adı ("Category"). String: yeni bir modeli denetlemek migration istemesin.
+  entityType  String
+  /// Kaydın id'si. FK YOK: kayıt silinse de geçmişi kalır.
+  entityId    String
+  /// Olay anındaki okunur ad ("10 · Bakalit Tutamaklar") — silinen kayıt da tanınsın.
+  entityLabel String?
+  action      AuditAction
+
+  actorType       AuditActorType @default(USER)
+  actorUserId     String?
+  actorUser       User?          @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  /// Aktörün OLAY ANINDAKİ künyesi: kullanıcı silinse ya da adı / grubu değişse de
+  /// kayıt okunur kalır (`actorUserId` o zaman NULL'a düşer).
+  actorCognitoSub String?
+  actorEmail      String?
+  actorName       String?
+  actorGroups     String[]       @default([])
+
+  /// İşlemi başlatan uç ("PUT /categories/{id}") ya da sistem kaynağı.
+  source    String
+  /// API Gateway requestId — CloudWatch'taki `correlationId` ile aynı değer.
+  requestId String?
+  ipAddress String?
+  userAgent String?
+
+  /// [{ field, before, after }] — UPDATE'te yalnız değişen alanlar; CREATE'te
+  /// `before`, DELETE'te `after` null.
+  changes  Json
+  /// Olayın bağlamı (silmede kaskadla gidenler, iş talebi id'si gibi).
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([createdAt])
 }
 
 model Material {

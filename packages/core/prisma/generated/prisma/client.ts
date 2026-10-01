@@ -341,6 +341,11 @@ export type BusinessRequestApprovalStep = Prisma.BusinessRequestApprovalStepMode
  */
 export type ActivityLog = Prisma.ActivityLogModel
 /**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
  * Model Material
  * 
  */

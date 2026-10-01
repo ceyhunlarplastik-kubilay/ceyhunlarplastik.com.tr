@@ -2,7 +2,6 @@ import { adminApiClient } from "@/lib/http/client"
 
 import type { Category } from "@/features/public/categories/types"
 import { normalizeCategory } from "@/features/public/categories/normalizeCategory"
-import type { AssetRole, AssetType } from "@/features/public/assets/types"
 
 import type { CreateCategoryResponse } from "./types"
 import type { SupportedLocale } from "@core/i18n/locales"
@@ -16,23 +15,15 @@ type Params = {
         slug?: string
     }>
     allowedAttributeValueIds?: string[]
-
-    assetType?: AssetType
-    assetRole?: AssetRole
-
-    assetKey?: string
-    mimeType?: string
 }
+
+/** Görsel burada gönderilmez: kategori oluşunca `presignCategoryAsset({ categoryId })` ile eklenir. */
 
 export async function createCategory({
     code,
     name,
     translations,
     allowedAttributeValueIds,
-    assetType,
-    assetRole,
-    assetKey,
-    mimeType,
 }: Params): Promise<Category> {
 
     const res =
@@ -43,10 +34,6 @@ export async function createCategory({
                 name,
                 translations,
                 allowedAttributeValueIds,
-                assetType,
-                assetRole,
-                assetKey,
-                mimeType,
             }
         )
 

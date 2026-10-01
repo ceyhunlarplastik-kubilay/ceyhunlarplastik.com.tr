@@ -3,63 +3,69 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { generateCategoryAssetUpload } from "@/core/helpers/s3/presign"
+import { isAllowedCategoryAssetContentType } from "@/core/helpers/assets/categoryAssetContentTypes"
 import type {
     ICreateCategoryAssetUploadDependencies,
     ICreateCategoryAssetUploadEvent,
 } from "@/functions/AdminApi/types/categories"
 
+/**
+ * Kategori görseli eklemenin TEK yolu. Anahtarı ve PENDING_UPLOAD satırını sunucu birlikte
+ * üretir; istemci yalnız dosyayı imzalı adrese yükler, S3 ObjectCreated olayı satırı ACTIVE'e
+ * çevirir (confirmCategoryAssetUpload). İstemcinin bildirdiği bir anahtar hiçbir yerde
+ * kaydedilmez — eskiden `POST /categories` istemciden gelen `assetKey`'i doğrulamadan ACTIVE
+ * satır olarak yazıyordu (başka kaydın dosyası bağlanabiliyor, var olmayan dosya görünüyordu).
+ */
 export const createCategoryAssetUploadHandler = ({
+    categoryRepository,
     assetRepository,
 }: ICreateCategoryAssetUploadDependencies) => {
     return async (event: ICreateCategoryAssetUploadEvent) => {
-        const { categoryId, categorySlug, assetRole, assetType, fileName, contentType } = event.body;
+        const { categoryId, assetRole, assetType, fileName, contentType } = event.body ?? {}
 
-        if (!categorySlug || !assetRole || !fileName || !contentType) {
+        if (!categoryId || !assetRole || !assetType || !fileName || !contentType) {
             throw new createError.BadRequest("Missing required fields");
         }
 
-        // categoryId + assetType birlikte verilirse presign PENDING_UPLOAD satırını
-        // da oluşturur (AssetUploader akışı). Verilmezse yalnız presign döner ve
-        // satırı çağıran yazar (CategoryCreateForm — kategori + asset tek-atışta).
-        const createsPendingRow = Boolean(categoryId)
-        if (createsPendingRow && !assetType) {
-            throw new createError.BadRequest("assetType is required when categoryId is provided")
+        // İmzaya giren tip CDN'den o tiple servis edilir: yalnız izin listesi ve asset tipine uyan.
+        if (!isAllowedCategoryAssetContentType(assetType, contentType)) {
+            throw new createError.BadRequest(`Content type ${contentType} is not allowed for ${assetType}`)
         }
 
-        // Satırın id'si key'in dosya adı olur; S3 ObjectCreated event'i key'den
-        // satırı bulup PENDING_UPLOAD → ACTIVE çevirir (confirmCategoryAssetUpload).
-        const assetId = randomUUID()
+        try {
+            // Klasör istemcinin söylediği slug'dan değil, kategorinin kaydından gelir.
+            const category = await categoryRepository.getCategory(categoryId)
 
-        const presigned = await generateCategoryAssetUpload({
-            assetId,
-            categorySlug,
-            assetRole,
-            fileName,
-            contentType,
-        })
+            // Satırın id'si key'in dosya adı olur; S3 olayı key'den satırı bulur.
+            const assetId = randomUUID()
 
-        if (createsPendingRow) {
-            try {
-                await assetRepository.createPendingAsset({
-                    id: assetId,
-                    key: presigned.key,
-                    mimeType: contentType,
-                    type: assetType!,
-                    role: assetRole,
-                    category: { connect: { id: categoryId! } },
-                })
-            } catch (err) {
-                if (err instanceof HttpError) throw err
-                if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
-                    throw new createError.NotFound("Category not found")
-                }
-                throw err
+            const presigned = await generateCategoryAssetUpload({
+                assetId,
+                categorySlug: category.slug,
+                assetRole,
+                fileName,
+                contentType,
+            })
+
+            await assetRepository.createPendingAsset({
+                id: assetId,
+                key: presigned.key,
+                mimeType: contentType,
+                type: assetType,
+                role: assetRole,
+                category: { connect: { id: categoryId } },
+            })
+
+            return apiResponseDTO({
+                statusCode: 200,
+                payload: { ...presigned, assetId }, // { uploadUrl, key, url, assetId }
+            })
+        } catch (err) {
+            if (err instanceof HttpError) throw err
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+                throw new createError.NotFound("Category not found")
             }
+            throw err
         }
-
-        return apiResponseDTO({
-            statusCode: 200,
-            payload: { ...presigned, assetId }, // { uploadUrl, key, url, assetId }
-        })
     }
 }

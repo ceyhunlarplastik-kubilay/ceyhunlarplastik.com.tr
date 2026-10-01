@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
 
 import {
     AlertDialog,
@@ -17,7 +17,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 /**
- * Geri alınamaz silmeler için onay diyaloğu.
+ * Kalıcı silmede yazılması istenen ifade — TEK kaynak. Kaydı ya da altındakileri
+ * geri getirilemeyecek şekilde silen her yüzey bunu kullanır (kullanıcılar her
+ * ekranda aynı ifadeyi görsün, ifade bir yerde değişirse her yerde değişsin).
+ */
+export const PERMANENT_DELETE_CONFIRMATION = "KALICI OLARAK SİL"
+
+/**
+ * Geri alınamaz silmeler için onay diyaloğu — tarayıcının `window.confirm`'ü yerine
+ * bunu kullan (erişilebilir, marka diliyle uyumlu, ne silineceğini anlatabilir).
  *
  * Tekil ve toplu silme AYNI bileşeni kullanır — yazarak onaylama mantığının
  * ikinci bir kopyası çıkmasın (AGENTS.md: ortak bileşeni genişlet).
@@ -26,7 +34,8 @@ import { Label } from "@/components/ui/label"
  *  - `itemNames`: silinecekler ADIYLA listelenir. Kullanıcı sayıya değil,
  *    gerçekte neyin gideceğine bakarak onaylamalı.
  *  - `confirmationPhrase`: ifade harfi harfine yazılmadan düğme açılmaz
- *    (AWS'in kaynak silmede istediği desen).
+ *    (AWS'in kaynak silmede istediği desen). Kalıcı silmede
+ *    `PERMANENT_DELETE_CONFIRMATION` ver.
  */
 type Props = {
     /** Diyaloğu açan düğme. */
@@ -50,6 +59,10 @@ export function ConfirmDeleteDialog({
 }: Props) {
     const [open, setOpen] = useState(false)
     const [typed, setTyped] = useState("")
+    // Sabit id'ler yerine `useId`: aynı sayfada birden çok diyalog varken etiket ↔ alan
+    // bağı karışmasın.
+    const inputId = useId()
+    const hintId = useId()
 
     const confirmationSatisfied = !confirmationPhrase || typed.trim() === confirmationPhrase
 
@@ -85,19 +98,19 @@ export function ConfirmDeleteDialog({
 
                 {confirmationPhrase ? (
                     <div className="space-y-2">
-                        <Label htmlFor="confirm-delete-phrase" className="text-sm font-normal">
+                        <Label htmlFor={inputId} className="text-sm font-normal">
                             Onaylamak için{" "}
                             <span className="font-mono font-semibold">{confirmationPhrase}</span> yazın
                         </Label>
                         <Input
-                            id="confirm-delete-phrase"
+                            id={inputId}
                             value={typed}
                             onChange={(event) => setTyped(event.target.value)}
                             placeholder={confirmationPhrase}
                             autoComplete="off"
-                            aria-describedby="confirm-delete-hint"
+                            aria-describedby={hintId}
                         />
-                        <p id="confirm-delete-hint" className="sr-only">
+                        <p id={hintId} className="sr-only">
                             Silme düğmesi, ifade birebir yazılana kadar devre dışıdır.
                         </p>
                     </div>

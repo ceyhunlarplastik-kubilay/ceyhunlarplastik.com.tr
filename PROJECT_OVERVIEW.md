@@ -46,6 +46,7 @@ Backend tarafında API Gateway + Lambda + Prisma/PostgreSQL, frontend tarafında
 | CRM ve müşteri adresleri | [ARCHITECTURE.md](ARCHITECTURE.md) CRM and portal model | `packages/core/prisma/schema.prisma`, `packages/frontend/features/admin/customers/**`, `packages/frontend/features/customerLocations/**` |
 | Geo selector verileri | [AGENTS.md](AGENTS.md) Reference geo data | `packages/core/prisma/schema.prisma`, `packages/functions/src/PublicApi/functions/geo/**` |
 | Özel müşteri fiyatları | [AGENTS.md](AGENTS.md) Customer-specific special prices | `CustomerVariantSpecialPrice`, `packages/frontend/features/**/specialPrices/**` |
+| Audit log (kim, neyi, neyden neye değiştirdi) | [AGENTS.md](AGENTS.md) "When adding audit logging to a model" + [ARCHITECTURE.md](ARCHITECTURE.md) Audit log | `packages/core/src/core/helpers/audit/**`, `packages/core/src/core/helpers/prisma/auditLogs/**`, `packages/functions/src/AdminApi/functions/auditLogs/**`, `packages/frontend/features/admin/auditLogs/**` |
 | Public katalog SSR/cache | [AGENTS.md](AGENTS.md) SSR and SEO | `packages/frontend/app/(public)/**`, `packages/frontend/features/public/**/server/**` |
 | Infra kaynakları | [ARCHITECTURE.md](ARCHITECTURE.md) Infrastructure | `sst.config.ts`, `infra/*.ts` |
 | Deployment ve migration | [README.md](README.md) Deployment + Prisma | `package.json`, `infra/db.ts`, `packages/core/prisma.config.ts` |

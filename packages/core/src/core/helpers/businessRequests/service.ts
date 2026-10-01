@@ -39,6 +39,8 @@ import {
 import type { CustomerAddressMutationInput } from "@/core/helpers/prisma/customers/repository"
 import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 import { upsertProductVariantRows } from "@/core/helpers/productVariants/productVariantWriter"
+import { createCategoryInTransaction } from "@/core/helpers/prisma/categories/repository"
+import type { AuditContext } from "@/core/helpers/audit/types"
 
 type RequestWithApprovalSteps<TStep> = {
     approvalSteps: TStep[]
@@ -415,6 +417,8 @@ function normalizeVariantSizeValues(
 
 type ApplyApprovedBusinessRequestInput = {
     approvedByUserId?: string | null
+    /** Onayın yazdığı denetimli kayıtların bağlamı: onaylayan kullanıcı + istek künyesi. */
+    audit: AuditContext
     /**
      * Transaction AÇILMADAN ÖNCE çözülmüş adresler. Google Places isteği
      * transaction içinde beklenemez: varsayılan 5 sn'lik interaktif transaction
@@ -524,7 +528,7 @@ export async function prepareApprovedBusinessRequestAddresses(
 async function applyApprovedBusinessRequestTx(
     tx: PrismaTransactionClient,
     request: BusinessRequestWithRelations,
-    input: ApplyApprovedBusinessRequestInput = {},
+    input: ApplyApprovedBusinessRequestInput,
 ) {
     const requestedData = asRecord(request.requestedData)
 
@@ -658,8 +662,11 @@ async function applyApprovedBusinessRequestTx(
 
         const slug = slugify(name, { lower: true, strict: true, locale: "tr" })
 
-        await tx.category.create({
-            data: {
+        // Kategoriye yazan tek yol: denetim kaydı aynı transaction'da düşer. Aktör onaylayandır;
+        // talebi açan tedarikçi kullanıcısı metadata'da kalır.
+        await createCategoryInTransaction(
+            tx,
+            {
                 code,
                 name,
                 slug,
@@ -672,7 +679,13 @@ async function applyApprovedBusinessRequestTx(
                     },
                 },
             },
-        })
+            input.audit,
+            {
+                businessRequestId: request.id,
+                businessRequestType: request.type,
+                requestedByUserId: request.requestedByUserId,
+            },
+        )
         return
     }
 
@@ -863,7 +876,7 @@ async function loadRequestInTransaction(requestId: string) {
     return request
 }
 
-async function approveSingleStep(request: BusinessRequestWithRelations, user: IAuthenticatedUser, note?: string | null) {
+async function approveSingleStep(request: BusinessRequestWithRelations, user: IAuthenticatedUser, audit: AuditContext, note?: string | null) {
     const currentStep = getCurrentPendingStep(request)
     if (!currentStep) {
         throw new createError.Conflict("No pending approval step remains")
@@ -881,6 +894,7 @@ async function approveSingleStep(request: BusinessRequestWithRelations, user: IA
         if (completed) {
             await applyApprovedBusinessRequestTx(tx, request, {
                 approvedByUserId: user.id,
+                audit,
                 preparedProfileAddresses,
             })
         }
@@ -928,7 +942,7 @@ async function approveSingleStep(request: BusinessRequestWithRelations, user: IA
     })
 }
 
-async function approveWithAdminBypass(request: BusinessRequestWithRelations, user: IAuthenticatedUser, note?: string | null) {
+async function approveWithAdminBypass(request: BusinessRequestWithRelations, user: IAuthenticatedUser, audit: AuditContext, note?: string | null) {
     const pendingSteps = getPendingSteps(request)
     if (pendingSteps.length === 0) {
         throw new createError.Conflict("No pending approval step remains")
@@ -945,6 +959,7 @@ async function approveWithAdminBypass(request: BusinessRequestWithRelations, use
     await prisma.$transaction(async (tx) => {
         await applyApprovedBusinessRequestTx(tx, request, {
             approvedByUserId: user.id,
+            audit,
             preparedProfileAddresses,
         })
 
@@ -994,13 +1009,13 @@ async function approveWithAdminBypass(request: BusinessRequestWithRelations, use
     })
 }
 
-async function approveWithSalesDirectorBypass(request: BusinessRequestWithRelations, user: IAuthenticatedUser, note?: string | null) {
+async function approveWithSalesDirectorBypass(request: BusinessRequestWithRelations, user: IAuthenticatedUser, audit: AuditContext, note?: string | null) {
     const pendingSteps = getPendingSteps(request)
     const currentStep = pendingSteps[0]
     const salesDirectorStep = pendingSteps.find((step) => step.requiredRole === "SALES_DIRECTOR")
 
     if (!currentStep || !salesDirectorStep || currentStep.requiredRole !== "SALES") {
-        return approveSingleStep(request, user, note)
+        return approveSingleStep(request, user, audit, note)
     }
 
     const now = new Date()
@@ -1038,6 +1053,7 @@ async function approveWithSalesDirectorBypass(request: BusinessRequestWithRelati
         if (remainingPending.length === 0) {
             await applyApprovedBusinessRequestTx(tx, request, {
                 approvedByUserId: user.id,
+                audit,
                 preparedProfileAddresses,
             })
         }
@@ -1318,6 +1334,8 @@ export async function rejectBusinessRequestDecision(input: {
 export async function approveBusinessRequestDecision(input: {
     requestId: string
     user: IAuthenticatedUser
+    /** İstekten kurulur (`buildAuditContextFromEvent`): onay, denetimli kayıt yazabilir. */
+    audit: AuditContext
     note?: string | null
 }) {
     const request = await businessRequestRepository().getRequest(input.requestId)
@@ -1335,14 +1353,14 @@ export async function approveBusinessRequestDecision(input: {
     }
 
     if (input.user.isOwner || input.user.isAdmin) {
-        return approveWithAdminBypass(request, input.user, input.note)
+        return approveWithAdminBypass(request, input.user, input.audit, input.note)
     }
 
     if (input.user.isSalesDirector && request.domain === "SALES" && currentStep.requiredRole === "SALES") {
-        return approveWithSalesDirectorBypass(request, input.user, input.note)
+        return approveWithSalesDirectorBypass(request, input.user, input.audit, input.note)
     }
 
-    return approveSingleStep(request, input.user, input.note)
+    return approveSingleStep(request, input.user, input.audit, input.note)
 }
 
 export async function createCustomerBusinessRequest(input: {
