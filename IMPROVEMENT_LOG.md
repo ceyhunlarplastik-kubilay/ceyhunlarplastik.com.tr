@@ -11479,6 +11479,57 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   6. Public ürün sayfası ve portal varyant tablosu: başlıkta "(P-T)", değer "10/30".
   7. Prod sırası: ÖNCE `migrate deploy` (bekleyen tüm migration'lar), SONRA `sst deploy`.
 
+## Varyant matrisi: seçili varyantları taslağa toplu kopyalama (2026-10-02) *(kullanıcı talebiyle; branch `feat/measurement-codes-p-t-w-l`)*
+
+- **İstek:** veri girişi (`/veri-girisi/products/[id]/variants`, admin ile AYNI bileşen) — "10 ölçünün V1'i (Siyah +
+  Bakalit) kayıtlı; aynı ölçüleri V2 (Kırmızı + Bakalit) için tek tek yazmadan girmek". Kullanıcı ayrıca işi
+  kolaylaştıracak öneriler istedi; dört öneriden ikisini bu dilime seçti (AskUserQuestion): "filtredeki tümünü
+  seç" ve "sabitleme taslaklara da uygulansın". Excel'den yapıştırma ve ölçü × versiyon kapsama tablosu PLAN'a.
+- **Yapılan:**
+  - **Toplu "Taslağa kopyala"** (seçim çubuğunda): diyalog `VariantMatrixBulkCopyDialog` — hedef versiyon(lar)
+    ÇOKLU (V2 + V3 → iki katı taslak), tedarikçi ("satırdaki tedarikçilerle" / sözlükten biri / tedarikçisiz),
+    "fiyat, MOQ, logo, koli, termin de kopyalansın" anahtarı, önizleme ("8 taslak oluşacak · 2 zaten kayıtlı —
+    atlanacak"), 500 satır sınırı. Kopyadan sonra seçim temizlenir, ekran taslaklara kayar, toast.
+  - Kural saf ve testli: `utils/buildDraftsFromSelection.ts`. **Atlananlar:** aynı ölçü + versiyon + tedarikçi
+    zaten kayıtlıysa (sunucu yeni varyant açmaz, mevcut bağlantının fiyatının ÜZERİNE YAZARDI), aynısı taslaktaysa,
+    aynı kopyada ikinci kez üretilecekse (aynı ölçünün V1 ve V3'ü birlikte seçilip V2'ye kopyalanırsa bir kez).
+    Pasif tedarikçi bağlantısı taşınmaz; ticari bilgi yalnız aynı tedarikçinin bağlantısından; tedarikçinin ürün
+    kodu (`supplierVariantCode`) renge / versiyona özel olduğu için kopyalanmaz.
+  - `buildDraftFromRow` ortak parçalara ayrıldı (`draftMeasurementsFromSize`, `draftCommercialFieldsFromSupplier`;
+    `supplier: null` = açıkça tedarikçisiz) — tek satır ve toplu kopya aynı kuralla ölçü / ticari alan taşır.
+  - **Filtredeki tümünü seç:** seçim çubuğunda "Filtredeki tümünü seç (N)" (sayfalar arası; filtre yoksa "Tümünü
+    seç"). Bugüne kadar başlıktaki kutu yalnız görünen sayfayı seçiyordu.
+  - **Sabitleme tüm taslaklarda:** versiyon / tedarikçi sabitlenince MEVCUT taslaklar da o değere geçer
+    (`applyDraftPins`). Eskiden sabitleme yalnız yeni satırlara uygulanıyor ama tüm satırların seçimini
+    kilitliyordu: farklı değerdeki taslak kilitli kalıyordu. Satırı tek tek "taslağa kopyala" da sabitlemeye uyar
+    (sabit tedarikçinin bağlantısı yoksa ticari bilgisiz; versiyon değişiyorsa tedarikçi ürün kodu taşınmaz).
+  - **Ortak `BulkSelectionBar` genişletildi** (paralel kopya yazılmadı): `actions` yuvası, `selectAll`,
+    `deleteLimit` (seçim uç sınırını aşınca Sil kapanır ve nedeni yazar). Potansiyel müşteri listesi değişmeden
+    çalışır (yeni prop'lar opsiyonel).
+  - **İstek sınırı tek kaynak:** `core/.../productVariants/variantMatrixLimits.ts` →
+    `VARIANT_MATRIX_MAX_ROWS_PER_REQUEST = 500`; matris kaydı ve toplu silme validator'ları ile arayüz (diyalog,
+    Sil, Kaydet koruması) bunu kullanır. "Tümünü seç" 500'ü aşan seçimi mümkün kıldığı için arayüz 400'den önce uyarır.
+  - **Doküman sapması düzeltildi:** AGENTS.md "ölçü tekilleştirme anahtarı ölçü imzası + TEDARİKÇİ" diyordu
+    (2026-08-26); kod 2026-09-03'ten beri yalnız ZORUNLU ölçü imzasına bakıyor (`productVariantWriter`, tedarikçi
+    anahtara girmez). Paragraf koda göre yeniden yazıldı; toplu kopyanın atlama kuralı bu davranışa dayanıyor.
+- **Doğrulama:** frontend +18 test (toplu kopya kuralı 17: ölçü / bileşik metin, çoklu versiyon sırası, kayıtlı /
+  taslakta / aynı kopyada tekrar atlama, tedarikçi modları, pasif bağlantı, ticari bilgi anahtarı, sabitleme;
+  `buildDraftFromRow` `supplier: null` 1) · `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159
+  uyarı, değişmedi; yeni dosyalarda uyarı yok) · core 985 · functions 668 (`validatorCompilation` dahil) ·
+  frontend 87 dosya / 577 · `next build` "Compiled successfully" + TypeScript ✓. Diyalog ve seçim çubuğu esbuild +
+  başsız Chrome'da çizildi (1280 px ve 390 px): V2 işaretlenince "8 taslak oluşacak · 2 zaten kayıtlı — atlanacak";
+  telefonda taşma yok. Migration yok. Kubi'de ÇALIŞTIRILMADI.
+- **Kullanıcıda bekleyen (kubi):**
+  1. `sst dev --stage kubi`'yi yeniden başlat (migration yok).
+  2. Veri girişi → bir ürünün varyantları: V1'li birkaç satırı seç → "Taslağa kopyala" → V2 işaretle → "N taslak
+     ekle" → taslaklar V2, ölçüler aynı, tedarikçi ve fiyat dolu, tedarikçi ürün kodu boş → Kaydet → yeni kodlar
+     `…V2`. Aynı işlemi tekrarla → hepsi "zaten kayıtlı" diye atlanır.
+  3. V2 + V3 birlikte seç → iki katı taslak. Tedarikçi "Tedarikçisiz" / başka tedarikçi seçenekleri.
+  4. Renk filtresi uygula → bir satır seç → "Filtredeki tümünü seç (N)" → sayfalar arası seçilir.
+  5. Taslak varken "Versiyon sabitle"den başka versiyon seç → tüm taslaklar o versiyona geçer; sabitlemeyi kaldır →
+     taslaklar değerini korur, satırda değiştirilebilir.
+  6. Admin panelindeki aynı ekran (`/admin/products/[id]/variants`) aynı davranır.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
