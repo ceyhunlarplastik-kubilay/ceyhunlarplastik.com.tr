@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { mapAdminUserForApi } from "@/functions/AdminApi/functions/users/handlers/mapAdminUserForApi"
@@ -75,6 +76,7 @@ export const updateUserSupplierHandler =
                     assignedSupplierIds,
                     assignedCustomerIds,
                 },
+                buildAuditContextFromEvent(event),
             )
 
             return apiResponseDTO({

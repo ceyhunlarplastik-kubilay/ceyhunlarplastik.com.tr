@@ -1,6 +1,7 @@
 import createError, { HttpError } from "http-errors"
 
 import { createLeadCustomer } from "@/core/helpers/crm/leadCustomers"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { InvalidWebsiteUrlError } from "@/core/helpers/crm/customerWebsite"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import type {
@@ -16,6 +17,7 @@ export const createLeadCustomerHandler = ({
         // Adres oluşturma gövdesinde OPSİYONEL; profil alanlarından ayrılır ki
         // `createLeadCustomer` girdisi ticari olmayan profil sözleşmesinde kalsın.
         const { address, ...input } = event.body
+        const audit = buildAuditContextFromEvent(event)
 
         try {
             const customer = await createLeadCustomer({
@@ -24,6 +26,7 @@ export const createLeadCustomerHandler = ({
                 input,
                 address: address ?? null,
                 verifiedByUserId: event.user?.id ?? null,
+                audit,
             })
 
             return apiResponseDTO({ statusCode: 201, payload: { customer } })

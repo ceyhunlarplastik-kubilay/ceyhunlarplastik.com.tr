@@ -19,7 +19,7 @@ import {
 } from "@/core/helpers/crm/access"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
 import { resolveCustomerDisplayName } from "@/core/helpers/crm/customerDisplayName"
-import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { mapCustomerVariantSpecialPriceForApi } from "@/core/helpers/pricing/customerVariantSpecialPriceDto"
 import {
     formatCustomerVariantPaymentScheduleLabel,
@@ -421,13 +421,10 @@ export const updateManagedCustomerHandler = ({
         const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {}, {
             currentPhone: existing.phone,
         })
-        const updated = await customerRepository.updateCustomer(existing.id, data)
-        const customer = event.body?.companyContactAssignments !== undefined
-            ? await customerRepository.replaceCompanyContactAssignments(
-                existing.id,
-                normalizeCompanyContactAssignments(event.body.companyContactAssignments),
-            )
-            : updated
+        // Müşteri alanları ve iletişim kişisi ataması TEK transaction'da (+ denetim kaydı).
+        const customer = await customerRepository.updateCustomer(existing.id, data, buildAuditContextFromEvent(event), {
+            companyContactAssignments: event.body?.companyContactAssignments,
+        })
 
         return apiResponseDTO({
             statusCode: 200,
@@ -446,7 +443,7 @@ export const convertManagedCustomerHandler = ({ customerRepository }: IProtected
 
         assertCustomerManagementAccess(requester, customer)
 
-        const updated = await customerRepository.convertCustomer(customer.id, requester.id)
+        const updated = await customerRepository.convertCustomer(customer.id, requester.id, buildAuditContextFromEvent(event))
 
         return apiResponseDTO({
             statusCode: 200,
@@ -1154,6 +1151,7 @@ export const createPortalCustomerAddressHandler = ({ customerRepository }: IProt
                 defaultLocationSource: "CUSTOMER_SUBMITTED",
                 allowVerification: false,
             }),
+            buildAuditContextFromEvent(event),
         )
 
         return apiResponseDTO({
@@ -1185,6 +1183,7 @@ export const updatePortalCustomerAddressHandler = ({ customerRepository }: IProt
                 // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
                 existing: address,
             }),
+            buildAuditContextFromEvent(event),
         )
 
         return apiResponseDTO({
@@ -1207,7 +1206,7 @@ export const deletePortalCustomerAddressHandler = ({ customerRepository }: IProt
         const address = await customerRepository.getAddress(customer.id, event.pathParameters.addressId)
         if (!address) throw new createError.NotFound("Customer address not found")
 
-        const updated = await customerRepository.deleteAddress(customer.id, address.id)
+        const updated = await customerRepository.deleteAddress(customer.id, address.id, buildAuditContextFromEvent(event))
 
         return apiResponseDTO({
             statusCode: 200,
@@ -1233,6 +1232,7 @@ export const createManagedCustomerAddressHandler = ({ customerRepository }: IPro
                 verifiedByUserId: requester.id,
                 allowVerification: true,
             }),
+            buildAuditContextFromEvent(event),
         )
 
         return apiResponseDTO({
@@ -1255,7 +1255,7 @@ export const deleteManagedCustomerAddressHandler = ({ customerRepository }: IPro
         const address = await customerRepository.getAddress(customer.id, event.pathParameters.addressId)
         if (!address) throw new createError.NotFound("Customer address not found")
 
-        const updated = await customerRepository.deleteAddress(customer.id, address.id)
+        const updated = await customerRepository.deleteAddress(customer.id, address.id, buildAuditContextFromEvent(event))
 
         return apiResponseDTO({
             statusCode: 200,
@@ -1287,6 +1287,7 @@ export const updateManagedCustomerAddressHandler = ({ customerRepository }: IPro
                 // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
                 existing: address,
             }),
+            buildAuditContextFromEvent(event),
         )
 
         return apiResponseDTO({

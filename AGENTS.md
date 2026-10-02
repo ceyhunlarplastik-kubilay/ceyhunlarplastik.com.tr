@@ -563,7 +563,7 @@ When extending production planning (`/uretim`, design in `docs/production-planni
   day count (`jobCalendarDays`). `formatDurationMinutes` writes 24-hour days: use it only for calendar quantities
   (delays, downtimes, lot spans). On a 12-hour factory a 34-hour job shown as "1 gün 10 sa" looked shorter than it is
 
-When adding audit logging to a model (or touching an audited one — today: `Category`):
+When adding audit logging to a model (or touching an audited one — today: `Category`, `Customer`):
 - `AuditLog` records data changes (who, when, from where, which field, before → after). It is NOT `ActivityLog`
   (the event-driven business-request timeline). One generic table for every model: `entityType` + `entityId`, no FK to
   the audited row, so the history survives deletion
@@ -573,7 +573,10 @@ When adding audit logging to a model (or touching an audited one — today: `Cat
 - every repository write method of an audited model takes an `AuditContext` as a REQUIRED parameter; handlers build it
   with `buildAuditContextFromEvent(event)`. The actor comes ONLY from `event.user` (verified by `authMiddleware`) —
   never from the body, query or headers. A service that writes inside its own transaction receives the context from
-  the handler (`approveBusinessRequestDecision({ audit })`) and calls the repository's `…InTransaction` function
+  the handler (`approveBusinessRequestDecision({ audit })`) and calls the repository's `…InTransaction` function.
+  A route with no signed-in user (the public form) uses `buildAnonymousAuditContext(event, "Web formu")` — actor type
+  `ANONYMOUS`, never a fake user; when the actor is a user the handler resolves itself (invitation acceptance → the
+  new portal user) use `buildUserAuditContext(user, event)`
 - the audited state is an explicit ALLOWLIST per model (`toCategoryAuditSnapshot` in
   `core/helpers/categories/categoryAudit.ts`): a flat `field path → value` map built from the RAW Prisma row, diffed
   by the generic `diffAuditSnapshots`. A field missing there is not recorded; secrets and tokens must never be added.
@@ -597,6 +600,18 @@ When adding audit logging to a model (or touching an audited one — today: `Cat
 - a new audited model = its name in `AUDIT_ENTITY_TYPES` (`core/helpers/audit/types.ts`), a snapshot helper, audited
   repository writes, and an entry in `auditCoverage.test.ts` (the `Record<AuditEntityType, …>` there does not compile
   until it is added). That test fails when any other file writes the model's Prisma delegates directly
+- an aggregate is audited as ONE entity. `Customer` = the customer row + `CustomerPhone`, `CustomerAddress`,
+  `CustomerAttributeValueAssignment`, `CustomerCompanyContactAssignment`, and every write to those five delegates lives
+  in `core/helpers/prisma/customers/repository.ts`. A new write path wraps its mutation in `runAuditedCustomerUpdate`
+  (lock → snapshot → mutate → snapshot → diff) instead of diffing by hand; inside a transaction you already hold use
+  `applyCustomerUpdateInTransaction` / `replaceSalesUserCustomersInTransaction`. Bulk paths read all snapshots with one
+  `findMany` and write with `writeAuditLogs` (one `createMany`), so the query count does not grow with the selection
+- snapshot keys must survive row rewrites: the customer snapshot (`core/helpers/crm/customerAudit.ts`) stores
+  references by NAME (sales rep, sector, usage areas, contacts) and keys addresses by LABEL
+  (`addresses.<label>.<field>`), because business-request approval deletes and recreates address rows. Values a cron
+  refreshes are not user changes: Google Places coordinates are a cache (`googlePlacesCoordinateRefresh.ts` is an
+  allowed unaudited writer) and only manually pinned locations are audited. Customer personal data (phone, e-mail,
+  tax number) is stored with values (decision 2026-10-01) — readers stay admin / owner only
 - category images are added ONLY through `POST /categories/assets/presign` for an EXISTING category: the server
   mints the key (folder from the category's stored slug) and the PENDING_UPLOAD row together, and the S3 event
   activates it. Never accept an asset key from the client in a create / update body, and keep `contentType` on the
@@ -605,7 +620,9 @@ When adding audit logging to a model (or touching an audited one — today: `Cat
 - reading is one generic endpoint, `GET /audit-logs?entityType=&entityId=` (AdminApi, admin / owner only — the rows
   carry other employees' names, e-mails and IP addresses; a role that can EDIT a record does not get its history).
   The UI is the generic `features/admin/auditLogs` (`EntityAuditHistory` + a per-model `AuditPresenter`, e.g.
-  `categories/utils/categoryAuditPresentation.ts`, whose field labels must match the snapshot's field paths)
+  `categories/utils/categoryAuditPresentation.ts`, `customers/utils/customerAuditPresentation.ts`, whose field labels
+  must match the snapshot's field paths; `valueLabel` formats scalar values such as status, money and percent,
+  `itemLabel` list items). Customer history is the admin workspace page `/admin/customers/[id]/history`
 
 ## Database Rules
 

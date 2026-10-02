@@ -40,6 +40,7 @@ import type { CustomerAddressMutationInput } from "@/core/helpers/prisma/custome
 import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 import { upsertProductVariantRows } from "@/core/helpers/productVariants/productVariantWriter"
 import { createCategoryInTransaction } from "@/core/helpers/prisma/categories/repository"
+import { applyCustomerUpdateInTransaction } from "@/core/helpers/prisma/customers/repository"
 import type { AuditContext } from "@/core/helpers/audit/types"
 
 type RequestWithApprovalSteps<TStep> = {
@@ -560,9 +561,12 @@ async function applyApprovedBusinessRequestTx(
             )
         }
 
-        await tx.customer.update({
-            where: { id: request.customerId },
-            data: {
+        // Customer'a yazan tek yol: denetim kaydı aynı transaction'da düşer. Aktör onaylayan;
+        // talebi açan portal kullanıcısı metadata'da kalır.
+        await applyCustomerUpdateInTransaction(
+            tx,
+            request.customerId,
+            {
                 ...(typeof proposedProfile.companyName === "string" ? { companyName: proposedProfile.companyName.trim() || null } : {}),
                 ...(typeof proposedProfile.fullName === "string" ? { fullName: proposedProfile.fullName.trim() } : {}),
                 ...(typeof proposedProfile.phone === "string" ? { phone: proposedProfile.phone.trim() } : {}),
@@ -579,7 +583,13 @@ async function applyApprovedBusinessRequestTx(
                     })),
                 },
             },
-        })
+            input.audit,
+            {
+                businessRequestId: request.id,
+                businessRequestType: request.type,
+                requestedByUserId: request.requestedByUserId,
+            },
+        )
         return
     }
 

@@ -33,6 +33,15 @@ describe("buildAuditChangeView", () => {
         expect(buildAuditChangeView({ field: "ids", before: ["a"], after: null }))
             .toEqual({ kind: "list", added: [], removed: ["a"] })
     })
+
+    it("sunucunun değer etiketini uygular; boş tarafa dokunmaz", () => {
+        const presenter = { valueLabel: (field: string, value: string) => `${field}:${value}` }
+
+        expect(buildAuditChangeView({ field: "status", before: "LEAD", after: "CUSTOMER" }, presenter))
+            .toEqual({ kind: "value", before: "status:LEAD", after: "status:CUSTOMER" })
+        expect(buildAuditChangeView({ field: "note", before: null, after: "Yeni" }, presenter))
+            .toEqual({ kind: "value", before: null, after: "note:Yeni" })
+    })
 })
 
 describe("auditActorLabel", () => {
@@ -48,6 +57,13 @@ describe("auditActorLabel", () => {
         expect(auditActorLabel({ ...actor, type: "SYSTEM", name: "translate-category-translations" }))
             .toBe("Sistem (translate-category-translations)")
         expect(auditActorLabel({ ...actor, type: "SYSTEM", name: null })).toBe("Sistem")
+    })
+
+    it("giriş yapmamış ziyaretçiyi kullanıcı gibi göstermez", () => {
+        const anonymous = { type: "ANONYMOUS" as const, userId: null, name: "Web formu", email: null, groups: [] }
+
+        expect(auditActorLabel(anonymous)).toBe("Anonim ziyaretçi (Web formu)")
+        expect(auditActorLabel({ ...anonymous, name: null })).toBe("Anonim ziyaretçi")
     })
 })
 

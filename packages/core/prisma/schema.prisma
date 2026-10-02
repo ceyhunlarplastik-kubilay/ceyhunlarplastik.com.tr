@@ -1757,6 +1757,9 @@ enum AuditActorType {
   USER
   /// İnsan olmayan aktör: olay tetikli Lambda, cron, operatör CLI'ı.
   SYSTEM
+  /// Giriş yapmamış kişi: sitedeki public form (web formundan gelen potansiyel müşteri).
+  /// Kimliği yoktur; IP ve tarayıcı bilgisi kayda girer.
+  ANONYMOUS
 }
 
 model AuditLog {

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 
 import type { AuditContext } from "./types"
-import { buildAuditLogCreateData, writeAuditLog, type AuditLogEntry } from "./writeAuditLog"
+import { buildAuditLogCreateData, writeAuditLog, writeAuditLogs, type AuditLogEntry } from "./writeAuditLog"
 
 const userContext: AuditContext = {
     actor: {
@@ -96,5 +96,42 @@ describe("writeAuditLog", () => {
         const create = vi.fn().mockRejectedValue(new Error("db down"))
 
         await expect(writeAuditLog({ auditLog: { create } }, entry)).rejects.toThrow("db down")
+    })
+})
+
+describe("anonim aktör ve toplu yazma", () => {
+    it("anonim aktörde kullanıcı alanlarını yazmaz, IP ve tarayıcıyı korur", () => {
+        const data = buildAuditLogCreateData({
+            ...entry,
+            action: "CREATE",
+            context: {
+                actor: { type: "ANONYMOUS", name: "Web formu" },
+                source: "POST /customers",
+                requestId: "req-9",
+                ipAddress: "198.51.100.5",
+                userAgent: "Mozilla/5.0",
+            },
+        })
+
+        expect(data).toMatchObject({ actorType: "ANONYMOUS", actorName: "Web formu", ipAddress: "198.51.100.5" })
+        expect(data).not.toHaveProperty("actorUserId")
+    })
+
+    it("writeAuditLogs kayıtları TEK createMany ile yazar", async () => {
+        const createMany = vi.fn().mockResolvedValue({ count: 2 })
+
+        await writeAuditLogs({ auditLog: { createMany } }, [entry, { ...entry, entityId: "category-2" }])
+
+        expect(createMany).toHaveBeenCalledTimes(1)
+        expect(createMany.mock.calls[0][0].data).toHaveLength(2)
+        expect(createMany.mock.calls[0][0].data[1]).toMatchObject({ entityId: "category-2" })
+    })
+
+    it("boş listede veritabanına gitmez", async () => {
+        const createMany = vi.fn()
+
+        await writeAuditLogs({ auditLog: { createMany } }, [])
+
+        expect(createMany).not.toHaveBeenCalled()
     })
 })

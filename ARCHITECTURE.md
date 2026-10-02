@@ -686,7 +686,9 @@ Do not duplicate complex Prisma query trees across multiple Lambda handlers if t
 
 ### Audit log
 `AuditLog` is the data-change audit trail: who changed which record, when, from which endpoint, and each changed
-field's value before and after. It is rolled out model by model; today it covers `Category` (fields + translations).
+field's value before and after. It is rolled out model by model; today it covers `Category` (fields + translations)
+and `Customer` — leads and accounts alike, with their addresses, extra phones, profile assignments, company contacts
+and commercial terms.
 
 How it differs from `ActivityLog`:
 
@@ -706,14 +708,28 @@ Write path (`packages/core/src/core/helpers/audit/`):
   (`diffAuditSnapshots` over the model's allowlisted snapshot, e.g. `toCategoryAuditSnapshot`).
 - The actor's identity at the time of the event (name, e-mail, groups, Cognito sub) is copied into the row, so the
   record stays readable after the user is renamed, regrouped or deleted (`actorUserId` then becomes NULL).
+- Actor types: `USER` (verified token), `SYSTEM` (event-driven Lambda, cron, operator CLI) and `ANONYMOUS` (the public
+  web form — `buildAnonymousAuditContext`; IP and user agent stay in the row). Accepting a portal invitation is
+  recorded under the new portal user (`buildUserAuditContext`) with the invitation id in `metadata`.
 - Deletes store the last state plus what the cascade removed (`metadata.cascade`).
+- `Customer` is an aggregate spread over five tables. Every write to them goes through
+  `core/helpers/prisma/customers/repository.ts`, which wraps the change in a "surrounding snapshot": lock the customer
+  row, read the audited state (`customerAuditInclude`), apply the change, read it again and diff — so any child-table
+  change lands in the customer's history without per-endpoint diff code. The snapshot (`toCustomerAuditSnapshot`,
+  `core/helpers/crm/customerAudit.ts`) stores references by name and keys addresses by their label (business-request
+  approval rewrites address rows, so ids churn); the Google Places coordinate cache is left out because the daily
+  refresh cron would flood the history. Bulk writes (lead bulk delete, sales-rep reassignment from the user editor)
+  write one row per affected customer with a single `createMany`.
 
 Read path: `GET /audit-logs?entityType=&entityId=` on the Admin API (admin / owner only) returns a record's history,
 newest first, with a `summary` of who created it and who changed it last. Audited models carry no
-`createdBy` / `updatedBy` columns — that information is derived from the log.
+`createdBy` / `updatedBy` columns — that information is derived from the log. The UI is the generic
+`features/admin/auditLogs` timeline with a per-model presenter: the category dialog's history tab and the admin
+customer workspace's "Değişiklik Geçmişi" page (`/admin/customers/[id]/history`).
 
-Known gaps (tracked in `IMPROVEMENT_PLAN.md`): category images (`Asset`) and operator CLI scripts do not write
-audit records yet; rows created before the rollout have no history.
+Known gaps (tracked in `IMPROVEMENT_PLAN.md`): category images (`Asset`), operator CLI scripts and the customer's
+satellite records (visits, special prices, assigned products) do not write audit records yet; a deleted record's
+history is not reachable from the UI; rows created before the rollout have no history.
 
 ### CRM and portal model
 The customer side is no longer only a passive lead table.

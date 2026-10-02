@@ -55,15 +55,32 @@ export type AuditLogWriter = {
     }
 }
 
+/** Toplu yazma için `auditLog.createMany`'si olan istemci. */
+export type AuditLogBatchWriter = {
+    auditLog: {
+        createMany(args: { data: Prisma.AuditLogCreateManyInput[] }): PromiseLike<unknown>
+    }
+}
+
 /**
  * Denetim kaydını yazar. HER ZAMAN değişikliği yapan transaction'ın `tx`'i ile çağrılır:
  * kayıt yazılamazsa değişiklik de geri alınır (kayıtsız değişiklik olmaz) ve değişiklik
  * geri alınırsa kayıt da kalmaz. Global `prisma` ile çağırma — transaction'ın DIŞINDA,
  * ayrı bir bağlantıda yazar (CLAUDE.md § Bilinen tuzaklar).
  *
- * `AuditLog` yalnız EKLENİR: tabloya yazan tek yer burasıdır, güncelleme/silme yolu yoktur
+ * `AuditLog` yalnız EKLENİR: tabloya yazan tek yer bu dosyadır, güncelleme/silme yolu yoktur
  * (`auditCoverage.test.ts` bunu sınar).
  */
 export async function writeAuditLog(writer: AuditLogWriter, entry: AuditLogEntry): Promise<void> {
     await writer.auditLog.create({ data: buildAuditLogCreateData(entry) })
+}
+
+/**
+ * Bir işlemin birden çok kaydı etkilediği durumlar (toplu silme, temsilci ataması) için
+ * TEK sorguda yazar: kayıt başına `create` transaction içindeki gidiş-dönüşü katlar.
+ * Boş listede veritabanına gitmez.
+ */
+export async function writeAuditLogs(writer: AuditLogBatchWriter, entries: AuditLogEntry[]): Promise<void> {
+    if (entries.length === 0) return
+    await writer.auditLog.createMany({ data: entries.map(buildAuditLogCreateData) })
 }

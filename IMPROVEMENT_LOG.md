@@ -11322,6 +11322,106 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   yazmadan düğme pasif; yazınca sil → kategori listeden düşer, `AuditLog`'da DELETE kaydı (Prisma Studio). Veri
   girişi → potansiyel müşteri tekil ve toplu silme aynı ifadeyle çalışmaya devam eder.
 
+## Audit logging — C1: `Customer` yazma yolları (potansiyel + cari) (2026-10-01) *(kullanıcı talebiyle; branch `feat/audit-log-customer`)*
+
+- **İhtiyaç (kullanıcı):** "potansiyel veya cari farketmeden … Customer crud işlemlerinde kim ne değişikliği yaptı".
+  Potansiyel müşteriler veri girişi panelinde personel tarafından, cari müşteriler admin / satış / portal / iş talebi
+  onayıyla değişiyor.
+- **Kararlar (kullanıcı):** kişisel veriler (telefon, e-posta, vergi no) DEĞERLERİYLE tutulur · public form için yeni
+  `ANONYMOUS` aktör tipi (küçük migration onaylı) · geçmişi yalnız admin / owner görür · C1 + C2 arka arkaya, ayrı
+  commit.
+- **Envanter:** `Customer` + dört alt tablosuna (`CustomerPhone`, `CustomerAddress`, `CustomerAttributeValueAssignment`,
+  `CustomerCompanyContactAssignment`) yazan 10 yol bulundu: public form (`POST /customers`), potansiyel müşteri
+  oluştur / güncelle / adres / tekil + toplu sil (`/lead-customers…`), admin güncelleme (`PUT /customers/{id}`) ve
+  dönüştürme, satış güncelleme / adres / dönüştürme (`/sales/customers/{id}…`), portal adresleri
+  (`/portal/customer/addresses…`), portal davetinin kabulü (`POST /customer-invitations/accept` → dönüştürme), iş
+  talebi onayı (`CUSTOMER_PROFILE_CHANGE`) ve kullanıcı düzenleyicisinden temsilci ataması (`PUT /users/{id}/supplier`).
+- **Yapılan:**
+  - Şema: `AuditActorType`'a `ANONYMOUS` · migration `20261001120000_add_audit_actor_anonymous` (yalnız
+    `ALTER TYPE … ADD VALUE`; tabloya dokunmaz).
+  - Çekirdek: `buildAnonymousAuditContext` (aktör "Web formu", IP / tarayıcı satırda), `buildUserAuditContext`
+    (davet kabulünde aktör yeni portal kullanıcısı; davet id'si metadata'da), toplu yazıcı `writeAuditLogs`
+    (tek `createMany`). `writeAuditLog.ts` tablonun tek yazıcısı olmaya devam ediyor.
+  - Snapshot `core/helpers/crm/customerAudit.ts` (`toCustomerAuditSnapshot`): müşteri alanları + ticari şartlar
+    (iskonto, vade, kredi limiti, ödeme notu), temsilci / sektör / üretim grubu / kullanım alanları / profil
+    değerleri / iletişim kişileri ADIYLA, ek telefonlar ve adresler. Adresler ETİKETLE anahtarlı
+    (`addresses.<etiket>.<alan>`): iş talebi onayı adresleri silip yeniden yazıyor, id ile anahtarlansaydı her
+    onay sahte "silindi + eklendi" üretirdi. Google Places koordinatı bir önbellek (günlük cron yeniler) — yalnız
+    elle işaretlenen konum kayda girer. Boş metin = null ("" → null değişiklik değil).
+  - Repository (`prisma/customers/repository.ts`) tek yazıcı: "çevreleyen anlık görüntü" deseni
+    (`runAuditedCustomerUpdate`: satır kilidi → denetlenen hâl → değişiklik → tekrar oku → fark; değişen alan yoksa
+    kayıt yok). Bütün yazma metotları `AuditContext`'i zorunlu alıyor; transaction içinden çağrılar için
+    `applyCustomerUpdateInTransaction` (iş talebi) ve `replaceSalesUserCustomersInTransaction` (temsilci ataması —
+    yalnız ataması gerçekten değişen müşterilere kayıt).
+  - Bu sırada kapanan üç atomiklik açığı: (1) potansiyel müşteri + ilk adresi ayrı yazmalardı (adres düşerse
+    adressiz kayıt kalıyordu) → tek transaction; (2) müşteri alanları ile iletişim kişisi ataması iki ayrı
+    yazmaydı → tek transaction; (3) toplu silmede engel kontrolü ile silme ayrı adımlardı → kilit altında tek
+    transaction, bulunamayan id artık 404 (sessizce yutulmuyor). Silme kaydında `metadata.cascade` (ziyaret,
+    tanımlı varyant, özel fiyat sayısı).
+  - Koruma: `auditCoverage.test.ts`'e `Customer` girişi (beş delege; repository dışında yazan dosya olursa düşer).
+    Bilinen istisnalar gerekçesiyle listeli: geo seed, profil ataması backfill'i, Google koordinat yenileme cron'u.
+- **Doğrulama:** yeni testler core +30 (snapshot 12, repository yazma sırası / kilit / tek transaction / değişiklik
+  yokken kayıt yok / 404 / denetim düşerse hata / dönüştürme ve iş talebi metadata'sı / toplu silme ve atama 11,
+  bağlam + toplu yazıcı 6) · functions +5 (public form ANONİM bağlam, admin güncelleme tek çağrı, dönüştürme, tekil
+  + toplu silme, kimliksiz silme 401). **Gerçek Postgres'te denendi** (scratchpad'de geçici PostgreSQL 17, hiçbir
+  stage'e dokunulmadı): tüm migration'lar temiz uygulandı (`ANONYMOUS` enum'da), geçici entegrasyon testi 9 senaryo
+  geçti — public form + adres + ANONİM CREATE, güncelleme + iletişim kişisi tek kayıt, değişmeyen güncelleme kayıt
+  yazmıyor, adres ekle / düzenle / sil etiketli alanlarla, **denetim yazılamazsa değişiklik geri alınıyor** (olmayan
+  aktör → FK), dönüştürme + davet metadata'sı, açık transaction'dan iş talebi güncellemesi, temsilci ataması (yalnız
+  değişenlere kayıt; `ANY(…::text[])` kilit sorgusu gerçek DB'de çalışıyor), toplu silme (engelli kalır, kaskad
+  sayısı + adres alanları DELETE kaydında), olmayan id 404. Geçici test ve veritabanı silindi.
+  `typecheck:backend` ✓ · core 113 dosya / 959 test ✓ · functions 47 / 661 ✓.
+- **Gözlem (düzeltme gerekmedi):** gerçek DB denemesinde bir kez `pg` uyarısı görüldü: "Calling client.query() when
+  the client is already executing a query is deprecated … pg@9.0". Kaynağı Prisma 7.8'in sorgu yorumlayıcısı:
+  transaction içindeki `include`'lu okumada alt sorguları aynı bağlantıya eşzamanlı veriyor (`--trace-deprecation`
+  ile `query-interpreter.ts` → `Array.map`). `pg` 8.20 bunları sıraya alıyor — davranış doğru, yalnız uyarı.
+  `pg` doğrudan bağımlılık değil (`@prisma/adapter-pg` üzerinden); Prisma `pg@9`'a geçerken yeniden bakılmalı.
+- **Not:** `Customer.email` NOT NULL (boş e-posta `""` olarak saklanıyor) — snapshot bunu null'a çeviriyor.
+- **Kalan (PLAN):** müşterinin uydu kayıtları (ziyaret, özel fiyat, tanımlı varyant) henüz kayıt üretmiyor; silinen
+  müşterinin geçmişine arayüzden ulaşılamıyor; kişisel veri saklama süresi.
+
+## Audit logging — C2: admin müşteri çalışma alanında "Değişiklik Geçmişi" (2026-10-01)
+
+- **Yapılan:**
+  - Genel bileşen genişletildi (paralel kopya yazılmadı): `AuditPresenter.valueLabel` (tekil değerin okunur hâli —
+    durum, para, yüzde), `buildAuditChangeView(change, presenter)`; `auditActorLabel` ANONİM aktörü
+    "Anonim ziyaretçi (Web formu)" diye yazar; frontend `AuditActor.type` core'daki `AuditActorType`'tan türüyor.
+  - `features/admin/customers/utils/customerAuditPresentation.ts`: alan etiketleri formlardakiyle aynı (bu projede
+    adres `city` = İlçe, `state` = İl, `district` = Mahalle / bölge), adres alanı "Adres (Merkez) · Açık adres"
+    (etiket noktalı olabilir — son noktadan bölünür), adres türü kodları Birincil / Fatura / Sevkiyat, iskonto
+    "%12,5", kredi limiti `formatMoney`, vade "60 gün", durum Potansiyel / Müşteri; metadata satırları (silmede
+    kaskad — yalnız sıfırdan büyükler, iş talebi onayı, portal daveti).
+  - `CustomerAuditHistory` + sayfa `/admin/customers/[id]/history`; `CustomerWorkspaceShell` menüsüne
+    "Değişiklik Geçmişi" yalnız admin kapsamında ve `canViewAuditLogs` ile (satış panelinde bu yol yok). Menü
+    öğeleri ikonlarını taşıyor (etiket karşılaştırmalı ikon seçimi kaldırıldı).
+- **Doğrulama:** frontend +12 test (sunum 10, genel +2) · frontend `typecheck` ✓ · lint 0 hata (159 uyarı,
+  değişmedi; dokunulan dosyalarda uyarı yok) · frontend 86 dosya / 554 test ✓ · `next build` derlemesi ✓ ("SST
+  links" aşaması beklendiği gibi düştü). Sayfa esbuild + başsız Chrome'da çizildi (sahte oturum + sahte API
+  yanıtları): 1440 px ve 390 px — ANONİM oluşturma, iskonto / vade / limit, davetle dönüşüm, adres alanları ve
+  türü, temsilci ataması okunur; telefonda yatay taşma yok. (Sağdaki temsilci kartı başsız Chrome'da animasyon
+  ilerlemediği için boş görünüyor — mevcut bileşen, değişiklikle ilgisiz.)
+- **Kullanıcıda bekleyen (kubi) — C1 + C2 birlikte:**
+  1. `export AWS_PROFILE=ceyhunlar-prod && npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`
+     → `20261001120000_add_audit_actor_anonymous`. Migration'dan ÖNCE public form 500 verir (enum değeri yok →
+     denetim yazılamaz → müşteri kaydı da geri alınır).
+  2. `npx sst dev --stage kubi` (yeniden başlat).
+  3. Veri girişi (`/veri-girisi/potansiyel-musteriler`): adresli yeni potansiyel müşteri → düzenle (telefon, sektör,
+     kullanım alanı) → adres ekle / düzenle / sil.
+  4. Admin `/admin/customers/<o müşteri>` → **Değişiklik Geçmişi**: "Oluşturuldu" (adres alanları dahil), her
+     düzenleme ayrı "Güncellendi", aktör ve rolü doğru ("Veri girişi"). Hiçbir şeyi değiştirmeden kaydet → yeni
+     kayıt OLUŞMAMALI.
+  5. Admin profil düzenleme: ticari şartlar (iskonto / vade / limit) + Ceyhunlar iletişimi ekle → tek kayıt,
+     "%…", "… gün", "₺…" biçimleri.
+  6. Dönüştür (admin ya da satış) → "Durum: Potansiyel → Müşteri".
+  7. Public site formundan talep gönder → yeni kaydın geçmişinde "Anonim ziyaretçi (Web formu)" + IP.
+  8. `/admin/users` → bir satış kullanıcısının müşteri listesini değiştir → eklenen / çıkarılan müşterilerin
+     geçmişinde "Müşteri temsilcisi" satırı; listesi değişmeyen müşteride kayıt yok.
+  9. Potansiyel müşteri sil (tekil + toplu) → Prisma Studio'da `AuditLog` `action = DELETE`, `metadata.cascade`.
+  10. Satış temsilcisi (`/musteri-temsilcisi/musteriler/<id>`) ve veri girişi kullanıcısı: "Değişiklik Geçmişi"
+      menüde GÖRÜNMEMELİ.
+  11. Prod'dan önce `npx sst diff --stage prod` (salt okunur). **Prod sırası: ÖNCE `migrate deploy` (kategori
+      `20260930180000_add_audit_log` + bu `20261001120000_add_audit_actor_anonymous`), SONRA `sst deploy`.**
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

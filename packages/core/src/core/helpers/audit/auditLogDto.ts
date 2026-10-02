@@ -1,4 +1,4 @@
-import type { AuditAction, AuditChange, AuditMetadata, AuditValue } from "./types"
+import type { AuditAction, AuditActorType, AuditChange, AuditMetadata, AuditValue } from "./types"
 
 /** Okuma ucunun tek sayfada döndüreceği en fazla kayıt (validator ve handler aynı değeri okur). */
 export const AUDIT_LOG_MAX_PAGE_SIZE = 100
@@ -10,7 +10,7 @@ export type AuditLogRecord = {
     entityId: string
     entityLabel: string | null
     action: AuditAction
-    actorType: "USER" | "SYSTEM"
+    actorType: AuditActorType
     actorUserId: string | null
     actorEmail: string | null
     actorName: string | null
@@ -25,7 +25,7 @@ export type AuditLogRecord = {
 }
 
 export type AuditActorDto = {
-    type: "USER" | "SYSTEM"
+    type: AuditActorType
     /** Kullanıcı sonradan silindiyse null; ad / e-posta olay anındaki künyeden gelir. */
     userId: string | null
     name: string | null

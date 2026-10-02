@@ -23,7 +23,7 @@ export const listAuditLogsValidator = validatorWrapper(
 )
 
 const auditActorSchema = z.object({
-    type: z.enum(["USER", "SYSTEM"]),
+    type: z.enum(["USER", "SYSTEM", "ANONYMOUS"]),
     userId: z.string().nullable(),
     name: z.string().nullable(),
     email: z.string().nullable(),

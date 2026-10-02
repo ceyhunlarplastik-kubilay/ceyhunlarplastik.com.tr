@@ -9,15 +9,23 @@ const prismaMock = vi.hoisted(() => {
     }
     const customer = {
         findUniqueOrThrow: vi.fn(),
+        // Denetim kaydı için müşterinin önceki / sonraki hâli transaction İÇİNDE okunur.
+        findMany: vi.fn(),
     }
+    const auditLog = {
+        create: vi.fn(),
+    }
+    const $queryRaw = vi.fn()
 
     return {
         events,
         customerAddress,
         customer,
-        $transaction: vi.fn(async (callback: (tx: { customerAddress: typeof customerAddress }) => unknown) => {
+        auditLog,
+        $queryRaw,
+        $transaction: vi.fn(async (callback: (tx: unknown) => unknown) => {
             events.push("transaction:start")
-            await callback({ customerAddress })
+            await callback({ customerAddress, customer, auditLog, $queryRaw })
             events.push("transaction:committed")
         }),
     }
@@ -41,6 +49,28 @@ describe("müşteri adresi transaction sınırı", () => {
             prismaMock.events.push("customer:detail")
             return { id: "customer-1" }
         })
+        prismaMock.customer.findMany.mockResolvedValue([{
+            id: "customer-1",
+            companyName: "Acme",
+            fullName: null,
+            phone: "555",
+            email: "",
+            websiteUrl: null,
+            note: null,
+            status: "LEAD",
+            generalDiscountPercent: null,
+            defaultPaymentTermDays: null,
+            creditLimit: null,
+            paymentTermNote: null,
+            additionalPhones: [],
+            addresses: [],
+            assignedSalesUser: null,
+            sectorValue: null,
+            productionGroupValue: null,
+            usageAreaValues: [],
+            attributeValueAssignments: [],
+            companyContactAssignments: [],
+        }])
     })
 
     it("geniş müşteri detayını adres transaction'ı commit edildikten sonra okur", async () => {
@@ -49,6 +79,12 @@ describe("müşteri adresi transaction sınırı", () => {
             city: "İstanbul",
             line1: "Örnek adres",
             isPrimary: true,
+        }, {
+            actor: { type: "USER", userId: "u1", cognitoSub: "s1", email: "a@b.c", name: "A", groups: ["admin"] },
+            source: "POST /sales/customers/{id}/addresses",
+            requestId: null,
+            ipAddress: null,
+            userAgent: null,
         })
 
         expect(prismaMock.events).toEqual([
