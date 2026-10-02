@@ -20,23 +20,47 @@ type AuditedWritePath = {
     /** Bu delegelere yazmaya izinli TEK dosya. */
     allowedFile: string
     /**
-     * API dışı, operatörün elle çalıştırdığı script'ler: denetim kaydı YAZMAZLAR (bilinen
-     * boşluk, IMPROVEMENT_PLAN § Audit logging). Liste birebir eşleşmek zorunda: yeni bir
-     * script eklenirse de, biri denetimli yola taşınırsa da test düşer ve liste güncellenir.
+     * Denetim kaydı YAZMADAN yazmasına bilerek izin verilenler, gerekçesiyle. Çoğu API dışı,
+     * operatörün elle çalıştırdığı script'tir (bilinen boşluk, IMPROVEMENT_PLAN § Audit
+     * logging). Liste birebir eşleşmek zorunda: yeni bir yazan eklenirse de, biri denetimli
+     * yola taşınırsa da test düşer ve liste güncellenir.
      */
-    unauditedScripts: string[]
+    unauditedWriters: Array<{ file: string; reason: string }>
 }
+
+const OPERATOR_SCRIPT = "API dışı operatör script'i (bilinen boşluk)"
 
 /** `Record<AuditEntityType, …>`: `AUDIT_ENTITY_TYPES`'a model eklenip buraya eklenmezse derlenmez. */
 const AUDITED_WRITE_PATHS: Record<AuditEntityType, AuditedWritePath> = {
     Category: {
         delegates: ["category", "categoryTranslation"],
         allowedFile: "packages/core/src/core/helpers/prisma/categories/repository.ts",
-        unauditedScripts: [
-            "packages/core/prisma/backfill-category-translations.ts",
-            "packages/core/prisma/backfill-product-industrial-usages.ts",
-            "packages/core/prisma/translate-category-translations.ts",
-            "packages/core/src/scripts/fillCategorySlugs.ts",
+        unauditedWriters: [
+            { file: "packages/core/prisma/backfill-category-translations.ts", reason: OPERATOR_SCRIPT },
+            { file: "packages/core/prisma/backfill-product-industrial-usages.ts", reason: OPERATOR_SCRIPT },
+            { file: "packages/core/prisma/translate-category-translations.ts", reason: OPERATOR_SCRIPT },
+            { file: "packages/core/src/scripts/fillCategorySlugs.ts", reason: OPERATOR_SCRIPT },
+        ],
+    },
+    Customer: {
+        delegates: [
+            "customer",
+            "customerPhone",
+            "customerAddress",
+            "customerAttributeValueAssignment",
+            "customerCompanyContactAssignment",
+        ],
+        allowedFile: "packages/core/src/core/helpers/prisma/customers/repository.ts",
+        unauditedWriters: [
+            { file: "packages/core/prisma/backfill-customer-attribute-value-assignments.ts", reason: OPERATOR_SCRIPT },
+            { file: "packages/core/prisma/seed-geo.ts", reason: OPERATOR_SCRIPT },
+            {
+                file: "packages/core/src/core/helpers/crm/googlePlacesCoordinateRefresh.ts",
+                // Google koşulları gereği günlük cron koordinat ÖNBELLEĞİNİ yeniler / temizler.
+                // Bu kolonlar Google kaynaklı adreslerde snapshot'a girmez (customerAudit.ts),
+                // yani yazdığı hiçbir şey denetlenen değeri değiştirmez.
+                reason: "yalnız Google koordinat önbelleği — snapshot dışı kolonlar",
+            },
         ],
     },
 }
@@ -104,21 +128,23 @@ describe("audit kapsamı", () => {
 
     it.each(Object.entries(AUDITED_WRITE_PATHS))(
         "%s: doğrudan yazma yalnız denetimli repository'de",
-        (_entityType, { delegates, allowedFile, unauditedScripts }) => {
+        (_entityType, { delegates, allowedFile, unauditedWriters }) => {
             const directWrite = new RegExp(`\\.(${delegates.join("|")})\\.(${WRITE_METHODS.join("|")})\\(`)
 
-            expect(filesMatching(directWrite)).toEqual([allowedFile, ...unauditedScripts].sort())
+            expect(filesMatching(directWrite)).toEqual(
+                [allowedFile, ...unauditedWriters.map(({ file }) => file)].sort(),
+            )
         },
     )
 
-    it("AuditLog yalnız eklenir: güncelleme / silme / toplu yazma hiçbir yerde yok", () => {
-        const forbidden = WRITE_METHODS.filter((method) => method !== "create")
+    it("AuditLog yalnız eklenir: güncelleme / silme hiçbir yerde yok", () => {
+        const forbidden = WRITE_METHODS.filter((method) => method !== "create" && method !== "createMany")
 
         expect(filesMatching(new RegExp(`\\.auditLog\\.(${forbidden.join("|")})\\(`))).toEqual([])
     })
 
     it("AuditLog'a yazan tek yer writeAuditLog", () => {
-        expect(filesMatching(/\.auditLog\.create\(/)).toEqual([
+        expect(filesMatching(/\.auditLog\.(create|createMany)\(/)).toEqual([
             "packages/core/src/core/helpers/audit/writeAuditLog.ts",
         ])
     })

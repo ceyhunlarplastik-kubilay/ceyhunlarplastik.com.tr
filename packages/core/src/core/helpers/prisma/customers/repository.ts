@@ -1,4 +1,21 @@
+import createError from "http-errors"
+
 import { prisma } from "@/core/db/prisma"
+import { diffAuditSnapshots } from "@/core/helpers/audit/auditDiff"
+import { writeAuditLog, writeAuditLogs, type AuditLogEntry } from "@/core/helpers/audit/writeAuditLog"
+import type { AuditContext, AuditMetadata } from "@/core/helpers/audit/types"
+import {
+    customerAuditInclude,
+    customerAuditLabel,
+    customerAuditUserLabel,
+    toCustomerAuditSnapshot,
+    type CustomerAuditRow,
+} from "@/core/helpers/crm/customerAudit"
+import {
+    LEAD_CUSTOMER_DELETION_COUNT_SELECT,
+    planLeadCustomerDeletion,
+    type LeadCustomerDeletionPlan,
+} from "@/core/helpers/crm/leadCustomerDeletion"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
@@ -467,15 +484,41 @@ export interface IPrismaCustomerRepository {
      * (panel ilk-yük pattern'i — sayfa ürünleri render etmez, yalnız sayar).
      */
     getCustomerPortalOverview(id: string): Promise<CustomerPortalOverview | null>
-    createCustomer(data: Prisma.CustomerCreateInput): Promise<CustomerWithRelations>
-    updateCustomer(id: string, data: Prisma.CustomerUpdateInput): Promise<CustomerWithRelations>
+    // Customer'a yazan her metod `audit`'i ZORUNLU alır: denetim kaydı değişiklikle aynı
+    // transaction'da yazılır (bkz. dosyadaki "DENETİMLİ YAZMA" bölümü).
+    /** `address` verilirse müşteriyle AYNI transaction'da yazılır (yarım kayıt kalmaz). */
+    createCustomer(
+        data: Prisma.CustomerCreateInput,
+        audit: AuditContext,
+        options?: { address?: CustomerAddressMutationInput | null },
+    ): Promise<CustomerWithRelations>
+    /**
+     * İletişim kişisi ataması ve profil ataması temizliği aynı transaction'da: eskiden
+     * müşteri ve iletişim ataması iki ayrı yazmaydı, ikincisi düşerse ilki kalıyordu.
+     */
+    updateCustomer(
+        id: string,
+        data: Prisma.CustomerUpdateInput,
+        audit: AuditContext,
+        options?: {
+            companyContactAssignments?: Array<{
+                companyContactId: string
+                isActive?: boolean
+                displayOrder?: number
+                note?: string | null
+            }>
+            /** Bu attribute kodlarındaki mevcut profil atamaları yazmadan önce silinir. */
+            replaceAttributeAssignmentCodes?: string[]
+        },
+    ): Promise<CustomerWithRelations>
     createAddress(
         customerId: string,
         data: CustomerAddressMutationInput,
+        audit: AuditContext,
     ): Promise<CustomerDetail>
     getAddress(customerId: string, addressId: string): Promise<CustomerAddressRecord | null>
-    updateAddress(customerId: string, addressId: string, data: CustomerAddressMutationInput): Promise<CustomerDetail>
-    deleteAddress(customerId: string, addressId: string): Promise<CustomerDetail>
+    updateAddress(customerId: string, addressId: string, data: CustomerAddressMutationInput, audit: AuditContext): Promise<CustomerDetail>
+    deleteAddress(customerId: string, addressId: string, audit: AuditContext): Promise<CustomerDetail>
     listCustomersForMap(query: {
         north: number
         south: number
@@ -490,16 +533,18 @@ export interface IPrismaCustomerRepository {
         stateId?: number
         cityId?: number
     }): Promise<CustomerMapPointRecord[]>
-    replaceCompanyContactAssignments(
-        customerId: string,
-        assignments: Array<{
-            companyContactId: string
-            isActive?: boolean
-            displayOrder?: number
-            note?: string | null
-        }>,
+    convertCustomer(
+        id: string,
+        convertedByUserId: string,
+        audit: AuditContext,
+        metadata?: AuditMetadata,
     ): Promise<CustomerWithRelations>
-    convertCustomer(id: string, convertedByUserId: string): Promise<CustomerWithRelations>
+    /**
+     * Potansiyel müşterileri siler — engel kontrolü, silme ve denetim kayıtları TEK
+     * transaction'da (eskiden kontrol ile silme ayrı adımlardı). Engelli kayıt işlemi
+     * düşürmez; silinebilenler silinir, engelliler adıyla döner.
+     */
+    deleteLeadCustomers(ids: readonly string[], audit: AuditContext): Promise<LeadCustomerDeletionPlan>
     replaceAssignedProducts(
         customerId: string,
         productVariantIds: string[],
@@ -567,87 +612,297 @@ export interface IPrismaCustomerRepository {
     }>
 }
 
-export const customerRepository = (): IPrismaCustomerRepository => {
-    const buildAddressWriteData = (
-        data: CustomerAddressMutationInput,
-        mode: "create" | "update",
-    ): Prisma.CustomerAddressUncheckedCreateWithoutCustomerInput | Prisma.CustomerAddressUncheckedUpdateInput => {
-        const base = {
-            label: data.label,
-            contactName: data.contactName ?? null,
-            phone: data.phone ?? null,
-            email: data.email ?? null,
-            countryId: data.countryId ?? null,
-            stateId: data.stateId ?? null,
-            cityId: data.cityId ?? null,
-            country: data.country?.trim() || "Turkiye",
-            city: data.city,
-            district: data.district ?? null,
-            line1: data.line1,
-            line2: data.line2 ?? null,
-            postalCode: data.postalCode ?? null,
-            taxOffice: data.taxOffice ?? null,
-            taxNumber: data.taxNumber ?? null,
-            latitude: data.latitude ?? null,
-            longitude: data.longitude ?? null,
-            locationSource: data.locationSource ?? null,
-            locationAccuracy: data.locationAccuracy ?? null,
-            geocodingProvider: data.geocodingProvider ?? null,
-            geocodingPlaceId: data.geocodingPlaceId ?? null,
-            geocodingLabel: data.geocodingLabel ?? null,
-            geocodedAt: data.geocodedAt ?? null,
-            geocodingExpiresAt: data.geocodingExpiresAt ?? null,
-            locationVerifiedAt: data.locationVerifiedAt ?? null,
-            locationVerifiedByUserId: data.locationVerifiedByUserId ?? null,
-            isPrimary: Boolean(data.isPrimary),
-            isBilling: Boolean(data.isBilling),
-            isShipping: data.isShipping ?? true,
-            note: data.note ?? null,
-        }
-
-        if (mode === "create") {
-            return {
-                ...base,
-                geocodingRaw: data.geocodingRaw ?? Prisma.DbNull,
-            }
-        }
-
-        return Object.fromEntries(
-            Object.entries({
-                ...base,
-                geocodingRaw: data.geocodingRaw === undefined ? undefined : data.geocodingRaw ?? Prisma.DbNull,
-                locationVerifiedByUserId: data.locationVerifiedByUserId === undefined ? undefined : data.locationVerifiedByUserId,
-            }).filter(([, value]) => value !== undefined),
-        ) as Prisma.CustomerAddressUncheckedUpdateInput
+const buildAddressWriteData = (
+    data: CustomerAddressMutationInput,
+    mode: "create" | "update",
+): Prisma.CustomerAddressUncheckedCreateWithoutCustomerInput | Prisma.CustomerAddressUncheckedUpdateInput => {
+    const base = {
+        label: data.label,
+        contactName: data.contactName ?? null,
+        phone: data.phone ?? null,
+        email: data.email ?? null,
+        countryId: data.countryId ?? null,
+        stateId: data.stateId ?? null,
+        cityId: data.cityId ?? null,
+        country: data.country?.trim() || "Turkiye",
+        city: data.city,
+        district: data.district ?? null,
+        line1: data.line1,
+        line2: data.line2 ?? null,
+        postalCode: data.postalCode ?? null,
+        taxOffice: data.taxOffice ?? null,
+        taxNumber: data.taxNumber ?? null,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+        locationSource: data.locationSource ?? null,
+        locationAccuracy: data.locationAccuracy ?? null,
+        geocodingProvider: data.geocodingProvider ?? null,
+        geocodingPlaceId: data.geocodingPlaceId ?? null,
+        geocodingLabel: data.geocodingLabel ?? null,
+        geocodedAt: data.geocodedAt ?? null,
+        geocodingExpiresAt: data.geocodingExpiresAt ?? null,
+        locationVerifiedAt: data.locationVerifiedAt ?? null,
+        locationVerifiedByUserId: data.locationVerifiedByUserId ?? null,
+        isPrimary: Boolean(data.isPrimary),
+        isBilling: Boolean(data.isBilling),
+        isShipping: data.isShipping ?? true,
+        note: data.note ?? null,
     }
 
-    const sortAddressesForDisplay = <T extends {
-        displayOrder: number
-        createdAt: Date
-    }>(addresses: T[]) => [...addresses].sort((left, right) =>
-        left.displayOrder - right.displayOrder || left.createdAt.getTime() - right.createdAt.getTime(),
+    if (mode === "create") {
+        return {
+            ...base,
+            geocodingRaw: data.geocodingRaw ?? Prisma.DbNull,
+        }
+    }
+
+    return Object.fromEntries(
+        Object.entries({
+            ...base,
+            geocodingRaw: data.geocodingRaw === undefined ? undefined : data.geocodingRaw ?? Prisma.DbNull,
+            locationVerifiedByUserId: data.locationVerifiedByUserId === undefined ? undefined : data.locationVerifiedByUserId,
+        }).filter(([, value]) => value !== undefined),
+    ) as Prisma.CustomerAddressUncheckedUpdateInput
+}
+
+const sortAddressesForDisplay = <T extends {
+    displayOrder: number
+    createdAt: Date
+}>(addresses: T[]) => [...addresses].sort((left, right) =>
+    left.displayOrder - right.displayOrder || left.createdAt.getTime() - right.createdAt.getTime(),
+)
+
+const normalizeAddressOrderingAndFlags = <T extends {
+    id: string
+    isPrimary: boolean
+    isShipping: boolean
+    displayOrder: number
+    createdAt: Date
+}>(addresses: T[]) => {
+    const sorted = sortAddressesForDisplay(addresses)
+    const hasPrimary = sorted.some((address) => address.isPrimary)
+    const hasShipping = sorted.some((address) => address.isShipping)
+    const fallbackAddressId = (sorted.find((address) => address.isShipping) ?? sorted[0])?.id ?? null
+
+    return sorted.map((address, index) => ({
+        id: address.id,
+        displayOrder: index,
+        isPrimary: hasPrimary ? address.isPrimary : address.id === fallbackAddressId,
+        isShipping: hasShipping ? address.isShipping : address.id === fallbackAddressId,
+    }))
+}
+
+// Client `$extends`'li olduğu için `Prisma.TransactionClient` uymuyor.
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+/* --------------------------------------------------------------------------
+ * DENETİMLİ YAZMA (AuditLog) — Customer'a yazan HER yol buradan geçer.
+ *
+ * Desen "çevreleyen anlık görüntü": satır kilitlenir, müşterinin denetlenen hâli
+ * (müşteri + adresler + telefonlar + profil + iletişim kişileri) okunur, değişiklik
+ * yapılır, tekrar okunur ve fark AYNI transaction'da yazılır. Hangi alt tablo
+ * değişirse değişsin aynı yol yakalar; uç başına ayrı fark kodu yok.
+ * Kurallar: AGENTS.md § "When adding audit logging to a model".
+ * ------------------------------------------------------------------------ */
+
+/**
+ * Satırları kilitler (id sırasıyla — eşzamanlı iki toplu işlem birbirini kilitlemesin).
+ * Kilitsiz okumada eşzamanlı iki güncellemenin ikincisi bayat bir "önce" kaydederdi.
+ */
+const lockCustomerRows = (tx: TransactionClient, ids: readonly string[]) =>
+    tx.$queryRaw`SELECT "id" FROM "Customer" WHERE "id" = ANY(${[...ids]}::text[]) ORDER BY "id" FOR UPDATE`
+
+/** Denetlenen hâli TEK seferde okur: kayıt sayısından bağımsız, ilişki başına bir sorgu. */
+async function loadCustomerAuditRows(tx: TransactionClient, ids: readonly string[]) {
+    const rows = await tx.customer.findMany({
+        where: { id: { in: [...ids] } },
+        include: customerAuditInclude,
+    })
+    return new Map(rows.map((row) => [row.id, row]))
+}
+
+function customerAuditEntry(
+    action: AuditLogEntry["action"],
+    before: CustomerAuditRow | null,
+    after: CustomerAuditRow | null,
+    context: AuditContext,
+    metadata?: AuditMetadata,
+): AuditLogEntry | null {
+    const subject = after ?? before
+    if (!subject) return null
+
+    const changes = diffAuditSnapshots(
+        before ? toCustomerAuditSnapshot(before) : null,
+        after ? toCustomerAuditSnapshot(after) : null,
     )
+    // Denetlenen hiçbir alan değişmediyse kayıt yazılmaz: boş kayıt geçmişi kirletir.
+    if (changes.length === 0) return null
 
-    const normalizeAddressOrderingAndFlags = <T extends {
-        id: string
-        isPrimary: boolean
-        isShipping: boolean
-        displayOrder: number
-        createdAt: Date
-    }>(addresses: T[]) => {
-        const sorted = sortAddressesForDisplay(addresses)
-        const hasPrimary = sorted.some((address) => address.isPrimary)
-        const hasShipping = sorted.some((address) => address.isShipping)
-        const fallbackAddressId = (sorted.find((address) => address.isShipping) ?? sorted[0])?.id ?? null
+    return {
+        entityType: "Customer",
+        entityId: subject.id,
+        entityLabel: customerAuditLabel(subject),
+        action,
+        changes,
+        metadata,
+        context,
+    }
+}
 
-        return sorted.map((address, index) => ({
-            id: address.id,
-            displayOrder: index,
-            isPrimary: hasPrimary ? address.isPrimary : address.id === fallbackAddressId,
-            isShipping: hasShipping ? address.isShipping : address.id === fallbackAddressId,
-        }))
+/**
+ * Var olan bir müşteriyi değiştiren her işlem: kilitle → önce → `mutate` → sonra → fark.
+ * `mutate` YALNIZ `tx` ile yazmalı (global `prisma` transaction dışına kaçar).
+ */
+async function runAuditedCustomerUpdate<T>(
+    tx: TransactionClient,
+    customerId: string,
+    audit: AuditContext,
+    mutate: () => Promise<T>,
+    metadata?: AuditMetadata,
+): Promise<T> {
+    await lockCustomerRows(tx, [customerId])
+
+    const before = (await loadCustomerAuditRows(tx, [customerId])).get(customerId)
+    if (!before) throw new createError.NotFound("Customer not found")
+
+    const result = await mutate()
+
+    const after = (await loadCustomerAuditRows(tx, [customerId])).get(customerId) ?? null
+    const entry = customerAuditEntry("UPDATE", before, after, audit, metadata)
+    if (entry) await writeAuditLog(tx, entry)
+
+    return result
+}
+
+async function writeCustomerCreatedAudit(
+    tx: TransactionClient,
+    customerId: string,
+    audit: AuditContext,
+    metadata?: AuditMetadata,
+) {
+    const after = (await loadCustomerAuditRows(tx, [customerId])).get(customerId) ?? null
+    const entry = customerAuditEntry("CREATE", null, after, audit, metadata)
+    if (entry) await writeAuditLog(tx, entry)
+}
+
+async function createAddressInTransaction(
+    tx: TransactionClient,
+    customerId: string,
+    data: CustomerAddressMutationInput,
+) {
+    const currentMax = await tx.customerAddress.aggregate({
+        where: { customerId },
+        _max: { displayOrder: true },
+    })
+
+    if (data.isPrimary) {
+        await tx.customerAddress.updateMany({
+            where: { customerId },
+            data: { isPrimary: false },
+        })
     }
 
+    await tx.customerAddress.create({
+        data: {
+            customerId,
+            ...(buildAddressWriteData(data, "create") as Prisma.CustomerAddressUncheckedCreateWithoutCustomerInput),
+            displayOrder: (currentMax._max.displayOrder ?? 0) + 1,
+        },
+    })
+}
+
+/**
+ * Zaten açık bir transaction içinden müşteri güncellemesi — iş talebi onayı
+ * (`CUSTOMER_PROFILE_CHANGE`) kullanır. Aktör onaylayan; talep bilgisi `metadata`'da.
+ */
+export async function applyCustomerUpdateInTransaction(
+    tx: TransactionClient,
+    customerId: string,
+    data: Prisma.CustomerUpdateInput,
+    audit: AuditContext,
+    metadata?: AuditMetadata,
+) {
+    await runAuditedCustomerUpdate(
+        tx,
+        customerId,
+        audit,
+        () => tx.customer.update({ where: { id: customerId }, data, select: { id: true } }),
+        metadata,
+    )
+}
+
+/**
+ * Bir satış kullanıcısına atanan müşteri listesini TAM DEĞİŞİM olarak yazar (kullanıcı
+ * düzenleme ekranı). Etkilenen her müşteri için `assignedSalesUser` değişikliği tek
+ * sorguda kaydedilir; alan adı ve değer biçimi tam snapshot'takiyle aynı, böylece
+ * müşterinin geçmişinde diğer kayıtlarla aynı satırda görünür.
+ */
+export async function replaceSalesUserCustomersInTransaction(
+    tx: TransactionClient,
+    salesUserId: string,
+    customerIds: readonly string[],
+    audit: AuditContext,
+) {
+    const targetIds = [...new Set(customerIds)]
+
+    await tx.$queryRaw`SELECT "id" FROM "Customer" WHERE "assignedSalesUserId" = ${salesUserId} OR "id" = ANY(${targetIds}::text[]) ORDER BY "id" FOR UPDATE`
+
+    const affected = await tx.customer.findMany({
+        where: {
+            OR: [
+                { assignedSalesUserId: salesUserId },
+                { id: { in: targetIds } },
+            ],
+        },
+        select: {
+            id: true,
+            companyName: true,
+            fullName: true,
+            phone: true,
+            assignedSalesUser: { select: { firstName: true, lastName: true, identifier: true, email: true } },
+        },
+    })
+    const salesUser = await tx.user.findUnique({
+        where: { id: salesUserId },
+        select: { firstName: true, lastName: true, identifier: true, email: true },
+    })
+
+    await tx.customer.updateMany({
+        where: { assignedSalesUserId: salesUserId },
+        data: { assignedSalesUserId: null },
+    })
+    if (targetIds.length > 0) {
+        await tx.customer.updateMany({
+            where: { id: { in: targetIds } },
+            data: { assignedSalesUserId: salesUserId },
+        })
+    }
+
+    const targetSet = new Set(targetIds)
+    const nextLabel = customerAuditUserLabel(salesUser)
+    const entries = affected.flatMap((customer): AuditLogEntry[] => {
+        const before = customerAuditUserLabel(customer.assignedSalesUser)
+        const after = targetSet.has(customer.id) ? nextLabel : null
+        if (before === after) return []
+
+        return [{
+            entityType: "Customer",
+            entityId: customer.id,
+            entityLabel: customerAuditLabel(customer),
+            action: "UPDATE",
+            changes: [{ field: "assignedSalesUser", before, after }],
+            context: audit,
+        }]
+    })
+
+    await writeAuditLogs(tx, entries)
+}
+
+// Müşteri yazmaları birkaç sorgu + iki anlık görüntü okur; Neon gecikmesine pay.
+const customerWriteTransactionOptions = addressTransactionOptions
+
+
+export const customerRepository = (): IPrismaCustomerRepository => {
     const listCustomers = async (
         query: IPaginationQuery & {
             sectorValueId?: string
@@ -878,44 +1133,90 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             include: customerPortalOverviewInclude,
         })
 
-    const createCustomer = async (data: Prisma.CustomerCreateInput) =>
-        prisma.customer.create({
-            data,
+    // Geniş include'lu dönüş okuması transaction DIŞINDA (commit'ten sonra) yapılır.
+    const getCustomerWithRelationsOrThrow = (id: string) =>
+        prisma.customer.findUniqueOrThrow({
+            where: { id },
             include: customerBaseInclude,
         })
 
-    const updateCustomer = async (id: string, data: Prisma.CustomerUpdateInput) =>
-        prisma.customer.update({
-            where: { id },
-            data,
-            include: customerBaseInclude,
-        })
+    const createCustomer = async (
+        data: Prisma.CustomerCreateInput,
+        audit: AuditContext,
+        options?: { address?: CustomerAddressMutationInput | null },
+    ) => {
+        const customerId = await prisma.$transaction(async (tx) => {
+            const created = await tx.customer.create({ data, select: { id: true } })
+
+            if (options?.address) {
+                await createAddressInTransaction(tx, created.id, options.address)
+            }
+
+            await writeCustomerCreatedAudit(tx, created.id, audit)
+            return created.id
+        }, customerWriteTransactionOptions)
+
+        return getCustomerWithRelationsOrThrow(customerId)
+    }
+
+    const updateCustomer = async (
+        id: string,
+        data: Prisma.CustomerUpdateInput,
+        audit: AuditContext,
+        options?: {
+            companyContactAssignments?: Array<{
+                companyContactId: string
+                isActive?: boolean
+                displayOrder?: number
+                note?: string | null
+            }>
+            replaceAttributeAssignmentCodes?: string[]
+        },
+    ) => {
+        await prisma.$transaction((tx) => runAuditedCustomerUpdate(tx, id, audit, async () => {
+            if (options?.replaceAttributeAssignmentCodes?.length) {
+                await tx.customerAttributeValueAssignment.deleteMany({
+                    where: {
+                        customerId: id,
+                        attributeValue: {
+                            attribute: { code: { in: options.replaceAttributeAssignmentCodes } },
+                        },
+                    },
+                })
+            }
+
+            await tx.customer.update({ where: { id }, data, select: { id: true } })
+
+            if (options?.companyContactAssignments !== undefined) {
+                const uniqueAssignments = normalizeCompanyContactAssignments(options.companyContactAssignments)
+
+                await tx.customerCompanyContactAssignment.deleteMany({
+                    where: { customerId: id },
+                })
+
+                if (uniqueAssignments.length > 0) {
+                    await tx.customerCompanyContactAssignment.createMany({
+                        data: uniqueAssignments.map((assignment) => ({
+                            customerId: id,
+                            ...assignment,
+                        })),
+                    })
+                }
+            }
+        }), customerWriteTransactionOptions)
+
+        return getCustomerWithRelationsOrThrow(id)
+    }
 
     const createAddress = async (
         customerId: string,
         data: CustomerAddressMutationInput,
+        audit: AuditContext,
     ) => {
-        await prisma.$transaction(async (tx) => {
-            const currentMax = await tx.customerAddress.aggregate({
-                where: { customerId },
-                _max: { displayOrder: true },
-            })
-
-            if (data.isPrimary) {
-                await tx.customerAddress.updateMany({
-                    where: { customerId },
-                    data: { isPrimary: false },
-                })
-            }
-
-            await tx.customerAddress.create({
-                data: {
-                    customerId,
-                    ...(buildAddressWriteData(data, "create") as Prisma.CustomerAddressUncheckedCreateWithoutCustomerInput),
-                    displayOrder: (currentMax._max.displayOrder ?? 0) + 1,
-                },
-            })
-        }, addressTransactionOptions)
+        await prisma.$transaction(
+            (tx) => runAuditedCustomerUpdate(tx, customerId, audit, () => createAddressInTransaction(tx, customerId, data)),
+            customerWriteTransactionOptions,
+        )
 
         // Geniş müşteri detay sorgusu transaction süresine ve commit'e dahil
         // edilmemeli; commit tamamlandıktan sonra güncel kaydı okuyoruz.
@@ -935,8 +1236,9 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         customerId: string,
         addressId: string,
         data: CustomerAddressMutationInput,
+        audit: AuditContext,
     ) => {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction((tx) => runAuditedCustomerUpdate(tx, customerId, audit, async () => {
             const existing = await tx.customerAddress.findFirst({
                 where: {
                     id: addressId,
@@ -967,13 +1269,13 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 where: { id: existing.id },
                 data: buildAddressWriteData(data, "update") as Prisma.CustomerAddressUncheckedUpdateInput,
             })
-        }, addressTransactionOptions)
+        }), customerWriteTransactionOptions)
 
         return getCustomerOrThrow(customerId)
     }
 
-    const deleteAddress = async (customerId: string, addressId: string) => {
-        await prisma.$transaction(async (tx) => {
+    const deleteAddress = async (customerId: string, addressId: string, audit: AuditContext) => {
+        await prisma.$transaction((tx) => runAuditedCustomerUpdate(tx, customerId, audit, async () => {
             const existing = await tx.customerAddress.findFirst({
                 where: {
                     id: addressId,
@@ -1015,55 +1317,102 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                     },
                 })
             }
-        }, addressTransactionOptions)
+        }), customerWriteTransactionOptions)
 
         return getCustomerOrThrow(customerId)
     }
 
-    const replaceCompanyContactAssignments = async (
-        customerId: string,
-        assignments: Array<{
-            companyContactId: string
-            isActive?: boolean
-            displayOrder?: number
-            note?: string | null
-        }>,
+    const convertCustomer = async (
+        id: string,
+        convertedByUserId: string,
+        audit: AuditContext,
+        metadata?: AuditMetadata,
     ) => {
-        const uniqueAssignments = normalizeCompanyContactAssignments(assignments)
+        await prisma.$transaction((tx) => runAuditedCustomerUpdate(tx, id, audit, () =>
+            tx.customer.update({
+                where: { id },
+                data: {
+                    status: CustomerStatus.CUSTOMER,
+                    convertedAt: new Date(),
+                    convertedByUser: {
+                        connect: { id: convertedByUserId },
+                    },
+                },
+                select: { id: true },
+            }), metadata), customerWriteTransactionOptions)
 
-        return prisma.$transaction(async (tx) => {
-            await tx.customerCompanyContactAssignment.deleteMany({
-                where: { customerId },
-            })
-
-            if (uniqueAssignments.length > 0) {
-                await tx.customerCompanyContactAssignment.createMany({
-                    data: uniqueAssignments.map((assignment) => ({
-                        customerId,
-                        ...assignment,
-                    })),
-                })
-            }
-
-            return tx.customer.findUniqueOrThrow({
-                where: { id: customerId },
-                include: customerBaseInclude,
-            })
-        })
+        return getCustomerWithRelationsOrThrow(id)
     }
 
-    const convertCustomer = async (id: string, convertedByUserId: string) =>
-        prisma.customer.update({
-            where: { id },
-            data: {
-                status: CustomerStatus.CUSTOMER,
-                convertedAt: new Date(),
-                convertedByUser: {
-                    connect: { id: convertedByUserId },
+    const deleteLeadCustomers = async (ids: readonly string[], audit: AuditContext) => {
+        const uniqueIds = [...new Set(ids)]
+        if (uniqueIds.length === 0) return { deletableIds: [], blocked: [] }
+
+        return prisma.$transaction(async (tx) => {
+            await lockCustomerRows(tx, uniqueIds)
+
+            const rows = await tx.customer.findMany({
+                where: { id: { in: uniqueIds } },
+                select: {
+                    id: true,
+                    status: true,
+                    fullName: true,
+                    companyName: true,
+                    _count: {
+                        select: {
+                            ...LEAD_CUSTOMER_DELETION_COUNT_SELECT,
+                            visits: true,
+                            assignedProducts: true,
+                            specialVariantPrices: true,
+                        },
+                    },
                 },
-            },
-            include: customerBaseInclude,
-        })
+            })
+
+            // Bulunamayan id sessizce yutulmaz: çağıran neyin işlenmediğini görmeli.
+            if (rows.length !== uniqueIds.length) {
+                const found = new Set(rows.map((row) => row.id))
+                const missing = uniqueIds.filter((id) => !found.has(id))
+                throw new createError.NotFound(`Kayıt bulunamadı: ${missing.length} adet`)
+            }
+
+            const plan = planLeadCustomerDeletion(
+                rows.map((row) => ({
+                    id: row.id,
+                    name: row.companyName || row.fullName || row.id,
+                    isLead: row.status === CustomerStatus.LEAD,
+                    counts: {
+                        orders: row._count.orders,
+                        portalUsers: row._count.portalUsers,
+                        businessRequests: row._count.businessRequests,
+                    },
+                })),
+            )
+
+            if (plan.deletableIds.length > 0) {
+                const before = await loadCustomerAuditRows(tx, plan.deletableIds)
+                const countsById = new Map(rows.map((row) => [row.id, row._count]))
+
+                // Cascade ilişkiler (adres, nitelik ataması, ziyaret…) DB tarafında birlikte gider.
+                await tx.customer.deleteMany({ where: { id: { in: plan.deletableIds } } })
+
+                await writeAuditLogs(tx, plan.deletableIds.flatMap((id): AuditLogEntry[] => {
+                    const counts = countsById.get(id)
+                    const entry = customerAuditEntry("DELETE", before.get(id) ?? null, null, audit, {
+                        // Silmeyle giden ilişkiler başka hiçbir yerde kalmaz.
+                        cascade: {
+                            visitCount: counts?.visits ?? 0,
+                            assignedProductCount: counts?.assignedProducts ?? 0,
+                            specialPriceCount: counts?.specialVariantPrices ?? 0,
+                        },
+                    })
+                    return entry ? [entry] : []
+                }))
+            }
+
+            return plan
+        }, customerWriteTransactionOptions)
+    }
 
     const listAssignedProducts = async (customerId: string) =>
         prisma.customerAssignedProduct.findMany({
@@ -1321,8 +1670,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         getAddress,
         updateAddress,
         deleteAddress,
-        replaceCompanyContactAssignments,
         convertCustomer,
+        deleteLeadCustomers,
         replaceAssignedProducts,
         listAssignedProducts,
         addCustomerFavoriteVariant,

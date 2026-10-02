@@ -9,7 +9,7 @@
  * Denetlenen modeller. Yeni bir modeli denetlemeye başlarken adını buraya ekle:
  * okuma ucunun validator'ı ve kapsam testi bu listeden türer.
  */
-export const AUDIT_ENTITY_TYPES = ["Category"] as const
+export const AUDIT_ENTITY_TYPES = ["Category", "Customer"] as const
 
 export type AuditEntityType = (typeof AUDIT_ENTITY_TYPES)[number]
 
@@ -31,7 +31,15 @@ export type AuditSystemActor = {
     name: string
 }
 
-export type AuditActor = AuditUserActor | AuditSystemActor
+/** Giriş yapmamış kişi (sitedeki public form). Kimliği yok; IP ve tarayıcı bağlamda kalır. */
+export type AuditAnonymousActor = {
+    type: "ANONYMOUS"
+    name: string
+}
+
+export type AuditActor = AuditUserActor | AuditSystemActor | AuditAnonymousActor
+
+export type AuditActorType = AuditActor["type"]
 
 /** Bir yazmanın "kim / nereden" bilgisi. Yazan her repository metodu bunu ZORUNLU alır. */
 export type AuditContext = {

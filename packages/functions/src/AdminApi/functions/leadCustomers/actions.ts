@@ -124,7 +124,7 @@ export const deleteLeadCustomerAddress = lambdaHandler(
 )
 
 export const deleteLeadCustomer = lambdaHandler(
-    async (event) => deleteLeadCustomerHandler()(event as IDeleteLeadCustomerEvent),
+    async (event) => deleteLeadCustomerHandler(addressDeps())(event as IDeleteLeadCustomerEvent),
     {
         auth: { requiredPermissionGroups: leadCustomerManagerGroups },
         requestValidator: deleteLeadCustomerValidator,
@@ -133,7 +133,7 @@ export const deleteLeadCustomer = lambdaHandler(
 )
 
 export const bulkDeleteLeadCustomers = lambdaHandler(
-    async (event) => bulkDeleteLeadCustomersHandler()(event as IBulkDeleteLeadCustomersEvent),
+    async (event) => bulkDeleteLeadCustomersHandler(addressDeps())(event as IBulkDeleteLeadCustomersEvent),
     {
         auth: { requiredPermissionGroups: leadCustomerBulkDeleteGroups },
         requestValidator: bulkDeleteLeadCustomersValidator,

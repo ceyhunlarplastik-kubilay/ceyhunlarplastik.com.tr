@@ -2,9 +2,11 @@ import createError, { HttpError } from "http-errors"
 
 import { deleteLeadCustomers } from "@/core/helpers/crm/leadCustomers"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import type {
     IDeleteLeadCustomerEvent,
     IBulkDeleteLeadCustomersEvent,
+    ILeadCustomerAddressDependencies,
 } from "@/functions/AdminApi/types/leadCustomers"
 
 /**
@@ -14,10 +16,16 @@ import type {
  * listesi, LEAD kilidi ve cascade davranışı tek yerde kalsın. Engellenirse
  * 409 döner — tekil silmede kısmi başarı diye bir şey yok.
  */
-export const deleteLeadCustomerHandler = () => {
+export const deleteLeadCustomerHandler = ({ customerRepository }: ILeadCustomerAddressDependencies) => {
     return async (event: IDeleteLeadCustomerEvent) => {
+        const audit = buildAuditContextFromEvent(event)
+
         try {
-            const result = await deleteLeadCustomers([event.pathParameters.id])
+            const result = await deleteLeadCustomers({
+                customerRepository,
+                ids: [event.pathParameters.id],
+                audit,
+            })
 
             if (result.blocked.length > 0) {
                 const blocker = result.blocked[0]
@@ -45,10 +53,16 @@ export const deleteLeadCustomerHandler = () => {
  * Engelli kayıt işlemi DÜŞÜRMEZ: silinebilenler silinir, engelliler adı ve
  * sebebiyle döner ve arayüzde seçili kalır (varyant toplu silmesiyle aynı karar).
  */
-export const bulkDeleteLeadCustomersHandler = () => {
+export const bulkDeleteLeadCustomersHandler = ({ customerRepository }: ILeadCustomerAddressDependencies) => {
     return async (event: IBulkDeleteLeadCustomersEvent) => {
+        const audit = buildAuditContextFromEvent(event)
+
         try {
-            const result = await deleteLeadCustomers(event.body.ids)
+            const result = await deleteLeadCustomers({
+                customerRepository,
+                ids: event.body.ids,
+                audit,
+            })
 
             return apiResponseDTO({
                 statusCode: 200,

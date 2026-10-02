@@ -1,6 +1,7 @@
 import createError from "http-errors"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { IConvertCustomerEvent, ICustomerDependencies } from "@/functions/AdminApi/types/customers"
 
 export const convertCustomerHandler = ({ customerRepository }: ICustomerDependencies) => {
@@ -15,7 +16,7 @@ export const convertCustomerHandler = ({ customerRepository }: ICustomerDependen
             throw new createError.NotFound("Customer not found")
         }
 
-        const customer = await customerRepository.convertCustomer(existing.id, requester.id)
+        const customer = await customerRepository.convertCustomer(existing.id, requester.id, buildAuditContextFromEvent(event))
 
         return apiResponseDTO({
             statusCode: 200,

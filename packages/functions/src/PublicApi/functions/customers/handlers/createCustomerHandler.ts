@@ -2,6 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
+import { buildAnonymousAuditContext } from "@/core/helpers/audit/auditContext"
 import { ICreateCustomerEvent, ICustomerDependencies } from "@/functions/PublicApi/types/customers"
 
 export const createCustomerHandler = ({
@@ -48,7 +49,8 @@ export const createCustomerHandler = ({
                         })),
                     },
                 }),
-            })
+            // Giriş yapmamış kişi: kayıtta "Web formu" + IP / tarayıcı (spam incelemesi için).
+            }, buildAnonymousAuditContext(event, "Web formu"))
 
             return apiResponseDTO({
                 statusCode: 201,

@@ -6,8 +6,8 @@ import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/pris
 
 export interface ILeadCustomerDependencies {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
-    /** Oluşturma sırasında adres de gönderildiyse yazmak için. */
-    customerRepository?: IPrismaCustomerRepository
+    /** Customer'a yazan tek yer (denetim kaydı orada yazılır). */
+    customerRepository: IPrismaCustomerRepository
 }
 
 export interface ILeadCustomerAddressDependencies {

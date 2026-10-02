@@ -301,7 +301,8 @@ export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction]
 
 export const AuditActorType = {
   USER: 'USER',
-  SYSTEM: 'SYSTEM'
+  SYSTEM: 'SYSTEM',
+  ANONYMOUS: 'ANONYMOUS'
 } as const
 
 export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType]

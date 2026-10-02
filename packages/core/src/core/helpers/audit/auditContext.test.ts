@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import type { IAuthenticatedUser } from "@/core/helpers/utils/api/types"
 
-import { buildAuditContextFromEvent } from "./auditContext"
+import {
+    buildAnonymousAuditContext,
+    buildAuditContextFromEvent,
+    buildUserAuditContext,
+} from "./auditContext"
 
 const user: IAuthenticatedUser = {
     id: "user-1",
@@ -85,5 +89,49 @@ describe("buildAuditContextFromEvent", () => {
         })
 
         expect(context.userAgent).toHaveLength(512)
+    })
+})
+
+describe("buildAnonymousAuditContext", () => {
+    it("giriş yapmamış kişiyi kimliksiz, istek künyesiyle işaretler", () => {
+        const context = buildAnonymousAuditContext({
+            routeKey: "POST /customers",
+            requestContext: { requestId: "req-9", http: { sourceIp: "198.51.100.5", userAgent: "Mozilla/5.0" } },
+        }, "Web formu")
+
+        expect(context).toEqual({
+            actor: { type: "ANONYMOUS", name: "Web formu" },
+            source: "POST /customers",
+            requestId: "req-9",
+            ipAddress: "198.51.100.5",
+            userAgent: "Mozilla/5.0",
+        })
+    })
+
+    it("istekte doğrulanmış kullanıcı olsa bile anonim kalır (yalnız public uçlarda kullanılır)", () => {
+        expect(buildAnonymousAuditContext({ user }, "Web formu").actor).toEqual({ type: "ANONYMOUS", name: "Web formu" })
+    })
+})
+
+describe("buildUserAuditContext", () => {
+    it("akışın doğruladığı DB kullanıcısını aktör yapar (davet kabulü)", () => {
+        const context = buildUserAuditContext({
+            id: "portal-user-1",
+            cognitoSub: "sub-portal",
+            email: "musteri@acme.com",
+            firstName: "Can",
+            lastName: "Demir",
+            groups: ["customer"],
+        }, { routeKey: "POST /customer-invitations/accept" })
+
+        expect(context.actor).toEqual({
+            type: "USER",
+            userId: "portal-user-1",
+            cognitoSub: "sub-portal",
+            email: "musteri@acme.com",
+            name: "Can Demir",
+            groups: ["customer"],
+        })
+        expect(context.source).toBe("POST /customer-invitations/accept")
     })
 })

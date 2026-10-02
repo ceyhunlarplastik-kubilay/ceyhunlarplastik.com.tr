@@ -25,10 +25,7 @@ import {
 } from "@/core/helpers/prisma/customers/repository"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { Prisma } from "@/prisma/generated/prisma/client"
-import {
-    LEAD_CUSTOMER_DELETION_COUNT_SELECT,
-    planLeadCustomerDeletion,
-} from "@/core/helpers/crm/leadCustomerDeletion"
+import type { AuditContext } from "@/core/helpers/audit/types"
 
 /**
  * Veri girişi panelinin POTANSİYEL MÜŞTERİ yüzeyi.
@@ -398,10 +395,13 @@ export async function createLeadCustomer({
     input,
     address,
     verifiedByUserId,
+    audit,
 }: {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
-    /** Adres yazımı için; yalnız `address` verildiğinde kullanılır. */
-    customerRepository?: IPrismaCustomerRepository
+    /** Customer'a yazan tek yer repository'dir (denetim kaydı orada yazılır). */
+    customerRepository: IPrismaCustomerRepository
+    /** Denetim kaydının kimi / nereden bilgisi — handler istekten kurar. */
+    audit: AuditContext
     input: LeadCustomerProfileInput
     /**
      * Oluşturma dialogunda adres de girildiyse aynı istekte yazılır. Ayrı adres
@@ -424,63 +424,57 @@ export async function createLeadCustomer({
         primaryPhone: input.phone,
     })
 
-    const customer = await prisma.customer.create({
-        data: {
-            companyName: input.companyName.trim(),
-            websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
-            fullName: normalizeText(input.fullName),
-            phone: input.phone.trim(),
-            // Customer.email mevcut şemada non-null; bu dar yüzeyde e-posta
-            // opsiyonel olduğunda boş dizeyle temsil edilir.
-            email: input.email?.trim() ?? "",
-            note: normalizeText(input.note),
-            // Bu yüzey yalnız potansiyel müşteri üretir; dönüşüm ticari bir karar
-            // ve /admin · /satis panellerinde kalır.
-            status: "LEAD",
-            ...(additionalPhones.length > 0 && {
-                additionalPhones: { createMany: { data: additionalPhones } },
-            }),
-            ...(resolved?.sectorValueId && {
-                sectorValue: { connect: { id: resolved.sectorValueId } },
-            }),
-            ...(resolved?.productionGroupValueId && {
-                productionGroupValue: { connect: { id: resolved.productionGroupValueId } },
-            }),
-            ...(resolved && {
-                usageAreaValues: {
-                    connect: resolved.usageAreaIds.map((id) => ({ id })),
-                },
-                attributeValueAssignments: {
-                    create: resolved.assignmentValueIds.map((valueId) => ({
-                        source: resolved.source,
-                        attributeValue: { connect: { id: valueId } },
-                    })),
-                },
-            }),
-        },
-        select: leadCustomerSelect,
-    })
-
-    // Adres ayrı yazılır: repository kendi yazma biçimini üretiyor ve sıra
-    // (displayOrder) ile birincil-adres tekilliğini kendi transaction'ında
-    // yönetiyor. Geçersiz adres yukarıda normalize aşamasında elendiği için
-    // burada kalan tek risk DB hatası — o durumda müşteri kaydı korunur ve
-    // adres detay panelinden eklenebilir.
-    if (normalizedAddress && customerRepository) {
-        await customerRepository.createAddress(customer.id, normalizedAddress)
-    }
+    const customer = await customerRepository.createCustomer({
+        companyName: input.companyName.trim(),
+        websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
+        fullName: normalizeText(input.fullName),
+        phone: input.phone.trim(),
+        // Customer.email mevcut şemada non-null; bu dar yüzeyde e-posta
+        // opsiyonel olduğunda boş dizeyle temsil edilir.
+        email: input.email?.trim() ?? "",
+        note: normalizeText(input.note),
+        // Bu yüzey yalnız potansiyel müşteri üretir; dönüşüm ticari bir karar
+        // ve /admin · /satis panellerinde kalır.
+        status: "LEAD",
+        ...(additionalPhones.length > 0 && {
+            additionalPhones: { createMany: { data: additionalPhones } },
+        }),
+        ...(resolved?.sectorValueId && {
+            sectorValue: { connect: { id: resolved.sectorValueId } },
+        }),
+        ...(resolved?.productionGroupValueId && {
+            productionGroupValue: { connect: { id: resolved.productionGroupValueId } },
+        }),
+        ...(resolved && {
+            usageAreaValues: {
+                connect: resolved.usageAreaIds.map((id) => ({ id })),
+            },
+            attributeValueAssignments: {
+                create: resolved.assignmentValueIds.map((valueId) => ({
+                    source: resolved.source,
+                    attributeValue: { connect: { id: valueId } },
+                })),
+            },
+        }),
+    // Adres müşteriyle AYNI transaction'da yazılır: eskiden ayrı yazılıyordu ve adres
+    // düşerse adressiz yarım kayıt kalıyordu.
+    }, audit, { address: normalizedAddress })
 
     return buildLeadCustomerDetail(customer.id)
 }
 
 export async function updateLeadCustomer({
     productAttributeValueRepository,
+    customerRepository,
     id,
     input,
+    audit,
 }: {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
+    customerRepository: IPrismaCustomerRepository
     id: string
     input: LeadCustomerProfileInput
+    audit: AuditContext
 }): Promise<LeadCustomerDetail> {
     await getLeadCustomerRowOrThrow(id)
 
@@ -499,48 +493,36 @@ export async function updateLeadCustomer({
         CUSTOMER_ATTRIBUTE_CODES.usageArea,
     ]
 
-    await prisma.$transaction(async (tx) => {
-        await tx.customerAttributeValueAssignment.deleteMany({
-            where: {
-                customerId: id,
-                attributeValue: {
-                    attribute: { code: { in: hierarchyCodes } },
-                },
+    // Hiyerarşi atamalarının silinmesi ve yeni hâlin yazılması TEK transaction'da ve
+    // denetim kaydıyla birlikte repository'de.
+    await customerRepository.updateCustomer(id, {
+        companyName: input.companyName.trim(),
+        websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
+        fullName: normalizeText(input.fullName),
+        phone: input.phone.trim(),
+        ...(additionalPhones && {
+            additionalPhones: buildAdditionalPhonesReplaceWrite(additionalPhones),
+        }),
+        email: input.email?.trim() ?? "",
+        note: normalizeText(input.note),
+        sectorValue: resolved?.sectorValueId
+            ? { connect: { id: resolved.sectorValueId } }
+            : { disconnect: true },
+        productionGroupValue: resolved?.productionGroupValueId
+            ? { connect: { id: resolved.productionGroupValueId } }
+            : { disconnect: true },
+        usageAreaValues: {
+            set: (resolved?.usageAreaIds ?? []).map((valueId) => ({ id: valueId })),
+        },
+        ...(resolved && resolved.assignmentValueIds.length > 0 && {
+            attributeValueAssignments: {
+                create: resolved.assignmentValueIds.map((valueId) => ({
+                    source: resolved.source,
+                    attributeValue: { connect: { id: valueId } },
+                })),
             },
-        })
-
-        await tx.customer.update({
-            where: { id },
-            data: {
-                companyName: input.companyName.trim(),
-                websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
-                fullName: normalizeText(input.fullName),
-                phone: input.phone.trim(),
-                ...(additionalPhones && {
-                    additionalPhones: buildAdditionalPhonesReplaceWrite(additionalPhones),
-                }),
-                email: input.email?.trim() ?? "",
-                note: normalizeText(input.note),
-                sectorValue: resolved?.sectorValueId
-                    ? { connect: { id: resolved.sectorValueId } }
-                    : { disconnect: true },
-                productionGroupValue: resolved?.productionGroupValueId
-                    ? { connect: { id: resolved.productionGroupValueId } }
-                    : { disconnect: true },
-                usageAreaValues: {
-                    set: (resolved?.usageAreaIds ?? []).map((valueId) => ({ id: valueId })),
-                },
-                ...(resolved && resolved.assignmentValueIds.length > 0 && {
-                    attributeValueAssignments: {
-                        create: resolved.assignmentValueIds.map((valueId) => ({
-                            source: resolved.source,
-                            attributeValue: { connect: { id: valueId } },
-                        })),
-                    },
-                }),
-            },
-        })
-    })
+        }),
+    }, audit, { replaceAttributeAssignmentCodes: hierarchyCodes })
 
     return buildLeadCustomerDetail(id)
 }
@@ -556,11 +538,13 @@ export async function createLeadCustomerAddress({
     customerId,
     body,
     verifiedByUserId,
+    audit,
 }: {
     customerRepository: IPrismaCustomerRepository
     customerId: string
     body: CustomerAddressBody
     verifiedByUserId?: string | null
+    audit: AuditContext
 }): Promise<LeadCustomerDetail> {
     await getLeadCustomerRowOrThrow(customerId)
 
@@ -571,6 +555,7 @@ export async function createLeadCustomerAddress({
             verifiedByUserId,
             allowVerification: true,
         }),
+        audit,
     )
 
     return buildLeadCustomerDetail(customerId)
@@ -582,12 +567,14 @@ export async function updateLeadCustomerAddress({
     addressId,
     body,
     verifiedByUserId,
+    audit,
 }: {
     customerRepository: IPrismaCustomerRepository
     customerId: string
     addressId: string
     body: CustomerAddressBody
     verifiedByUserId?: string | null
+    audit: AuditContext
 }): Promise<LeadCustomerDetail> {
     await getLeadCustomerRowOrThrow(customerId)
 
@@ -604,6 +591,7 @@ export async function updateLeadCustomerAddress({
             // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
             existing: address,
         }),
+        audit,
     )
 
     return buildLeadCustomerDetail(customerId)
@@ -613,17 +601,19 @@ export async function deleteLeadCustomerAddress({
     customerRepository,
     customerId,
     addressId,
+    audit,
 }: {
     customerRepository: IPrismaCustomerRepository
     customerId: string
     addressId: string
+    audit: AuditContext
 }): Promise<LeadCustomerDetail> {
     await getLeadCustomerRowOrThrow(customerId)
 
     const address = await customerRepository.getAddress(customerId, addressId)
     if (!address) throw new createError.NotFound("Adres bulunamadı")
 
-    await customerRepository.deleteAddress(customerId, addressId)
+    await customerRepository.deleteAddress(customerId, addressId, audit)
 
     return buildLeadCustomerDetail(customerId)
 }
@@ -637,49 +627,19 @@ export async function deleteLeadCustomerAddress({
  * Engelli kayıt işlemi düşürmez — silinebilenler silinir, engelliler adıyla
  * döner. Gerekçe ve şema davranışları: `leadCustomerDeletion.ts`.
  */
-export async function deleteLeadCustomers(ids: readonly string[]): Promise<{
+export async function deleteLeadCustomers({
+    customerRepository,
+    ids,
+    audit,
+}: {
+    customerRepository: IPrismaCustomerRepository
+    ids: readonly string[]
+    audit: AuditContext
+}): Promise<{
     deletedIds: string[]
     blocked: Array<{ id: string; name: string; reason: string }>
 }> {
-    const uniqueIds = [...new Set(ids)]
-    if (uniqueIds.length === 0) return { deletedIds: [], blocked: [] }
-
-    const rows = await prisma.customer.findMany({
-        where: { id: { in: uniqueIds } },
-        select: {
-            id: true,
-            status: true,
-            fullName: true,
-            companyName: true,
-            _count: { select: LEAD_CUSTOMER_DELETION_COUNT_SELECT },
-        },
-    })
-
-    // Bulunamayan id sessizce yutulmaz: çağıran neyin işlenmediğini görmeli.
-    if (rows.length !== uniqueIds.length) {
-        const found = new Set(rows.map((row) => row.id))
-        const missing = uniqueIds.filter((id) => !found.has(id))
-        throw new createError.NotFound(`Kayıt bulunamadı: ${missing.length} adet`)
-    }
-
-    const plan = planLeadCustomerDeletion(
-        rows.map((row) => ({
-            id: row.id,
-            name: row.companyName || row.fullName || row.id,
-            isLead: row.status === "LEAD",
-            counts: {
-                orders: row._count.orders,
-                portalUsers: row._count.portalUsers,
-                businessRequests: row._count.businessRequests,
-            },
-        })),
-    )
-
-    if (plan.deletableIds.length > 0) {
-        // Cascade ilişkiler (adres, nitelik ataması, ziyaret…) DB tarafında
-        // birlikte gider; bir potansiyel müşteriyi silmek zaten bunu kapsar.
-        await prisma.customer.deleteMany({ where: { id: { in: plan.deletableIds } } })
-    }
-
+    // Engel kontrolü, silme ve denetim kayıtları repository'de TEK transaction'da.
+    const plan = await customerRepository.deleteLeadCustomers(ids, audit)
     return { deletedIds: plan.deletableIds, blocked: plan.blocked }
 }

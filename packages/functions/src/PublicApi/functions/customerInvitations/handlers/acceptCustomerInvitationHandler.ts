@@ -21,6 +21,7 @@ export const acceptCustomerInvitationHandler =
                 userInvitationRepository,
                 cognitoRepository,
                 customerRepository,
+                auditEvent: event,
             })
 
             return apiResponseDTO({

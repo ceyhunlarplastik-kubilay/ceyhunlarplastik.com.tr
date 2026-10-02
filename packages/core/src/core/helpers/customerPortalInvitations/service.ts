@@ -1,4 +1,6 @@
 import { createHash, randomBytes } from "crypto"
+import { buildUserAuditContext, type AuditableApiEvent } from "@/core/helpers/audit/auditContext"
+import type { AuditContext, AuditMetadata } from "@/core/helpers/audit/types"
 import { resolveCustomerDisplayName } from "@/core/helpers/crm/customerDisplayName"
 import createError from "http-errors"
 import type { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
@@ -60,7 +62,12 @@ type LookupInvitationParams = {
 }
 
 type CustomerConversionRepository = {
-    convertCustomer(id: string, convertedByUserId: string): Promise<unknown>
+    convertCustomer(
+        id: string,
+        convertedByUserId: string,
+        audit: AuditContext,
+        metadata?: AuditMetadata,
+    ): Promise<unknown>
 }
 
 type AcceptInvitationParams = LookupInvitationParams & {
@@ -76,6 +83,12 @@ type AcceptInvitationParams = LookupInvitationParams & {
      * bu dal hiç tetiklenmez.
      */
     customerRepository: CustomerConversionRepository
+    /**
+     * İsteğin künyesi (uç, IP, tarayıcı). Uç public ama kişi tek kullanımlık davet jetonuyla
+     * kendini kanıtladığı için LEAD → CUSTOMER dönüşümünün aktörü daveti KABUL EDEN
+     * kullanıcıdır; daveti gönderen personel kaydın bağlamına yazılır.
+     */
+    auditEvent: AuditableApiEvent
 }
 
 type CustomerPortalInvitationSummary = {
@@ -428,6 +441,7 @@ export async function acceptCustomerPortalInvitation({
     userInvitationRepository,
     cognitoRepository,
     customerRepository,
+    auditEvent,
 }: AcceptInvitationParams) {
     const invitation = await getUsableInvitation({
         token,
@@ -474,7 +488,12 @@ export async function acceptCustomerPortalInvitation({
         await userInvitationRepository.markAccepted(invitation.id, acceptedAt)
 
         if (invitation.customer.status === "LEAD") {
-            await customerRepository.convertCustomer(invitation.customer.id, invitation.invitedByUserId)
+            await customerRepository.convertCustomer(
+                invitation.customer.id,
+                invitation.invitedByUserId,
+                buildUserAuditContext(updatedUser, auditEvent),
+                { invitationId: invitation.id, invitedByUserId: invitation.invitedByUserId },
+            )
         }
 
         return {

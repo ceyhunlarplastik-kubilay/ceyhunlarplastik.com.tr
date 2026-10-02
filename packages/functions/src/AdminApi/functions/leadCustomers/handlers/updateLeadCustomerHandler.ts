@@ -1,6 +1,7 @@
 import createError, { HttpError } from "http-errors"
 
 import { updateLeadCustomer } from "@/core/helpers/crm/leadCustomers"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { InvalidWebsiteUrlError } from "@/core/helpers/crm/customerWebsite"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import type {
@@ -10,13 +11,18 @@ import type {
 
 export const updateLeadCustomerHandler = ({
     productAttributeValueRepository,
+    customerRepository,
 }: ILeadCustomerDependencies) => {
     return async (event: IUpdateLeadCustomerEvent) => {
+        const audit = buildAuditContextFromEvent(event)
+
         try {
             const customer = await updateLeadCustomer({
                 productAttributeValueRepository,
+                customerRepository,
                 id: event.pathParameters.id,
                 input: event.body,
+                audit,
             })
 
             return apiResponseDTO({ statusCode: 200, payload: { customer } })

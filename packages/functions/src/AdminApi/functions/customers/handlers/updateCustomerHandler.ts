@@ -2,7 +2,7 @@ import createError from "http-errors"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
-import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
+import { buildAuditContextFromEvent } from "@/core/helpers/audit/auditContext"
 import { ICustomerDependencies, IUpdateCustomerEvent } from "@/functions/AdminApi/types/customers"
 
 export const updateCustomerHandler = ({
@@ -27,13 +27,11 @@ export const updateCustomerHandler = ({
         const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {}, {
             currentPhone: existing.phone,
         })
-        const updated = await customerRepository.updateCustomer(existing.id, data)
-        const customer = event.body?.companyContactAssignments !== undefined
-            ? await customerRepository.replaceCompanyContactAssignments(
-                existing.id,
-                normalizeCompanyContactAssignments(event.body.companyContactAssignments),
-            )
-            : updated
+        // Müşteri alanları ve iletişim kişisi ataması TEK transaction'da (+ denetim kaydı):
+        // eskiden iki ayrı yazmaydı, ikincisi düşerse ilki kalıyordu.
+        const customer = await customerRepository.updateCustomer(existing.id, data, buildAuditContextFromEvent(event), {
+            companyContactAssignments: event.body?.companyContactAssignments,
+        })
 
         return apiResponseDTO({
             statusCode: 200,

@@ -4,6 +4,8 @@ import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginati
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type { IUser } from "@/core/db/interfaces/user"
 import type { Prisma, User } from "@/prisma/generated/prisma/client"
+import type { AuditContext } from "@/core/helpers/audit/types"
+import { replaceSalesUserCustomersInTransaction } from "@/core/helpers/prisma/customers/repository"
 
 export type UserAccessStatus = "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
 
@@ -130,12 +132,14 @@ export interface IPrismaUserRepository {
             supplierId?: string | null
             customerId?: string | null
             assignedSupplierIds?: string[]
+            /** Verilirse `audit` ZORUNLU: müşterilerin temsilcisi değişir, her biri denetim kaydı alır. */
             assignedCustomerIds?: string[]
             accessStatus?: UserAccessStatus
             accessStatusChangedAt?: Date | null
             accessStatusChangedByUserId?: string | null
             accessStatusReason?: string | null
         },
+        audit?: AuditContext,
     ): Promise<UserWithRelations>
     updateProfile(
         id: string,
@@ -279,12 +283,14 @@ export const userRepository = (): IPrismaUserRepository => {
             supplierId?: string | null
             customerId?: string | null
             assignedSupplierIds?: string[]
+            /** Verilirse `audit` ZORUNLU: müşterilerin temsilcisi değişir, her biri denetim kaydı alır. */
             assignedCustomerIds?: string[]
             accessStatus?: UserAccessStatus
             accessStatusChangedAt?: Date | null
             accessStatusChangedByUserId?: string | null
             accessStatusReason?: string | null
         },
+        audit?: AuditContext,
     ) => {
         return prisma.$transaction(async (tx) => {
             const existing = await tx.user.findUniqueOrThrow({
@@ -341,27 +347,12 @@ export const userRepository = (): IPrismaUserRepository => {
             }
 
             if (assignments.assignedCustomerIds !== undefined) {
-                await tx.customer.updateMany({
-                    where: {
-                        assignedSalesUserId: id,
-                    },
-                    data: {
-                        assignedSalesUserId: null,
-                    },
-                })
-
-                if (assignments.assignedCustomerIds.length > 0) {
-                    await tx.customer.updateMany({
-                        where: {
-                            id: {
-                                in: assignments.assignedCustomerIds,
-                            },
-                        },
-                        data: {
-                            assignedSalesUserId: id,
-                        },
-                    })
+                // Customer'a yalnız customers repository yazar: temsilci değişikliği her müşteri
+                // için denetim kaydıyla birlikte, bu transaction içinde.
+                if (!audit) {
+                    throw new Error("Audit context is required to reassign customers")
                 }
+                await replaceSalesUserCustomersInTransaction(tx, id, assignments.assignedCustomerIds, audit)
             }
 
             return tx.user.findUniqueOrThrow({
