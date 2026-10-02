@@ -1,4 +1,5 @@
 import type { ProductModel3dConfig } from "@core/helpers/products/model3dConfig"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 export type AxisVector = {
     x: number
@@ -40,17 +41,17 @@ export function calculateParametricNodeTransforms(
 
         if (!Number.isFinite(targetValue) || targetValue <= 0) {
             throw new ParametricMeasurementError(
-                `${parameter.measurementCode} ölçüsü pozitif ve sonlu olmalıdır`,
+                `${formatMeasurementCode(parameter.measurementCode)} ölçüsü pozitif ve sonlu olmalıdır`,
             )
         }
         if (parameter.min !== undefined && targetValue < parameter.min) {
             throw new ParametricMeasurementError(
-                `${parameter.measurementCode} ölçüsü minimum ${parameter.min} olmalıdır`,
+                `${formatMeasurementCode(parameter.measurementCode)} ölçüsü minimum ${parameter.min} olmalıdır`,
             )
         }
         if (parameter.max !== undefined && targetValue > parameter.max) {
             throw new ParametricMeasurementError(
-                `${parameter.measurementCode} ölçüsü maksimum ${parameter.max} olmalıdır`,
+                `${formatMeasurementCode(parameter.measurementCode)} ölçüsü maksimum ${parameter.max} olmalıdır`,
             )
         }
 

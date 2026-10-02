@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { MeasurementRequirementsEditorDialog } from "@/features/admin/productMeasurementRequirements/components/MeasurementRequirementsEditorDialog"
 import { useMeasurementRequirements } from "@/features/admin/productMeasurementRequirements/hooks/useMeasurementRequirements"
 import { useVariantMatrixReferences } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrixReferences"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 type Props = {
     productId: string
@@ -96,7 +97,7 @@ export function MeasurementRequirementsPanel({ productId, productName, sizeCount
                                     <div className="min-w-0 flex-1">
                                         <div className="truncate text-sm font-medium">{requirement.label}</div>
                                         <div className="font-mono text-[11px] text-neutral-500">
-                                            {requirement.measurementType.code}
+                                            {formatMeasurementCode(requirement.measurementType.code)}
                                             {requirement.unit ? ` · ${requirement.unit}` : ""}
                                             {requirement.isRequired ? "" : " · opsiyonel"}
                                         </div>

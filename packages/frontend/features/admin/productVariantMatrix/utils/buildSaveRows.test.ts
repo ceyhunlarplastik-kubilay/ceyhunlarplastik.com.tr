@@ -97,7 +97,38 @@ describe("buildSaveRows", () => {
             createEmptyDraftRow({ measurements: { "req-m": "M4" }, versionId: "ver-1" }),
         ])
         expect(rows).toHaveLength(1)
-        expect(errors).toEqual([{ index: 0, message: '"Kol Çapı" değeri geçersiz veya boş' }])
+        expect(errors).toEqual([{ index: 0, message: '"Kol Çapı" değeri boş (örn. 12,5 · 10*30 · 10/30 · 10-30)' }])
+    })
+
+    it("okunamayan değerde kabul edilen biçimleri söyler; metrik dişte M4 örneği", () => {
+        const { errors } = build([
+            createEmptyDraftRow({ measurements: { "req-r": "10-30mm", "req-m": "M4x10" }, versionId: "ver-1" }),
+        ])
+        expect(errors).toEqual([
+            { index: 0, message: '"Kol Çapı" değeri geçersiz (örn. 12,5 · 10*30 · 10/30 · 10-30)' },
+            { index: 0, message: '"Burç Metriği" değeri geçersiz (örn. M4)' },
+            // İki ölçü de okunamadığı için satırda kaydedilecek ölçü kalmadı.
+            { index: 0, message: "En az bir ölçü girilmeli" },
+        ])
+    })
+
+    it("opsiyonel ölçüye yazılmış geçersiz değer sessizce atılmaz", () => {
+        const { errors } = build([
+            createEmptyDraftRow({ measurements: { "req-r": "10", "req-m": "on iki" }, versionId: "ver-1" }),
+        ])
+        expect(errors).toEqual([{ index: 0, message: '"Burç Metriği" değeri geçersiz (örn. M4)' }])
+    })
+
+    it("10/30 ve 10-30 bileşik değeri ayraçla birlikte gönderir", () => {
+        const { rows, errors } = build([
+            createEmptyDraftRow({ measurements: { "req-r": "10 / 30" }, versionId: "ver-1" }),
+            createEmptyDraftRow({ measurements: { "req-r": "10-30" }, versionId: "ver-1" }),
+        ])
+        expect(errors).toEqual([])
+        expect(rows.map((row) => row.measurements)).toEqual([
+            [{ requirementId: "req-r", value: 10, rawValue: "10/30" }],
+            [{ requirementId: "req-r", value: 10, rawValue: "10-30" }],
+        ])
     })
 
     it("opsiyonel ölçü boşsa hata VERMEZ", () => {

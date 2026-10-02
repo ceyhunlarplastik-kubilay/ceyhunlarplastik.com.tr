@@ -86,6 +86,21 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   `AssetPreviewPanel`, `CampaignsPageClient`, `CustomerSpecialPricesPageClient` (pasifleştirme — ifade gerekmez),
   `CustomerAddressFormDialog`.
 
+### Tedarikçi varyant talebinde ölçü doğrulaması yok · kapsam: küçük *(2026-10-02, ölçü kodu işinde görüldü)*
+- `CreateSupplierVariantRequestDialog` ölçüleri `parseMeasurementInput`'tan geçirip okunamayanları SESSİZCE atıyor;
+  zorunlu ölçü (`isRequired`) hiç denetlenmiyor. Talep eksik ölçüyle onaya gidebiliyor. Matris ekranındaki kural
+  örnek: boş zorunlu ve yazılmış ama okunamayan değer satırda hata + kabul edilen biçim ipucu
+  (`productVariantMatrix/utils/buildSaveRows.ts`). Aynı kural form şemasının `superRefine`'ına taşınabilir.
+
+### Varyant matrisi — veri girişini hızlandırma, sonraki dilimler *(2026-10-02, kullanıcıyla konuşuldu; toplu kopya yapıldı — LOG)*
+- **Excel'den / katalogdan yapıştırma (orta):** tedarikçi kataloğundan ya da Excel'den kopyalanan ölçü sütun(lar)ı
+  ilk ölçü hücresine yapıştırılınca her satır için taslak açılsın (sekme = sonraki ölçü kolonu, satır sonu = yeni
+  taslak). Ayrıştırma `parseMeasurementInput`'tan geçmeli; sabitlenmiş versiyon / tedarikçi uygulanmalı
+  (`applyDraftPins`); 500 satır sınırı (`VARIANT_MATRIX_MAX_ROWS_PER_REQUEST`).
+- **Ölçü × versiyon kapsama tablosu (büyük):** satırlar ölçü, kolonlar versiyon; hücre kayıtlı / eksik. Eksik
+  hücreler (ya da bir kolonun tüm eksikleri) tek tıkla taslağa alınsın — toplu kopya kuralını
+  (`buildDraftsFromSelection`) yeniden kullanır. "Hangi ölçünün kırmızısı eksik?" sorusunu bugün tablo cevaplamıyor.
+
 ### Üretim Planlama (APS + MES-lite) — Faz 1-6 · kapsam: büyük *(kullanıcı talebiyle, branch `feature/production-planning`)*
 - **Tasarım + yol haritası:** [docs/production-planning.md](docs/production-planning.md) —
   veri modeli (makine / kalıp → `ProductSize` / vardiya düzeni / üretim emri → iş → vardiya
@@ -473,6 +488,11 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
+- **Ölçü kodları P_T / W_L + 10/30, 10-30 (2026-10-02, LOG):** kubi'de doğrulandı ve commit'lendi (kullanıcı,
+  branch `feat/measurement-codes-p-t-w-l`). Kalan: main'e alma; prod'da `20261002120000_add_p_t_w_l_measurement_codes`
+  migration'ı deploy'dan ÖNCE.
+- **Varyant matrisi toplu kopya (2026-10-02, LOG):** aynı branch'te; kubi testi (LOG'daki 6 adım, migration yok) +
+  commit + main'e alma.
 - **Audit log** — Category: Dilim 1-2 ve görsel presign kubi'de doğrulandı; silme diyaloğu dahil main'e alındı
   (2026-10-01). Customer C1-C2 (branch `feat/audit-log-customer`): kubi migration'ı
   `20261001120000_add_audit_actor_anonymous` + LOG'daki 11 adımlık test + commit, sonra prod.

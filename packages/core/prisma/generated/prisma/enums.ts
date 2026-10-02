@@ -89,7 +89,9 @@ export const MeasurementCode = {
   H3: 'H3',
   PT: 'PT',
   M: 'M',
-  R_L: 'R_L'
+  R_L: 'R_L',
+  P_T: 'P_T',
+  W_L: 'W_L'
 } as const
 
 export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]

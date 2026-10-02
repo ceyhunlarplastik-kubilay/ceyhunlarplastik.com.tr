@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useReplaceMeasurementRequirements } from "@/features/admin/productMeasurementRequirements/hooks/useMeasurementRequirements"
 import type { MeasurementRequirement } from "@/features/admin/productMeasurementRequirements/api/types"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 export type MeasurementTypeOption = { id: string; code: string; name: string; baseUnit: string }
 
@@ -231,7 +232,7 @@ function EditorForm({
                                     <SelectContent>
                                         {measurementTypes.map((type) => (
                                             <SelectItem key={type.id} value={type.id}>
-                                                {type.code} — {type.name}
+                                                {formatMeasurementCode(type.code)} — {type.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -306,7 +307,7 @@ function EditorForm({
                                     ])}
                                 >
                                     <Plus className="mr-1 size-3.5" />
-                                    <span className="font-mono text-xs">{type.code}</span>
+                                    <span className="font-mono text-xs">{formatMeasurementCode(type.code)}</span>
                                     <span className="ml-1">{type.name}</span>
                                 </Button>
                             ))}

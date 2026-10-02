@@ -1,6 +1,7 @@
 import { IAPIGatewayProxyEventWithUserGeneric, IAPIGatewayPaginationQuery } from "@/core/helpers/utils/api/types"
 import { IPrismaMeasurementTypeRepository } from "@/core/helpers/prisma/measurementTypes/repository"
 import type { VariantDictionaryTranslationInput } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
+import type { MeasurementCodeValue } from "@/core/helpers/productVariants/measurementCodes"
 import type { TargetLocale } from "@/core/i18n/locales"
 
 export interface IMeasurementTypeDependencies {
@@ -9,7 +10,7 @@ export interface IMeasurementTypeDependencies {
 
 export interface ICreateMeasurementTypeBody {
     name: string
-    code: "D" | "D1" | "D2" | "R" | "R1" | "R2" | "R3" | "L" | "L1" | "L2" | "T" | "A" | "W" | "H" | "H1" | "H2" | "H3" | "PT" | "M" | "R_L"
+    code: MeasurementCodeValue
     baseUnit: string
     displayOrder?: number
     translations?: VariantDictionaryTranslationInput[]

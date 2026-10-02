@@ -2,30 +2,9 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IMeasurementTypeDependencies, IListMeasurementTypesEvent } from "@/functions/AdminApi/types/measurementTypes"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import { isMeasurementCode } from "@/core/helpers/productVariants/measurementCodes"
 
 const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt", "displayOrder"] as const
-const MEASUREMENT_TYPE_CODES = [
-    "D",
-    "D1",
-    "D2",
-    "R",
-    "R1",
-    "R2",
-    "R3",
-    "L",
-    "L1",
-    "L2",
-    "T",
-    "A",
-    "W",
-    "H",
-    "H1",
-    "H2",
-    "H3",
-    "PT",
-    "M",
-    "R_L",
-] as const
 
 export const listMeasurementTypesHandler = ({ measurementTypeRepository }: IMeasurementTypeDependencies) => {
     return async (event: IListMeasurementTypesEvent) => {
@@ -36,7 +15,7 @@ export const listMeasurementTypesHandler = ({ measurementTypeRepository }: IMeas
                 defaultSort: "code",
             })
         const { code, baseUnit } = rawQuery
-        const normalizedCode = MEASUREMENT_TYPE_CODES.includes(code as any) ? code : undefined
+        const normalizedCode = isMeasurementCode(code) ? code : undefined
 
         try {
             const result = await measurementTypeRepository.listMeasurementTypes({

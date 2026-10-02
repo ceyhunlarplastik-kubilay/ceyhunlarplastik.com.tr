@@ -39,6 +39,7 @@ import {
 import type { CustomerAddressMutationInput } from "@/core/helpers/prisma/customers/repository"
 import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 import { upsertProductVariantRows } from "@/core/helpers/productVariants/productVariantWriter"
+import { isCompoundMeasurementRawValue } from "@/core/helpers/productVariants/measurementValue"
 import { createCategoryInTransaction } from "@/core/helpers/prisma/categories/repository"
 import { applyCustomerUpdateInTransaction } from "@/core/helpers/prisma/customers/repository"
 import type { AuditContext } from "@/core/helpers/audit/types"
@@ -397,8 +398,13 @@ function normalizeStringArray(value: unknown) {
  * ürün modelinin ölçü ŞABLONUNDAKİ `requirementId` taşınır — aynı ölçü tipi bir
  * modelde iki farklı anlamda kullanılabildiği için (ör. "Kol Çapı R" ve
  * "Elcik Çapı R") tip tek başına yeterli değil.
+ *
+ * Talep gövdesi serbest JSON olarak saklanır; bileşik `rawValue` burada, matris ve
+ * varyant uçlarının validator'larıyla AYNI desenle süzülür
+ * (`COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN`). Desene uymayan metin kataloğa yazılmaz,
+ * ölçü düz sayı (`value`) olarak kalır.
  */
-function normalizeVariantSizeValues(
+export function normalizeVariantSizeValues(
     value: unknown,
 ): Array<{ requirementId: string; value: number; rawValue?: string | null }> {
     if (!Array.isArray(value)) return []
@@ -411,7 +417,7 @@ function normalizeVariantSizeValues(
         return [{
             requirementId: record.requirementId,
             value: record.value,
-            rawValue: typeof record.rawValue === "string" ? record.rawValue : null,
+            rawValue: isCompoundMeasurementRawValue(record.rawValue) ? record.rawValue : null,
         }]
     })
 }

@@ -1,24 +1,7 @@
-export type MeasurementTypeCode =
-    | "D"
-    | "D1"
-    | "D2"
-    | "R"
-    | "R1"
-    | "R2"
-    | "R3"
-    | "L"
-    | "L1"
-    | "L2"
-    | "T"
-    | "A"
-    | "W"
-    | "H"
-    | "H1"
-    | "H2"
-    | "H3"
-    | "PT"
-    | "M"
-    | "R_L"
+import { MEASUREMENT_CODES, type MeasurementCodeValue } from "@core/helpers/productVariants/measurementCodes"
+
+/** Kod listesinin tek kaynağı core'da (Prisma enum'u ile testle bağlı) — burada kopyalanmaz. */
+export type MeasurementTypeCode = MeasurementCodeValue
 
 export type MeasurementTypeTranslation = {
     id: string
@@ -59,25 +42,4 @@ export type MeasurementTypeResponse = {
     }
 }
 
-export const MEASUREMENT_TYPE_CODES: readonly MeasurementTypeCode[] = [
-    "D",
-    "D1",
-    "D2",
-    "R",
-    "R1",
-    "R2",
-    "R3",
-    "L",
-    "L1",
-    "L2",
-    "T",
-    "A",
-    "W",
-    "H",
-    "H1",
-    "H2",
-    "H3",
-    "PT",
-    "M",
-    "R_L",
-]
+export const MEASUREMENT_TYPE_CODES = MEASUREMENT_CODES

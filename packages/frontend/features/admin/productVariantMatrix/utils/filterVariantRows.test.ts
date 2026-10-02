@@ -64,6 +64,26 @@ describe("filterVariantRows", () => {
         expect(run({ q: "30" }).map((row) => row.variantId)).toEqual(["var2"])
     })
 
+    it("bileşik ölçüde ekrandaki metni arar (10-30, 10/30) — yalnız ilk sayıyı değil", () => {
+        const compoundSizes: MatrixSize[] = [
+            { id: "s1", code: 1, values: [{ requirementId: "r1", value: 10, rawValue: "10-30" }] },
+            { id: "s2", code: 2, values: [{ requirementId: "r1", value: 10, rawValue: "10/40" }] },
+        ]
+        const search = (q: string) =>
+            filterVariantRows({ rows, sizes: compoundSizes, versions, filters: { ...noFilters, q } })
+                .map((row) => row.variantId)
+
+        expect(search("10-30")).toEqual(["var1"])
+        expect(search("10/40")).toEqual(["var2"])
+        expect(search("40")).toEqual(["var2"])
+    })
+
+    it("virgüllü ondalıkla da arar", () => {
+        const decimalSizes: MatrixSize[] = [{ id: "s1", code: 1, values: [{ requirementId: "r1", value: 12.5 }] }]
+        const found = filterVariantRows({ rows: [rows[0]], sizes: decimalSizes, versions, filters: { ...noFilters, q: "12,5" } })
+        expect(found.map((row) => row.variantId)).toEqual(["var1"])
+    })
+
     it("tedarikçiye göre filtreler", () => {
         expect(run({ supplierId: "supY" }).map((row) => row.variantId)).toEqual(["var2"])
     })

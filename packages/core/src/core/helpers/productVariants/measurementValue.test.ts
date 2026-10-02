@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest"
 
 import {
+    COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN,
+    isCompoundMeasurementRawValue,
     isMetricThreadMeasurementCode,
     normalizeMeasurementValue,
     parseMeasurementInput,
@@ -90,5 +92,73 @@ describe("parseMeasurementInput — bileşik ölçü (10*30)", () => {
 
     it("metrik diş kodunda bileşik değeri reddeder", () => {
         expect(parseMeasurementInput("10*30", "M")).toBeNull()
+        expect(parseMeasurementInput("10/30", "D")).toBeNull()
+        expect(parseMeasurementInput("10-30", "M")).toBeNull()
+    })
+})
+
+describe("parseMeasurementInput — bileşik ölçü (10/30, 10-30)", () => {
+    it("'/' ve '-' ayracını YAZILDIĞI GİBİ korur, sıralama sürrogatı yine ilk sayı", () => {
+        expect(parseMeasurementInput("10/30", "P_T")).toEqual({
+            value: 10,
+            normalizedLabel: "10/30",
+            rawValue: "10/30",
+        })
+        expect(parseMeasurementInput("10-30", "W_L")).toEqual({
+            value: 10,
+            normalizedLabel: "10-30",
+            rawValue: "10-30",
+        })
+    })
+
+    it("ayraç çevresindeki boşluğu siler, virgüllü ondalığı noktaya çevirir", () => {
+        expect(parseMeasurementInput(" 10 / 30 ", "P_T")?.rawValue).toBe("10/30")
+        expect(parseMeasurementInput("10 - 30", "R_L")?.rawValue).toBe("10-30")
+        expect(parseMeasurementInput("5,5-10,25", "W_L")).toEqual({
+            value: 5.5,
+            normalizedLabel: "5.5-10.25",
+            rawValue: "5.5-10.25",
+        })
+    })
+
+    it("aynı sayılar farklı ayraçla farklı metin üretir (10*30 ≠ 10/30 ≠ 10-30)", () => {
+        const raw = ["10*30", "10x30", "10/30", "10-30"].map((input) => parseMeasurementInput(input, "R_L")?.rawValue)
+        expect(raw).toEqual(["10*30", "10*30", "10/30", "10-30"])
+    })
+
+    it("negatif tek sayı bileşik sayılmaz (açı gibi alanlar eskisi gibi)", () => {
+        expect(parseMeasurementInput("-5", "A")).toEqual({ value: -5, normalizedLabel: "-5" })
+    })
+
+    it("eksik, fazla ya da karışık ayraçlı girdiyi reddeder", () => {
+        for (const input of ["10--30", "10-", "/30", "10/30/40", "10*30-40", "10//30", "10 x", "10-30mm"]) {
+            expect(parseMeasurementInput(input, "W_L"), input).toBeNull()
+        }
+    })
+})
+
+describe("COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN", () => {
+    it("ayrıştırıcının ürettiği her bileşik metni kabul eder", () => {
+        for (const input of ["10*30", "10x30", "10 × 30", "10/30", "10 - 30", "5,5*105", "0.25/0.5"]) {
+            const rawValue = parseMeasurementInput(input, "H3")?.rawValue
+            expect(rawValue, input).toBeDefined()
+            expect(COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN.test(rawValue as string), input).toBe(true)
+        }
+    })
+
+    it("kanonik olmayan ya da serbest metni reddeder", () => {
+        for (const value of ["10x30", "10 * 30", "10,5*30", "10*", "abc", "10*30*40", "-10-30", ""]) {
+            expect(isCompoundMeasurementRawValue(value), value).toBe(false)
+        }
+        expect(isCompoundMeasurementRawValue(null)).toBe(false)
+        expect(isCompoundMeasurementRawValue(10)).toBe(false)
+        expect(isCompoundMeasurementRawValue("10-30")).toBe(true)
+    })
+
+    it("ajv'nin kullandığı Unicode kipinde de derlenir ve aynı sonucu verir", () => {
+        const unicode = new RegExp(COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN.source, "u")
+        expect(unicode.test("10/30")).toBe(true)
+        expect(unicode.test("10-30")).toBe(true)
+        expect(unicode.test("10x30")).toBe(false)
     })
 })

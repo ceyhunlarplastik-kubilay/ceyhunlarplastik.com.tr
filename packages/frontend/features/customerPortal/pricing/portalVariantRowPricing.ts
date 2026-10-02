@@ -7,7 +7,7 @@ import {
     type PortalDraftSpecialPricePreview,
 } from "@/features/customerPortal/pricing/portalDraftPricing"
 import { resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
-import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { formatMeasurementCode, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
 
 /**
@@ -126,7 +126,7 @@ export function formatVariantMeasurementsForMessage(variant: VariantTableData) {
             const withUnit =
                 resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""
 
-            return `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}${withUnit}`
+            return `${measurement.measurementType.name} (${formatMeasurementCode(measurement.measurementType.code)}): ${formatMeasurementValue(measurement)}${withUnit}`
         })
         .join(" / ")
 }
@@ -170,7 +170,7 @@ export function buildWhatsappPriceRequestUrl(params: {
         variant.name ? `Varyant: ${variant.name}` : null,
         `Varyant Kodu: ${variant.fullCode}`,
         variant.versionCode ? `Versiyon: ${variant.versionCode}` : null,
-        selectedMeasurements.length > 0 ? `Seçili Ölçü Grubu: ${selectedMeasurements.map((measurement) => `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}`).join(" / ")}` : null,
+        selectedMeasurements.length > 0 ? `Seçili Ölçü Grubu: ${selectedMeasurements.map((measurement) => `${measurement.measurementType.name} (${formatMeasurementCode(measurement.measurementType.code)}): ${formatMeasurementValue(measurement)}`).join(" / ")}` : null,
         variantMeasurements ? `Varyant Ölçüleri: ${variantMeasurements}` : null,
         `Sayfa Linki: ${currentUrl}`,
     ].filter((line): line is string => Boolean(line))

@@ -7,15 +7,11 @@ import {
     DEFAULT_ADMIN_LIST_REFRESH_INTERVAL_SECONDS,
     normalizeAdminRefreshInterval,
 } from "@/features/admin/shared/config"
-import {
-    MEASUREMENT_TYPE_CODES,
-    type MeasurementTypeCode,
-} from "@/features/admin/measurementTypes/api/types"
+import type { MeasurementTypeCode } from "@/features/admin/measurementTypes/api/types"
+import { isMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 function parseMeasurementCode(value: string): MeasurementTypeCode | undefined {
-    return MEASUREMENT_TYPE_CODES.includes(value as MeasurementTypeCode)
-        ? (value as MeasurementTypeCode)
-        : undefined
+    return isMeasurementCode(value) ? value : undefined
 }
 
 export function useMeasurementTypeListFilters() {

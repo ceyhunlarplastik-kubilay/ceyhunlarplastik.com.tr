@@ -16,7 +16,7 @@ import type {
     VariantMeasurement,
     VariantTableData,
 } from "@/features/public/products/components/ProductVariantTable"
-import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { formatMeasurementCode, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
 
@@ -63,7 +63,7 @@ export default function ProductVariantDetailsTable({
                             ) : (
                                 selectedMeasurements.map((measurement) => (
                                     <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-start">
-                                        {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
+                                        {measurement.measurementType.name} ({formatMeasurementCode(measurement.measurementType.code)}):{" "}
                                         {formatMeasurementValue(measurement)}
                                         {resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""}
                                     </Badge>

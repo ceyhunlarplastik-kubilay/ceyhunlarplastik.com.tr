@@ -13,3 +13,4 @@ export {
     toMeasurementLabel,
     type MeasurementDisplayInput,
 } from "@core/helpers/productVariants/measurementDisplay"
+export { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"

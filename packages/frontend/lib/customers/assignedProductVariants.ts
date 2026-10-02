@@ -1,5 +1,5 @@
 import type { CustomerAssignedProduct } from "@/features/admin/customers/api/types"
-import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { formatMeasurementCode, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 
 type AssignedProductVariant = CustomerAssignedProduct["productVariant"] | null | undefined
 
@@ -39,7 +39,7 @@ export function formatAssignedProductVariantSummary(variant: AssignedProductVari
                 },
             }
 
-            return `${measurement.measurementType.code}: ${formatMeasurementValue(normalizedMeasurement)}`
+            return `${formatMeasurementCode(measurement.measurementType.code)}: ${formatMeasurementValue(normalizedMeasurement)}`
         })
         .join(" / ")
     const materials = (variant.materials ?? [])

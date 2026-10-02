@@ -169,6 +169,10 @@ Irreversible deletes confirm through the shared `features/admin/shared/component
 `window.confirm`: say what goes with the record (cascades) in `description`, and when the delete cascades or cannot
 be undone pass `confirmationPhrase={PERMANENT_DELETE_CONFIRMATION}` (the typed "KALICI OLARAK SİL" — one constant,
 exported from the same file). Bulk deletes use the same dialog through `BulkSelectionBar`.
+`BulkSelectionBar` is the one bar for every bulk-selection surface: put surface-specific bulk
+actions in its `actions` slot (variant matrix: "Taslağa kopyala"), offer cross-page selection with
+`selectAll` (Gmail pattern), and pass the endpoint's per-request limit as `deleteLimit` so the user
+narrows the selection instead of getting a 400 (variant matrix: `VARIANT_MATRIX_MAX_ROWS_PER_REQUEST`).
 
 For a searchable single-select backed by a SERVER search (large lists such as customers), use the
 shared `components/ui/searchable-select.tsx` with `onSearchChange` (turns off client filtering)
@@ -385,13 +389,16 @@ When touching product variants or their codes:
 - Tedarikçi harfi (5. segment) ÜRÜN MODELİNE ÖZELDİR: `1.2.3.V1.A` Özgen iken
   `10.11.2.V1.A` Aparat Toptan olabilir. Versiyon sözlüğüyle aynı desen: HARF sabit
   (değiştirmek tüm kodları yeniden yazar), TEDARİKÇİ ataması düzenlenebilir.
-- Ölçü tekilleştirme anahtarı **ölçü imzası + TEDARİKÇİ**'dir: aynı fiziksel ölçü
-  farklı tedarikçilerden girilirse her giriş KENDİ kodunu alır (`4.1.1` Özgen,
-  `4.1.7` Esersan) — kod, veri girişi sırasının sayacıdır. Aynı tedarikçi aynı
-  ölçüyü tekrar girerse yeni kod ÜRETİLMEZ, mevcut satır güncellenir. Kontrol
-  UYGULAMA katmanındadır (`productVariantWriter`), DB kısıtı değil: tedarikçi
-  `ProductSize` üzerinde değil `ProductVariantSupplier` üzerinde yaşıyor.
-  Public/portal listeleri ölçüleri gruplayıp tekilleştirdiği için müşteriye aynı
+- Ölçü tekilleştirme anahtarı **ZORUNLU ölçü imzasıdır** (`buildRequiredSignature`);
+  tedarikçi anahtara GİRMEZ (2026-09-03'ten beri — önceki "imza + tedarikçi" kuralında
+  her tedarikçi aynı ölçü için ayrı kod alıyordu). Aynı zorunlu ölçüyü farklı
+  tedarikçiler girerse tek ölçü kodu + tek varyant + birden çok `ProductVariantSupplier`
+  oluşur (`1.23.1.V1.A` / `.B`); opsiyonel ölçü farkı ayrı kod üretmez. Aynı ölçü +
+  versiyon + tedarikçi tekrar gönderilirse yeni kod ÜRETİLMEZ, mevcut tedarikçi
+  bağlantısının fiyat / lojistik alanları GÜNCELLENİR — matristeki toplu kopya bu
+  yüzden o kombinasyonları atlar (`buildDraftsFromSelection`). Kontrol UYGULAMA
+  katmanındadır (`productVariantWriter`), DB kısıtı değil (`signature` üzerinde unique
+  yok). Public/portal listeleri ölçüleri gruplayıp tekilleştirdiği için müşteriye aynı
   ölçü iki kez görünmez.
 - Ölçü kodunun sırası ürün modelinin ölçü ŞABLONUNDAN (`ProductMeasurementRequirement`)
   türer. Şablon değişirse `recalculateProductVariantCodes` çağrılmalı; yoksa `sortKey`
@@ -409,6 +416,17 @@ When touching product variants or their codes:
   kalıp gözlerini keeper'a taşır, ürün modeli silme 409 döner
   (`productRepository.countMoldOutputs`). Ölçü kodu ("10.5.8") da tek kaynaktan:
   `buildProductSizeCode` (`variantCode.ts`; `buildVariantFullCode` onun üzerine kurulu).
+- Ölçü TİPİ kodları (`MeasurementCode` enum'u: R, H3, R_L, P_T, W_L …) TEK KAYNAKTAN okunur:
+  `core/helpers/productVariants/measurementCodes.ts` (saf, importsuz — frontend `@core/*` ile).
+  Validator'a, filtreye, forma ya da tipe listeyi YENİDEN YAZMA (eskiden 7 kopyaydı). Yeni kod =
+  `schema.prisma` enum'u + bu liste + `ALTER TYPE … ADD VALUE` migration'ı; `measurementCodes.test.ts`
+  liste ile enum ayrışırsa düşer. Ekranda `formatMeasurementCode` (R_L → "R-L"); ölçü imzası, `?m=`,
+  sepet / özel fiyat anahtarları ve API değeri HAM kodu kullanır — gösterim biçimini anahtara koyma.
+- Bileşik ölçü değeri ("10*30", "10/30", "10-30") yalnız `parseMeasurementInput` ile ayrıştırılır
+  (`measurementValue.ts`); saklanan `rawValue` biçimi `COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN` —
+  istek validator'ları ve tedarikçi talebi onayı aynı deseni kullanır. Ayraç YAZILDIĞI GİBİ
+  korunur ("x" / "×" → "*"): 10-30 ile 10*30 farklı ölçüdür, farklı ölçü kodu alır. `value` yalnız
+  sıralama sürrogatıdır (ilk sayı); ekranda / aramada `rawValue ?? value` kullan.
 
 When extending the content-entry (`content_editor`) workspace toward CRM data:
 - keep `content_editor` out of `/customers` endpoints; those carry commercial fields (discount,

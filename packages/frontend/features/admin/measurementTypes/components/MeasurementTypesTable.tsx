@@ -15,6 +15,7 @@ import {
 import type { MeasurementType } from "@/features/admin/measurementTypes/api/types"
 import { MeasurementTypeFormDialog } from "@/features/admin/measurementTypes/components/MeasurementTypeFormDialog"
 import { useDeleteMeasurementType } from "@/features/admin/measurementTypes/hooks/useMeasurementTypeMutations"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 type Props = {
     measurementTypes: MeasurementType[]
@@ -92,7 +93,7 @@ export function MeasurementTypesTable({ measurementTypes, isFetching = false }: 
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="secondary">{measurementType.code}</Badge>
+                                    <Badge variant="secondary">{formatMeasurementCode(measurementType.code)}</Badge>
                                 </TableCell>
                                 <TableCell className="font-mono text-sm text-neutral-700">
                                     {measurementType.baseUnit}

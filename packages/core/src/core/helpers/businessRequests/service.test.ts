@@ -17,6 +17,7 @@ import {
     canDecideBusinessRequest,
     canViewBusinessRequest,
     getCurrentPendingStep,
+    normalizeVariantSizeValues,
 } from "./service"
 
 function buildUser(flags: Partial<IAuthenticatedUser> = {}): IAuthenticatedUser {
@@ -289,5 +290,40 @@ describe("assertAllowedCustomerRequestType", () => {
                 expect((error as HttpError).statusCode).toBe(400)
             }
         }
+    })
+})
+
+describe("normalizeVariantSizeValues (tedarikçi varyant talebinin ölçüleri)", () => {
+    it("bileşik değeri (10*30, 10/30, 10-30) olduğu gibi taşır", () => {
+        expect(normalizeVariantSizeValues([
+            { requirementId: "req-1", value: 10, rawValue: "10/30" },
+            { requirementId: "req-2", value: 10, rawValue: "10-30" },
+            { requirementId: "req-3", value: 10, rawValue: "10*30" },
+            { requirementId: "req-4", value: 12.5 },
+        ])).toEqual([
+            { requirementId: "req-1", value: 10, rawValue: "10/30" },
+            { requirementId: "req-2", value: 10, rawValue: "10-30" },
+            { requirementId: "req-3", value: 10, rawValue: "10*30" },
+            { requirementId: "req-4", value: 12.5, rawValue: null },
+        ])
+    })
+
+    it("desene uymayan rawValue'yu kataloğa taşımaz; ölçü düz sayı kalır", () => {
+        expect(normalizeVariantSizeValues([
+            { requirementId: "req-1", value: 10, rawValue: "<b>10 cm</b>" },
+            { requirementId: "req-2", value: 10, rawValue: "10 x 30" },
+        ])).toEqual([
+            { requirementId: "req-1", value: 10, rawValue: null },
+            { requirementId: "req-2", value: 10, rawValue: null },
+        ])
+    })
+
+    it("sayısal değeri ya da gereksinimi olmayan kaydı atar", () => {
+        expect(normalizeVariantSizeValues([
+            { requirementId: "req-1", value: "10" },
+            { value: 10 },
+            null,
+        ])).toEqual([])
+        expect(normalizeVariantSizeValues("10/30")).toEqual([])
     })
 })

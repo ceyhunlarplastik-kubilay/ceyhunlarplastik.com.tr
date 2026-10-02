@@ -8,11 +8,21 @@ import {
     parseOptionalNumber,
     type VariantMatrixDraftRow,
 } from "@/features/admin/productVariantMatrix/schema/variantMatrixSchema"
-import { parseMeasurementInput } from "@core/helpers/productVariants/measurementValue"
+import {
+    isMetricThreadMeasurementCode,
+    parseMeasurementInput,
+} from "@core/helpers/productVariants/measurementValue"
 
 export type DraftRowValidation = {
     index: number
     message: string
+}
+
+/** Operatöre hangi biçimlerin kabul edildiğini söyler — kurallar `parseMeasurementInput`'ta. */
+function measurementFormatHint(measurementCode: string): string {
+    return isMetricThreadMeasurementCode(measurementCode)
+        ? "örn. M4"
+        : "örn. 12,5 · 10*30 · 10/30 · 10-30"
 }
 
 /**
@@ -43,8 +53,14 @@ export function buildSaveRows(input: {
             const parsed = parseMeasurementInput(raw, requirement.measurementCode)
 
             if (parsed === null) {
-                if (requirement.isRequired) {
-                    errors.push({ index, message: `"${requirement.label}" değeri geçersiz veya boş` })
+                const isEmpty = !raw.trim()
+                // Opsiyonel ölçü BOŞ bırakılabilir; ama yazılmış ve okunamayan bir değer
+                // sessizce atılmaz — eskiden varyant o ölçü olmadan kaydediliyordu.
+                if (requirement.isRequired || !isEmpty) {
+                    errors.push({
+                        index,
+                        message: `"${requirement.label}" ${isEmpty ? "değeri boş" : "değeri geçersiz"} (${measurementFormatHint(requirement.measurementCode)})`,
+                    })
                 }
                 continue
             }
