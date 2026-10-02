@@ -19,13 +19,15 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 ## Açık İşler
 
 ### Audit logging (denetim kaydı) — yayılım · kapsam: büyük, dilim dilim *(kullanıcı talebiyle, 2026-09-30; "backend API açıkları" işinin ilk adımı)*
-- **Yapıldı (LOG, 2026-09-30):** Dilim 1 — `AuditLog` tablosu + çekirdek (`core/helpers/audit`) + `Category`'nin
-  tüm API yazma yolları (oluştur / güncelle / sil / tedarikçi kategori talebi onayı). Dilim 2 —
-  `GET /audit-logs` + kategori dialogunda "Değişiklik Geçmişi" sekmesi. Kubi doğrulaması kullanıcıda
-  (aşağıda "Kullanıcıda Bekleyen Adımlar").
-- **Kararlar (kullanıcı, 2026-09-30):** modelden bağımsız tek `AuditLog` tablosu · denetlenen modele
-  `createdBy` / `updatedBy` kolonu EKLENMEZ, bilgi log'dan türetilir (gerekçe AGENTS.md'de) · geçmişi
-  yalnız admin / owner görür.
+- **Yapıldı (LOG):** 2026-09-30 Dilim 1-2 — `AuditLog` tablosu + çekirdek (`core/helpers/audit`) + `Category`'nin
+  tüm API yazma yolları, `GET /audit-logs` + kategori dialogunda "Değişiklik Geçmişi" sekmesi (kubi'de doğrulandı).
+  2026-10-01 C1-C2 — `Customer` (potansiyel + cari; adresler, ek telefonlar, profil, iletişim kişileri, ticari
+  şartlar) 10 yazma yolunun hepsi + `ANONYMOUS` aktör + admin müşteri çalışma alanında "Değişiklik Geçmişi"
+  sayfası. Customer kubi doğrulaması kullanıcıda (aşağıda "Kullanıcıda Bekleyen Adımlar").
+- **Kararlar (kullanıcı):** modelden bağımsız tek `AuditLog` tablosu · denetlenen modele `createdBy` / `updatedBy`
+  kolonu EKLENMEZ, bilgi log'dan türetilir (gerekçe AGENTS.md'de) · geçmişi yalnız admin / owner görür
+  (2026-09-30) · müşteri kişisel verisi (telefon, e-posta, vergi no) değerleriyle tutulur · giriş yapmamış
+  ziyaretçi `ANONYMOUS` aktör (2026-10-01).
 - **Sıradaki dilimler (her biri ayrı onayla):**
   1. **Kategori görselleri — `Asset`.** Bugün görsel ekleme / silme / rol değişimi geçmişte GÖRÜNMEZ.
      Kapsam: `POST|PUT|DELETE /assets`, `POST /categories/assets/presign` (PENDING satır),
@@ -38,21 +40,27 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
      (`translate-category-translations`, `backfill-category-translations`,
      `backfill-product-industrial-usages`, `fillCategorySlugs`).
   3. **Diğer modeller.** Öneri sırası: `Product` (+ çeviriler, attribute bağları) → `ProductAttribute` /
-     `ProductAttributeValue` → `Supplier` → `ProductVariantSupplier` (fiyat alanları) → `Customer`
-     (ticari alanlar) → `CustomerVariantSpecialPrice` → kullanıcı rol / erişim değişiklikleri.
+     `ProductAttributeValue` → `Supplier` → `ProductVariantSupplier` (fiyat alanları) →
+     `CustomerVariantSpecialPrice` → kullanıcı rol / erişim değişiklikleri.
      Her model için: snapshot izin listesi (hangi alan kayda girer — ticari / gizli alan kararı),
      repository yazma yolları, arayüz sunucusu (`AuditPresenter`).
-  4. **Genel "Denetim Kayıtları" sayfası (admin).** Model / kullanıcı / tarih filtresi. Silinen bir kaydın
-     geçmişine arayüzden ulaşmanın TEK yolu bu olacak (bugün silinen kategorinin `DELETE` kaydı yalnız
-     veritabanında görülür). `GET /audit-logs` bugün `entityType` + `entityId`'yi zorunlu tutuyor.
+  4. **Müşterinin uydu kayıtları.** Ziyaretler (`CustomerVisit` — `/customers/{id}/visits`, satış), tanımlı
+     varyantlar (`PUT /customers/{id}/assigned-products`), favoriler ve özel fiyatlar müşterinin geçmişinde
+     GÖRÜNMEZ (bugünkü snapshot yalnız müşteri + adres / telefon / profil / iletişim kişisi). Karar: müşterinin
+     geçmişinde mi (`entityType: "Customer"` altında alan) yoksa kendi `entityType`'larıyla mı.
+  5. **Genel "Denetim Kayıtları" sayfası (admin).** Model / kullanıcı / tarih filtresi. Silinen bir kaydın
+     geçmişine arayüzden ulaşmanın TEK yolu bu olacak (bugün silinen kategorinin ve potansiyel müşterinin `DELETE`
+     kaydı yalnız veritabanında görülür; müşteri çalışma alanı silinen kayıtta açılmıyor). `GET /audit-logs` bugün
+     `entityType` + `entityId`'yi zorunlu tutuyor.
 - **Sertleştirme (karar gerekir):**
   - **DB seviyesinde değiştirilemezlik:** bugün "yalnız eklenir" kuralı uygulama katmanında
     (tek yazıcı + kapsam testi). `AuditLog` için UPDATE / DELETE'i reddeden bir trigger eklenebilir;
     dikkat: `actorUser` FK'sı `SetNull` — kullanıcı silme bu tabloyu günceller, trigger o kolona izin
     vermeli ya da FK kaldırılmalı.
-  - **Saklama süresi + KVKK:** tablo süresiz büyür; IP adresi ve e-posta kişisel veri. Süre ve
-    silme / anonimleştirme politikası iş kararı. Budama yapılırsa `CREATE` kayıtları korunmalı
-    ("oluşturan" bilgisinin tek kaynağı).
+  - **Saklama süresi + KVKK:** tablo süresiz büyür; IP adresi ve e-posta kişisel veri. `Customer` kayıtları
+    telefon, e-posta ve vergi numarasını değerleriyle taşıyor (karar 2026-10-01) ve müşteri silinse de kalıyor —
+    silme / anonimleştirme talebinde bu satırlar da kapsanmalı. Süre ve politika iş kararı. Budama yapılırsa
+    `CREATE` kayıtları korunmalı ("oluşturan" bilgisinin tek kaynağı).
   - **Uygulama dışı ikinci iz:** veritabanına yazma yetkisi olan biri izi de silebilir; CloudWatch yapısal
     logu ya da S3 Object Lock'a dışa aktarım buna karşı.
 - **Yan bulgular (2026-09-30, kod okumasından — ölçülmedi, bu işte düzeltilmedi):**
@@ -465,10 +473,12 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
-- **Audit log** — Dilim 1-2 kubi'de doğrulandı ve commit'lendi (2026-10-01). Kalan: kategori görseli
-  dilimi (LOG, 2026-10-01) kubi testi + commit, sonra prod. **Prod sırası: ÖNCE `migrate deploy`, SONRA `sst deploy`** — tersi
-  olursa kategori yazma uçları tablo bulunamadığı için 500 verir (denetim kaydı yazılamayan değişiklik
-  bilinçli olarak geri alınır).
+- **Audit log** — Category: Dilim 1-2 ve görsel presign kubi'de doğrulandı; silme diyaloğu dahil main'e alındı
+  (2026-10-01). Customer C1-C2 (branch `feat/audit-log-customer`): kubi migration'ı
+  `20261001120000_add_audit_actor_anonymous` + LOG'daki 11 adımlık test + commit, sonra prod.
+  **Prod sırası: ÖNCE `migrate deploy` (`20260930180000_add_audit_log` + `20261001120000_add_audit_actor_anonymous`),
+  SONRA `sst deploy`** — tersi olursa kategori / müşteri yazma uçları 500 verir (denetim kaydı yazılamayan değişiklik
+  bilinçli olarak geri alınır; public form `ANONYMOUS` enum değeri olmadan çalışmaz).
 - **Üretim bildirimleri (4.5) kubi testi:** önce migration
   (`npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`),
   sonra `.env`'e `PRODUCTION_ALERTS_ENABLED="true"` ekleyip `sst dev --stage kubi` (tarama 5 dk'da
