@@ -756,14 +756,16 @@ export type $ProductSizeValuePayload<ExtArgs extends runtime.Types.Extensions.In
     requirementId: string
     /**
      * Her zaman dolu: düz sayısal girişte kullanıcının verdiği değer, `rawValue`
-     * dolu olan bileşik girişte ("10*30") ise SIRALAMA SÜRROGATI — ilk sayı (10).
-     * Sıralama/kod üretimi (sizeSignature.ts) bu alan üzerinden çalışmaya devam eder.
+     * dolu olan bileşik girişte ("10*30", "10/30", "10-30") ise SIRALAMA SÜRROGATI —
+     * ilk sayı (10). Sıralama/kod üretimi (sizeSignature.ts) bu alan üzerinden çalışır.
      */
     value: number
     /**
-     * Kullanıcının birebir girdiği bileşik ölçü metni — yalnız "SAYI*SAYI" deseni
-     * ("10*30", "10x30", "10×30"). Düz sayısal girişte NULL kalır. Doluysa imza/
-     * görüntüleme bu metni birebir kullanır, `value` yalnız sıralama içindir.
+     * Kullanıcının girdiği bileşik ölçü metni — yalnız "SAYI<ayraç>SAYI" deseni; ayraç
+     * "*", "/" ya da "-" ve YAZILDIĞI GİBİ korunur ("x" / "×" → "*"). Farklı ayraç farklı
+     * ölçüdür (10-30 bir aralık, 10*30 bir boyut olabilir). Desen tek kaynakta:
+     * `core/helpers/productVariants/measurementValue.ts`. Düz sayısal girişte NULL kalır;
+     * doluysa imza/görüntüleme bu metni birebir kullanır, `value` yalnız sıralama içindir.
      */
     rawValue: string | null
     createdAt: Date

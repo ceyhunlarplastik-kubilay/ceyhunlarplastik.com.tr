@@ -72,6 +72,7 @@ import {
 } from "@/features/public/products/utils/flattenGroupedVariantOptions"
 import type { Product } from "@/features/public/products/types"
 import {
+    formatMeasurementCode,
     formatMeasurementValue,
     toMeasurementLabel,
 } from "@/features/public/products/utils/measurement"
@@ -145,7 +146,7 @@ function getVariantMeasurementChips(variant: FlatGroupedVariant) {
         .sort((left, right) => left.measurementType.displayOrder - right.measurementType.displayOrder)
         .map((measurement) => ({
             key: measurement.id,
-            label: `${measurement.measurementType.code}: ${formatMeasurementValue(measurement)}`,
+            label: `${formatMeasurementCode(measurement.measurementType.code)}: ${formatMeasurementValue(measurement)}`,
         }))
 }
 

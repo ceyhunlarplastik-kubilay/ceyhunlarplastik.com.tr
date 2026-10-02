@@ -6,7 +6,7 @@ import ProductAttributeBadges from "@/features/public/products/components/Produc
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getCustomerProductVariantsByMeasurement } from "@/features/customerPortal/server/getCustomerProductVariantsByMeasurement"
-import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { buildMeasurementKey, formatMeasurementCode, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
 import { AnimatedSplitProductTitle } from "@/features/public/products/components/AnimatedSplitProductTitle"
@@ -47,7 +47,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
 
         return {
             id: measurement.id,
-            label: `${measurement.measurementType.name} (${measurement.measurementType.code})`,
+            label: `${measurement.measurementType.name} (${formatMeasurementCode(measurement.measurementType.code)})`,
             value,
         }
     })

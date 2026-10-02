@@ -25,6 +25,7 @@ import { EntityAssignmentSelect } from "@/features/admin/users/components/Entity
 import { useCreateSupplierBusinessRequest } from "@/features/supplier/businessRequests/hooks/useCreateSupplierBusinessRequest"
 import { useSupplierVariantRequestReferences } from "@/features/supplier/businessRequests/hooks/useSupplierVariantRequestReferences"
 import { parseMeasurementInput } from "@core/helpers/productVariants/measurementValue"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 /**
  * Kod alanları (versionCode / supplierCode / variantIndex) BİLİNÇLİ OLARAK YOK.
@@ -231,7 +232,7 @@ export function CreateSupplierVariantRequestDialog({
                                             ) : null}
                                         </Label>
                                         <Input
-                                            placeholder={requirement.measurementCode}
+                                            placeholder={formatMeasurementCode(requirement.measurementCode)}
                                             {...form.register(`measurements.${index}.value`)}
                                         />
                                     </div>

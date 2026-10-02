@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN } from "@/core/helpers/productVariants/measurementValue"
 
 const prismaDecimalSchema = z.object({
     s: z.number(),
@@ -7,8 +8,8 @@ const prismaDecimalSchema = z.object({
     d: z.array(z.number()),
 }).loose()
 
-/** "10*30" — bileşik ölçü girişi. `measurementValue.ts`'in ürettiği kanonik biçimle birebir. */
-const compoundMeasurementRawValue = z.string().regex(/^\d+(?:\.\d+)?\*\d+(?:\.\d+)?$/).max(32)
+/** "10*30", "10/30", "10-30" — bileşik ölçü girişi. Desen core'da tek kaynak (`measurementValue.ts`). */
+const compoundMeasurementRawValue = z.string().regex(COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN).max(32)
 
 const productSchema = z.object({
     id: z.string(),

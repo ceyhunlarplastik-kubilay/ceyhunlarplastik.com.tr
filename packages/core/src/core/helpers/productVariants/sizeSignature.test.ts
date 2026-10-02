@@ -129,6 +129,15 @@ describe("buildSizeSignature — bileşik değer (rawValue)", () => {
         )
         expect(a).not.toBe(b)
     })
+
+    it("aynı sayılar farklı ayraçla (10*30 / 10/30 / 10-30) ayrı ölçü sayılır — ayraç imzaya girer", () => {
+        const signatures = ["10*30", "10/30", "10-30"].map((rawValue) =>
+            buildSizeSignature([{ requirementId: "req-r", value: 10, rawValue }], requirements),
+        )
+
+        expect(signatures).toEqual(["R#Kol Çapı=10*30", "R#Kol Çapı=10/30", "R#Kol Çapı=10-30"])
+        expect(new Set(signatures).size).toBe(3)
+    })
 })
 
 describe("buildSizeSortKey — bileşik değer (rawValue)", () => {
@@ -145,6 +154,20 @@ describe("buildSizeSortKey — bileşik değer (rawValue)", () => {
             .map((entry) => entry.signature)
 
         expect(ordered).toEqual(["R#Kol Çapı=10*30", "R#Kol Çapı=30*5"])
+    })
+
+    it("ilk sayısı aynı, ayracı farklı ölçüler aynı sortKey'e düşer; sıra imzayla belirlenir (deterministik)", () => {
+        const keys = ["10-30", "10/30", "10*30"].map((rawValue) => {
+            const entries = [{ requirementId: "req-r", value: 10, rawValue }]
+            return { sortKey: buildSizeSortKey(entries, requirements), signature: buildSizeSignature(entries, requirements) }
+        })
+
+        expect(new Set(keys.map((key) => key.sortKey)).size).toBe(1)
+        expect([...keys].sort(compareSizeKeys).map((key) => key.signature)).toEqual([
+            "R#Kol Çapı=10*30",
+            "R#Kol Çapı=10-30",
+            "R#Kol Çapı=10/30",
+        ])
     })
 })
 

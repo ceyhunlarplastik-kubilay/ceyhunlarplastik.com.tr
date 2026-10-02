@@ -27,6 +27,7 @@ import {
     type MeasurementType,
     type MeasurementTypeCode,
 } from "@/features/admin/measurementTypes/api/types"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 import {
     useCreateMeasurementType,
     useUpdateMeasurementType,
@@ -43,28 +44,7 @@ import {
 const measurementTypeFormSchema = z.object({
     name: z.string().min(2, "Ölçü tipi adı en az 2 karakter olmalıdır"),
     translations: z.array(nameTranslationFormSchema),
-    code: z.enum([
-        "D",
-        "D1",
-        "D2",
-        "R",
-        "R1",
-        "R2",
-        "R3",
-        "L",
-        "L1",
-        "L2",
-        "T",
-        "A",
-        "W",
-        "H",
-        "H1",
-        "H2",
-        "H3",
-        "PT",
-        "M",
-        "R_L",
-    ]),
+    code: z.enum(MEASUREMENT_TYPE_CODES),
     baseUnit: z.string().min(1, "Birim zorunludur").max(20, "Birim en fazla 20 karakter olabilir"),
     displayOrder: z.number().int("Sıra tam sayı olmalıdır").min(0, "Sıra negatif olamaz"),
 })
@@ -200,7 +180,7 @@ export function MeasurementTypeFormDialog({
                                 <SelectContent>
                                     {MEASUREMENT_TYPE_CODES.map((code) => (
                                         <SelectItem key={code} value={code}>
-                                            {code}
+                                            {formatMeasurementCode(code)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

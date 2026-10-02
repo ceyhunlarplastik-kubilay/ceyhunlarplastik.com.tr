@@ -53,7 +53,7 @@ import {
     flattenGroupedVariantOptions,
     type FlatGroupedVariant,
 } from "@/features/public/products/utils/flattenGroupedVariantOptions"
-import { formatMeasurementValue, toMeasurementLabel } from "@/features/public/products/utils/measurement"
+import { formatMeasurementCode, formatMeasurementValue, toMeasurementLabel } from "@/features/public/products/utils/measurement"
 import { PRICE_CURRENCY_OPTIONS } from "@/lib/pricing/currencies"
 import { formatMoney } from "@/lib/customers/pricing"
 import { getUserDisplayName } from "@/lib/users/displayName"
@@ -123,7 +123,7 @@ function getVariantMeasurementChips(variant: FlatGroupedVariant) {
         .sort((left, right) => left.measurementType.displayOrder - right.measurementType.displayOrder)
         .map((measurement) => ({
             key: measurement.id,
-            label: `${measurement.measurementType.code}: ${formatMeasurementValue(measurement)}`,
+            label: `${formatMeasurementCode(measurement.measurementType.code)}: ${formatMeasurementValue(measurement)}`,
         }))
 }
 

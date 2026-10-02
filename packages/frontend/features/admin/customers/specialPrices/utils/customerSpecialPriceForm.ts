@@ -5,6 +5,7 @@ import type {
 } from "@/features/admin/customers/api/types"
 import type { CustomerVariantSpecialPriceInput } from "@/features/admin/customers/api/customerVariantSpecialPrices"
 import { PRICE_CURRENCY_OPTIONS } from "@/lib/pricing/currencies"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 
 export type PaymentScheduleFormStep = {
     percentage: string
@@ -286,7 +287,7 @@ export function customerSpecialPriceVariantSubtitle(specialPrice: CustomerVarian
 
     const color = variant.color?.name
     const measurements = (variant.measurements ?? [])
-        .map((measurement) => `${measurement.measurementType.code}: ${measurement.rawValue ?? measurement.value}${measurement.measurementType.baseUnit ? ` ${measurement.measurementType.baseUnit}` : ""}`)
+        .map((measurement) => `${formatMeasurementCode(measurement.measurementType.code)}: ${measurement.rawValue ?? measurement.value}${measurement.measurementType.baseUnit ? ` ${measurement.measurementType.baseUnit}` : ""}`)
         .join(" / ")
 
     return [color, measurements].filter(Boolean).join(" - ") || variant.name || "-"

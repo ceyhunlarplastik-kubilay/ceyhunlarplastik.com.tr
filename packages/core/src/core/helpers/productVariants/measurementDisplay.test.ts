@@ -47,6 +47,11 @@ describe("formatMeasurementValue", () => {
     it("rawValue varsa birebir gösterir, sayısal formatlamayı atlar", () => {
         expect(formatMeasurementValue(m({ value: 10, rawValue: "10*30" }))).toBe("10*30")
     })
+
+    it("'/' ve '-' ayracını kullanıcının yazdığı gibi gösterir", () => {
+        expect(formatMeasurementValue(m({ value: 10, rawValue: "10/30" }))).toBe("10/30")
+        expect(formatMeasurementValue(m({ value: 10, rawValue: "10-30" }))).toBe("10-30")
+    })
 })
 
 describe("resolveMeasurementName", () => {
@@ -94,6 +99,11 @@ describe("buildMeasurementKey", () => {
         const b = buildMeasurementKey([m({ value: 10, rawValue: "10*40" })])
         expect(a).not.toBe(b)
         expect(a).toBe("mt-r:10*30")
+    })
+
+    it("ayracı farklı bileşik değerler farklı anahtar üretir (`?m=` doğru ölçüye gider)", () => {
+        const keys = ["10*30", "10/30", "10-30"].map((rawValue) => buildMeasurementKey([m({ value: 10, rawValue })]))
+        expect(keys).toEqual(["mt-r:10*30", "mt-r:10/30", "mt-r:10-30"])
     })
 })
 

@@ -6,29 +6,8 @@ import {
     REMOVABLE_TRANSLATION_LOCALES_MAX,
     TRANSLATIONS_ARRAY_MAX,
 } from "@/core/helpers/validation/localeSchema"
+import { MEASUREMENT_CODES } from "@/core/helpers/productVariants/measurementCodes"
 
-const measurementCodeValues = [
-    "D",
-    "D1",
-    "D2",
-    "R",
-    "R1",
-    "R2",
-    "R3",
-    "L",
-    "L1",
-    "L2",
-    "T",
-    "A",
-    "W",
-    "H",
-    "H1",
-    "H2",
-    "H3",
-    "PT",
-    "M",
-    "R_L",
-] as const
 const dictionaryTranslationInputSchema = z.object({
     locale: localeSchema,
     name: z.string().min(1).max(100),
@@ -57,7 +36,7 @@ const measurementTypeSchema = z.object({
 export const createMeasurementTypeValidator = validatorWrapper(
     z.object({
         body: z.object({
-            code: z.enum(measurementCodeValues),
+            code: z.enum(MEASUREMENT_CODES),
             name: z.string().min(2).max(100),
             translations: z.array(dictionaryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             baseUnit: z.string().min(1).max(20),
@@ -87,7 +66,7 @@ export const updateMeasurementTypeValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            code: z.enum(measurementCodeValues).optional(),
+            code: z.enum(MEASUREMENT_CODES).optional(),
             name: z.string().min(2).max(100).optional(),
             translations: z.array(dictionaryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             removeTranslationLocales: z.array(targetLocaleSchema).max(REMOVABLE_TRANSLATION_LOCALES_MAX).optional(),

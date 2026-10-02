@@ -1,6 +1,7 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MeasurementTypeReference } from "@/features/admin/productVariants/api/types";
 import type { SupportedLocale } from "@core/i18n/locales"
+import type { MeasurementCodeValue } from "@core/helpers/productVariants/measurementCodes"
 
 type CreateMeasurementTypeResponse = {
     statusCode: number
@@ -9,30 +10,8 @@ type CreateMeasurementTypeResponse = {
     }
 }
 
-type MeasurementTypeCode =
-    | "D"
-    | "D1"
-    | "D2"
-    | "R"
-    | "R1"
-    | "R2"
-    | "R3"
-    | "L"
-    | "L1"
-    | "L2"
-    | "T"
-    | "A"
-    | "W"
-    | "H"
-    | "H1"
-    | "H2"
-    | "H3"
-    | "PT"
-    | "M"
-    | "R_L"
-
 type Params = {
-    code: MeasurementTypeCode
+    code: MeasurementCodeValue
     name: string
     baseUnit: string
     displayOrder?: number

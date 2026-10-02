@@ -7,6 +7,7 @@ import {
     getMeasurementTypes,
     type GetMeasurementTypesParams,
 } from "@/features/admin/measurementTypes/api/getMeasurementTypes"
+import { MEASUREMENT_CODES } from "@core/helpers/productVariants/measurementCodes"
 
 const measurementTypeParamsSchema = z.object({
     page: z.number().int().positive().optional(),
@@ -14,28 +15,7 @@ const measurementTypeParamsSchema = z.object({
     search: z.string().trim().optional(),
     sort: z.string().trim().optional(),
     order: z.enum(["asc", "desc"]).optional(),
-    code: z.enum([
-        "D",
-        "D1",
-        "D2",
-        "R",
-        "R1",
-        "R2",
-        "R3",
-        "L",
-        "L1",
-        "L2",
-        "T",
-        "A",
-        "W",
-        "H",
-        "H1",
-        "H2",
-        "H3",
-        "PT",
-        "M",
-        "R_L",
-    ]).optional(),
+    code: z.enum(MEASUREMENT_CODES).optional(),
     baseUnit: z.string().trim().optional(),
 })
 

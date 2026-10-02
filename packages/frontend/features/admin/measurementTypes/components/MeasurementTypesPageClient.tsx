@@ -13,6 +13,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { MEASUREMENT_TYPE_CODES } from "@/features/admin/measurementTypes/api/types"
+import { formatMeasurementCode } from "@core/helpers/productVariants/measurementCodes"
 import { MeasurementTypesTable } from "@/features/admin/measurementTypes/components/MeasurementTypesTable"
 import { useMeasurementTypeListFilters } from "@/features/admin/measurementTypes/hooks/useMeasurementTypeListFilters"
 import { useMeasurementTypes } from "@/features/admin/measurementTypes/hooks/useMeasurementTypes"
@@ -85,7 +86,7 @@ export function MeasurementTypesPageClient() {
                         <SelectItem value="all">Tüm kodlar</SelectItem>
                         {MEASUREMENT_TYPE_CODES.map((code) => (
                             <SelectItem key={code} value={code}>
-                                {code}
+                                {formatMeasurementCode(code)}
                             </SelectItem>
                         ))}
                     </SelectContent>

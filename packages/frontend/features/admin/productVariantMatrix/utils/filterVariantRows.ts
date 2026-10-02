@@ -16,6 +16,8 @@ export type VariantRowFilters = {
  *
  * Arama; varyant kodunu, tedarikçili tam kodu, tedarikçinin kendi kodunu ve ölçü
  * DEĞERLERİNİ kapsar: operatör katalogdan "30" diye arayıp o ölçüyü bulabilmeli.
+ * Bileşik ölçüde ("10*30", "10/30", "10-30") ekranda görünen metin aranır — yalnız
+ * sıralama sürrogatı (ilk sayı) aransaydı "10-30" yazınca satır bulunmazdı.
  */
 export function filterVariantRows(input: {
     rows: MatrixRow[]
@@ -52,8 +54,12 @@ export function filterVariantRows(input: {
         )
         if (supplierMatch) return true
 
+        // Ondalık "12,5" diye de aranabilsin: değerler noktayla saklanır.
+        const measurementNeedle = needle.replace(",", ".")
         const size = sizeById.get(row.sizeId)
-        return (size?.values ?? []).some((value) => String(value.value).includes(needle))
+        return (size?.values ?? []).some((value) =>
+            (value.rawValue ?? String(value.value)).toLowerCase().includes(measurementNeedle),
+        )
     })
 }
 

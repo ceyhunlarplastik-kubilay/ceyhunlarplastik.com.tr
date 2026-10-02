@@ -4,6 +4,7 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { findMeasurementCodesMatching } from "@/core/helpers/productVariants/measurementCodes"
 
 export const measurementTypeTranslationSelect = {
     id: true,
@@ -58,9 +59,16 @@ export const measurementTypeRepository = (): IPrismaMeasurementTypeRepository =>
             page,
             limit,
         } = buildPaginationQuery<MeasurementType>(query, {
-            searchableFields: ["name", "code", "baseUnit"],
+            // `code` burada YOK: enum kolonda `contains` geçersizdir ve tüm arama
+            // PrismaClientValidationError ile düşüyordu. Kod araması aşağıda `in` ile.
+            searchableFields: ["name", "baseUnit"],
             defaultSort: "createdAt",
         })
+
+        const matchingCodes = findMeasurementCodesMatching(query.search)
+        if (matchingCodes.length > 0 && Array.isArray(where.OR)) {
+            where.OR.push({ code: { in: matchingCodes } })
+        }
 
         const finalWhere: Prisma.MeasurementTypeWhereInput = {
             ...where,
