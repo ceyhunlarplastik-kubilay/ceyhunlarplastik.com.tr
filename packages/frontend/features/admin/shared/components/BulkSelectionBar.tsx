@@ -26,6 +26,18 @@ type Props = {
      * işlemlerde kaza eseri tıklamayı engeller.
      */
     confirmationPhrase?: string
+    /** Silmenin yanındaki yüzeye özel toplu işlemler (ör. "Taslağa kopyala"). */
+    actions?: React.ReactNode
+    /**
+     * Sayfalar arası "tümünü seç" (Gmail deseni): seçim yapılınca görünür sayfanın
+     * ötesindeki satırları da seçmeyi önerir. Etiket yüzeyden gelir ("Filtredeki tümünü seç (40)").
+     */
+    selectAll?: { label: string; onSelect: () => void } | null
+    /**
+     * Uç tek istekte en fazla bu kadar kaydı silebiliyorsa: seçim aşınca Sil kapanır ve
+     * neden yazılır — kullanıcı 400 almak yerine seçimi daraltır.
+     */
+    deleteLimit?: number
 }
 
 /**
@@ -33,7 +45,8 @@ type Props = {
  *
  * Varyant matrisi ve potansiyel müşteri listesi ORTAK kullanıyor; yeni bir toplu
  * seçim yüzeyi eklenirse paralel kopya yazmak yerine buraya bağlanmalı
- * (AGENTS.md: ortak bileşeni genişlet).
+ * (AGENTS.md: ortak bileşeni genişlet). Yüzeye özel toplu işlem `actions`'a,
+ * sayfalar arası seçim `selectAll`'a, ucun istek sınırı `deleteLimit`'e verilir.
  *
  * Tablonun içine gömülmedi: seçim sayfa değiştirince korunuyor ve şeridin
  * kaydırmadan bağımsız görünür kalması gerekiyor.
@@ -50,8 +63,12 @@ export function BulkSelectionBar({
     confirmDescription,
     itemNames,
     confirmationPhrase,
+    actions,
+    selectAll,
+    deleteLimit,
 }: Props) {
     const reduceMotion = useReducedMotion()
+    const overDeleteLimit = deleteLimit !== undefined && selectedCount > deleteLimit
 
     return (
         <AnimatePresence>
@@ -65,11 +82,32 @@ export function BulkSelectionBar({
                     role="status"
                     aria-live="polite"
                 >
-                    <span className="text-sm font-medium">
-                        {selectedCount} {itemLabel} seçildi
-                    </span>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="text-sm font-medium">
+                            {selectedCount} {itemLabel} seçildi
+                        </span>
+                        {selectAll ? (
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="link"
+                                className="h-auto px-0"
+                                onClick={selectAll.onSelect}
+                                disabled={isDeleting}
+                            >
+                                {selectAll.label}
+                            </Button>
+                        ) : null}
+                        {overDeleteLimit ? (
+                            <span className="text-xs text-red-600 dark:text-red-400">
+                                Tek seferde en fazla {deleteLimit} {itemLabel} silinebilir.
+                            </span>
+                        ) : null}
+                    </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        {actions}
+
                         <Button type="button" size="sm" variant="ghost" onClick={onClear} disabled={isDeleting}>
                             <X className="mr-1 size-4" />
                             Seçimi temizle
@@ -77,7 +115,7 @@ export function BulkSelectionBar({
 
                         <ConfirmDeleteDialog
                             trigger={
-                                <Button type="button" size="sm" variant="destructive" disabled={isDeleting}>
+                                <Button type="button" size="sm" variant="destructive" disabled={isDeleting || overDeleteLimit}>
                                     {isDeleting ? (
                                         <Loader2 className="mr-1 size-4 animate-spin" />
                                     ) : (

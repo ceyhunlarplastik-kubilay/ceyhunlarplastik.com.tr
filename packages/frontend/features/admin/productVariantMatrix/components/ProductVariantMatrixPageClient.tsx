@@ -2,7 +2,8 @@
 
 import { useMemo, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { AlertTriangle, Boxes, Plus, X } from "lucide-react"
+import { AlertTriangle, Boxes, Copy, Plus, X } from "lucide-react"
+import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import { getProduct } from "@/features/admin/products/api/getProduct"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
+import { VariantMatrixBulkCopyDialog } from "@/features/admin/productVariantMatrix/components/VariantMatrixBulkCopyDialog"
 import { VariantMatrixContextRail } from "@/features/admin/productVariantMatrix/components/VariantMatrixContextRail"
 import { VariantMatrixSaveBar } from "@/features/admin/productVariantMatrix/components/VariantMatrixSaveBar"
 import { VariantMatrixDraftRow } from "@/features/admin/productVariantMatrix/components/VariantMatrixDraftRow"
@@ -29,6 +31,7 @@ import { useVariantMatrixReferences } from "@/features/admin/productVariantMatri
 import { useBulkDeleteVariantRows } from "@/features/admin/productVariantMatrix/hooks/useVariantRowActions"
 import { buildSaveRows } from "@/features/admin/productVariantMatrix/utils/buildSaveRows"
 import { buildDraftFromRow } from "@/features/admin/productVariantMatrix/utils/buildDraftFromRow"
+import { applyDraftPins, type BulkCopyResult } from "@/features/admin/productVariantMatrix/utils/buildDraftsFromSelection"
 import { filterVariantRows, paginateVariantRows } from "@/features/admin/productVariantMatrix/utils/filterVariantRows"
 import { previewVariantCodes } from "@/features/admin/productVariantMatrix/utils/previewVariantCodes"
 import {
@@ -36,6 +39,7 @@ import {
     type VariantMatrixDraftRow as DraftRow,
 } from "@/features/admin/productVariantMatrix/schema/variantMatrixSchema"
 import type { MatrixRow, MatrixRowSupplier } from "@/features/admin/productVariantMatrix/api/types"
+import { VARIANT_MATRIX_MAX_ROWS_PER_REQUEST } from "@core/helpers/productVariants/variantMatrixLimits"
 
 type Props = {
     productId: string
@@ -154,7 +158,7 @@ export function ProductVariantMatrixPageClient({
     }, [drafts, requirements, matrix?.product.name])
 
     const visibleRows = useMemo(() => {
-        if (!matrix) return { pageRows: [], total: 0, totalPages: 1, page: 1, filteredCount: 0 }
+        if (!matrix) return { pageRows: [], total: 0, totalPages: 1, page: 1, filteredCount: 0, filteredIds: [] as string[] }
 
         const filtered = filterVariantRows({
             rows: matrix.rows,
@@ -162,7 +166,11 @@ export function ProductVariantMatrixPageClient({
             versions: matrix.versions,
             filters: { q: filters.q, supplierId: filters.supplierId, colorId: filters.colorId },
         })
-        return { ...paginateVariantRows(filtered, filters.page, filters.limit), filteredCount: filtered.length }
+        return {
+            ...paginateVariantRows(filtered, filters.page, filters.limit),
+            filteredCount: filtered.length,
+            filteredIds: filtered.map((row) => row.variantId),
+        }
     }, [matrix, filters.q, filters.supplierId, filters.colorId, filters.page, filters.limit])
 
     // Satırların ALACAĞI kodlar — core planlayıcısı mevcut sözlüklerin üzerine
@@ -183,6 +191,13 @@ export function ProductVariantMatrixPageClient({
 
     const bulkDelete = useBulkDeleteVariantRows(productId)
     const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
+    const [bulkCopyOpen, setBulkCopyOpen] = useState(false)
+
+    /** Seçili kayıtlı satırlar TABLO sırasıyla (seçim sırası değil) — kopyalar da o sırayla açılır. */
+    const selectedRows = useMemo(
+        () => (matrix?.rows ?? []).filter((row) => selectedIds.has(row.variantId)),
+        [matrix, selectedIds],
+    )
 
     const toggleSelect = (variantId: string) => {
         setSelectedIds((current) => {
@@ -207,6 +222,14 @@ export function ProductVariantMatrixPageClient({
         })
     }
 
+    /**
+     * Filtreye uyan TÜM satırları seçer — sayfalar arası. Örn. renk filtresi "Siyah" →
+     * tümünü seç → V2'ye kopyala; görünen sayfayla sınırlı kalmaz.
+     */
+    const selectAllFiltered = () => {
+        setSelectedIds((current) => new Set([...current, ...visibleRows.filteredIds]))
+    }
+
     /** Onayda listelenecek varyant kodları — sayı değil, gerçekte ne gideceği. */
     const selectedVariantCodes = useMemo(() => {
         const byId = new Map(matrix?.rows.map((row) => [row.variantId, row.fullCode]) ?? [])
@@ -223,12 +246,53 @@ export function ProductVariantMatrixPageClient({
         setSelectedIds(new Set(result.blocked.map((row) => row.id)))
     }
 
+    /**
+     * Sabitleme TÜM taslaklarda geçerli. Satırdaki seçimi kilitlediği için mevcut taslaklar da
+     * sabit değere geçer — kopyaladıktan sonra hepsinin versiyonu tek seçimle değişir. Eskiden
+     * yalnız yeni satırlara uygulanıyordu ve farklı değerdeki taslak kilitli kalıyordu.
+     * Sabitleme kaldırılınca taslaklar değerlerini korur.
+     */
+    const pins = { versionId: pinnedVersionId || undefined, supplierId: pinnedSupplierId || undefined }
+
+    const pinVersion = (versionId: string) => {
+        setPinnedVersionId(versionId)
+        if (versionId) setDrafts((current) => applyDraftPins(current, { versionId }))
+    }
+
+    const pinSupplier = (supplierId: string) => {
+        setPinnedSupplierId(supplierId)
+        if (supplierId) setDrafts((current) => applyDraftPins(current, { supplierId }))
+    }
+
     const duplicateToDraft = (row: MatrixRow, supplier?: MatrixRowSupplier) => {
         if (!matrix) return
+        // Sabitlenmiş tedarikçi varsa onun bağlantısının bilgisi taşınır; satırda o tedarikçi
+        // yoksa taslak tedarikçi bilgisiz kurulur, tedarikçi sabitlemeden gelir.
+        const source = pinnedSupplierId
+            ? row.suppliers.find((entry) => entry.supplierId === pinnedSupplierId) ?? null
+            : supplier
+        const draft = buildDraftFromRow({ row, sizes: matrix.sizes, versions: matrix.versions, supplier: source })
+        // Versiyon sabitlemeyle değişiyorsa tedarikçinin ürün kodu taşınmaz — renge / versiyona özgü.
+        const versionChanges = Boolean(pinnedVersionId) && pinnedVersionId !== row.versionId
         setDrafts((current) => [
             ...current,
-            buildDraftFromRow({ row, sizes: matrix.sizes, versions: matrix.versions, supplier }),
+            ...applyDraftPins([versionChanges ? { ...draft, supplierVariantCode: undefined } : draft], pins),
         ])
+    }
+
+    const handleBulkCopy = (result: BulkCopyResult) => {
+        setDrafts((current) => [...current, ...result.drafts])
+        setSelectedIds(new Set())
+        setBulkCopyOpen(false)
+
+        const skipped = result.skippedExisting + result.skippedDuplicate
+        toast.success(`${result.drafts.length} taslak eklendi`, {
+            description: skipped > 0
+                ? `${skipped} satır zaten kayıtlı ya da taslakta olduğu için atlandı. Kontrol edip kaydedin.`
+                : "Kontrol edip kaydedin.",
+        })
+        // Taslaklar üstte: kullanıcı ne açıldığını görsün.
+        requestAnimationFrame(() => draftSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }))
     }
 
     /**
@@ -313,6 +377,12 @@ export function ProductVariantMatrixPageClient({
 
     const handleSave = async () => {
         if (errorsByIndex.size > 0 || validation.rows.length === 0) return
+        if (validation.rows.length > VARIANT_MATRIX_MAX_ROWS_PER_REQUEST) {
+            toast.error(
+                `Tek kayıtta en fazla ${VARIANT_MATRIX_MAX_ROWS_PER_REQUEST} satır gönderilebilir; taslakları bölerek kaydedin.`,
+            )
+            return
+        }
         await saveMutation.mutateAsync(validation.rows)
         setDrafts([])
     }
@@ -389,15 +459,16 @@ export function ProductVariantMatrixPageClient({
 
                                 {/* SABİTLEME: operatör bir tedarikçinin kataloğunu
                                     eline alıp sırayla giriyor. Tedarikçi ve versiyon
-                                    sabitlenince satırlarda DEĞİŞTİRİLEMEZ olur ve
-                                    odak yalnız ölçülerde kalır. */}
+                                    sabitlenince satırlarda DEĞİŞTİRİLEMEZ olur, mevcut
+                                    taslaklar da o değere geçer ve odak yalnız
+                                    ölçülerde kalır. */}
                                 <div className="flex flex-wrap items-end gap-2">
                                     <div className="space-y-1">
                                         <Label className="text-xs">Tedarikçi sabitle</Label>
                                         <div className="flex items-center gap-1">
                                             <Select
                                                 value={pinnedSupplierId}
-                                                onValueChange={setPinnedSupplierId}
+                                                onValueChange={pinSupplier}
                                                 disabled={supplierOptions.length === 0}
                                             >
                                                 <SelectTrigger className="w-52">
@@ -442,7 +513,7 @@ export function ProductVariantMatrixPageClient({
                                     <div className="space-y-1">
                                         <Label className="text-xs">Versiyon sabitle</Label>
                                         <div className="flex items-center gap-1">
-                                            <Select value={pinnedVersionId} onValueChange={setPinnedVersionId}>
+                                            <Select value={pinnedVersionId} onValueChange={pinVersion}>
                                                 <SelectTrigger className="w-56">
                                                     <SelectValue placeholder="Yok" />
                                                 </SelectTrigger>
@@ -548,8 +619,9 @@ export function ProductVariantMatrixPageClient({
                                 </div>
                             ) : (
                                 <p className="rounded-md border border-dashed p-8 text-center text-sm text-neutral-500">
-                                    Katalogdan giriş yapmak için &quot;Satır ekle&quot;ye basın. Tedarikçi sabitlerseniz
-                                    yeni satırlar o tedarikçiyle açılır.
+                                    Katalogdan giriş yapmak için &quot;Satır ekle&quot;ye basın. Tedarikçi ya da versiyon
+                                    sabitlerseniz tüm taslaklar o değerle açılır. Kayıtlı ölçüleri başka bir versiyon
+                                    için girmek isterseniz aşağıdaki tablodan seçip &quot;Taslağa kopyala&quot;yı kullanın.
                                 </p>
                             )}
                         </section>
@@ -610,6 +682,29 @@ export function ProductVariantMatrixPageClient({
                                 onDelete={handleBulkDelete}
                                 itemLabel="varyant"
                                 itemNames={selectedVariantCodes}
+                                deleteLimit={VARIANT_MATRIX_MAX_ROWS_PER_REQUEST}
+                                selectAll={
+                                    visibleRows.filteredIds.some((id) => !selectedIds.has(id))
+                                        ? {
+                                            label: `${hasActiveFilters ? "Filtredeki tümünü seç" : "Tümünü seç"} (${visibleRows.filteredCount})`,
+                                            onSelect: selectAllFiltered,
+                                        }
+                                        : null
+                                }
+                                actions={
+                                    hasTemplate ? (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => setBulkCopyOpen(true)}
+                                            disabled={bulkDelete.isPending}
+                                        >
+                                            <Copy className="mr-1 size-4" />
+                                            Taslağa kopyala
+                                        </Button>
+                                    ) : null
+                                }
                                 confirmDescription={
                                     <>
                                         Bu işlem geri alınamaz. Siparişte, iş talebinde, özel fiyatta,
@@ -622,6 +717,20 @@ export function ProductVariantMatrixPageClient({
                                         yeniden hesaplanır.
                                     </>
                                 }
+                            />
+
+                            <VariantMatrixBulkCopyDialog
+                                open={bulkCopyOpen}
+                                onOpenChange={setBulkCopyOpen}
+                                selectedRows={selectedRows}
+                                allRows={matrix.rows}
+                                sizes={matrix.sizes}
+                                versionOptions={versionOptions}
+                                supplierOptions={supplierOptions}
+                                currentDrafts={drafts}
+                                pinnedVersionId={pinnedVersionId}
+                                pinnedSupplierId={pinnedSupplierId}
+                                onConfirm={handleBulkCopy}
                             />
 
                             <VariantMatrixExistingTable

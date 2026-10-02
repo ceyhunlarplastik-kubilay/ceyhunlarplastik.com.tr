@@ -83,4 +83,11 @@ describe("buildDraftFromRow", () => {
         expect(draft.supplierId).toBeUndefined()
         expect(draft.measurements).toEqual({ r1: "10", r2: "4" })
     })
+
+    it("supplier: null açıkça tedarikçisiz taslak üretir (ilk tedarikçiye düşmez)", () => {
+        const draft = buildDraftFromRow({ row, sizes, versions, supplier: null })
+        expect(draft.supplierId).toBeUndefined()
+        expect(draft.price).toBeUndefined()
+        expect(draft.versionId).toBe("v1")
+    })
 })

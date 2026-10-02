@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN } from "@/core/helpers/productVariants/measurementValue"
+import { VARIANT_MATRIX_MAX_ROWS_PER_REQUEST } from "@/core/helpers/productVariants/variantMatrixLimits"
 
 const prismaDecimalSchema = z.object({
     s: z.number(),
@@ -62,7 +63,7 @@ export const saveVariantMatrixValidator = validatorWrapper(
                 colorId: z.uuid().optional(),
                 materialIds: z.array(z.uuid()).max(12).optional(),
                 supplier: matrixRowSupplierSchema.optional(),
-            })).min(1).max(500),
+            })).min(1).max(VARIANT_MATRIX_MAX_ROWS_PER_REQUEST),
         }),
     }),
     {
@@ -369,7 +370,7 @@ export const bulkDeleteVariantMatrixValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            variantIds: z.array(z.uuid()).min(1).max(500),
+            variantIds: z.array(z.uuid()).min(1).max(VARIANT_MATRIX_MAX_ROWS_PER_REQUEST),
         }),
     }),
     {
