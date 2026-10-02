@@ -11422,6 +11422,63 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   11. Prod'dan önce `npx sst diff --stage prod` (salt okunur). **Prod sırası: ÖNCE `migrate deploy` (kategori
       `20260930180000_add_audit_log` + bu `20261001120000_add_audit_actor_anonymous`), SONRA `sst deploy`.**
 
+## Ölçü kodları P_T / W_L + bileşik ölçüde "10/30" ve "10-30" (2026-10-02) *(kullanıcı talebiyle)*
+
+- **İstek:** `MeasurementCode` enum'una `P_T // P-T` ve `W_L` eklenmesi; varyant ölçüsünde `10*30`'a ek olarak
+  `10/30` ve `10-30` girişine izin verilmesi; etkilenen her yerin güncellenmesi.
+- **Kararlar (kullanıcı, AskUserQuestion):** ikinci kod `W_L // W-L` (mesajda "W_L // W-T" yazıyordu) · ayraç
+  YAZILDIĞI GİBİ korunur (10/30 → 10/30, 10-30 → 10-30; "x"/"×" eskisi gibi "*") — farklı ayraç farklı ölçü
+  kodu alır · kodlar ekranda tireli gösterilir (R-L, P-T, W-L).
+- **Yapılan:**
+  - Şema: iki enum değeri + `rawValue` doc yorumu · migration `20261002120000_add_p_t_w_l_measurement_codes`
+    (yalnız `ALTER TYPE … ADD VALUE` ×2; `prisma migrate diff` çıktısıyla birebir, DB'ye bağlanmadan) · Prisma
+    client yeniden üretildi (placeholder `DATABASE_URL`). Prod RDS Postgres 17 — iki değer tek migration'da sorunsuz.
+  - **Kod listesi tek kaynak:** `core/helpers/productVariants/measurementCodes.ts` (saf, importsuz) —
+    `MEASUREMENT_CODES`, `isMeasurementCode`, `formatMeasurementCode` (R_L → R-L),
+    `findMeasurementCodesMatching`. Elle kopyalanmış 7 liste kaldırıldı (AdminApi validator, liste handler'ı,
+    tipler; frontend `api/types`, `useMeasurementTypes`, `MeasurementTypeFormDialog`,
+    `createMeasurementTypeReference`). `measurementCodes.test.ts` liste ile Prisma enum'unu sıra dahil
+    karşılaştırır.
+  - **Tireli gösterim (12 yer):** ölçü tipleri tablosu / filtre / form seçimi, ölçü şablonu paneli + editörü,
+    public varyant detay tablosu, portal varyant sayfası etiketi, portal ve admin özel fiyat çipleri / özetleri,
+    portal hızlı fiyat (WhatsApp) mesajı, atanmış varyant kartı, tedarikçi talep diyaloğu yer tutucusu, 3D
+    parametre hata mesajları. **Anahtarlar DEĞİŞMEDİ:** ölçü imzası, `?m=`, sepet `variantKey`, özel fiyat anahtarı.
+  - **Bileşik ayrıştırma:** `parseMeasurementInput` "/" ve "-" kabul eder (boşluk silinir, virgül → nokta); saklanan
+    biçim tek desen `COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN` + `isCompoundMeasurementRawValue`. İki istek
+    validator'ı (matris `PUT /products/{id}/variant-matrix`, `POST /product-variants`) desenini core'dan alır
+    (eskiden `*`'a sabit regex'in iki kopyası vardı → "10/30" 400 alırdı). Tedarikçi varyant talebinin onayı
+    (`normalizeVariantSizeValues`) `rawValue`'yu aynı desenle süzer — serbest JSON'dan kataloğa rastgele metin
+    yazılamaz. İmza / gösterim / `?m=` zaten `rawValue`'yu birebir kullandığı için değişmedi.
+  - **Matris ekranı:** arama bileşik değerin ekrandaki metnini de tarar (eskiden yalnız ilk sayı: "10-30" yazınca
+    satır bulunmuyordu) + virgüllü ondalık. Hata mesajı kabul edilen biçimleri söyler (metrik dişte "örn. M4").
+    Opsiyonel ölçüye yazılmış okunamayan değer artık hata verir — eskiden sessizce atılıp varyant o ölçü olmadan
+    kaydediliyordu.
+  - **Yan bulgu, düzeltildi:** ölçü tipleri sayfasında HER arama 500 veriyordu — `buildPaginationQuery`
+    `searchableFields`'taki enum `code` kolonuna `contains` uyguluyordu (Prisma enum'da yok; yerelde
+    `PrismaClientValidationError: Unknown argument contains` ile teyit edildi, DB bağlantısından önce düşüyor).
+    Kod araması artık eşleşen kodların listesiyle `in` ("p-t" de P_T'yi bulur). Diğer 17 `searchableFields`
+    kullanımı tarandı, hepsi metin kolon. Ders CLAUDE.md'de.
+- **Doğrulama:** `typecheck:backend` ✓ · frontend `typecheck` ✓ · lint 0 hata (159 uyarı, değişmedi) · core 115
+  dosya / 985 test (+26: kod listesi + drift, arama sorgusu, ayrıştırma, imza / sortKey, gösterim / anahtar, talep
+  süzgeci) · functions 48 / 668 (+7: ajv'de Middy istek ayarlarıyla bileşik desen kabul / ret, arayüzün ürettiği
+  her değerin sunucuda geçmesi, P_T / W_L ile ölçü tipi; `validatorCompilation` 416 ✓) · frontend 86 / 559 (+5:
+  matris araması, hata mesajları, 10/30 – 10-30 gönderimi) · `next build` "Compiled successfully" (SST links
+  aşaması beklendiği gibi). Kubi'de ÇALIŞTIRILMADI.
+- **Kalan (PLAN):** tedarikçi varyant talebi diyaloğunda ölçü doğrulaması yok (okunamayan değer sessizce atılıyor,
+  zorunlu ölçü denetlenmiyor) — bu işten önce de vardı.
+- **Kullanıcıda bekleyen (kubi):**
+  1. `export AWS_PROFILE=ceyhunlar-prod && npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"`
+     → `20261002120000_add_p_t_w_l_measurement_codes`. Migration'dan ÖNCE P-T / W-L kodlu ölçü tipi kaydı DB
+     hatasıyla düşer.
+  2. `npx sst dev --stage kubi` (yeniden başlat).
+  3. Admin → Ölçü Tipleri: kod listesinde "P-T" ve "W-L"; ikisiyle ölçü tipi oluştur → tabloda tireli rozet.
+     Arama kutusuna "p-t" ve "Çap" yaz → liste gelir (eskiden her arama "Ölçü tipleri yüklenemedi").
+  4. Bir ürün modelinin ölçü şablonuna yeni ölçüyü ekle → matriste "10/30", "10 - 30", "10x30" gir, kaydet →
+     tabloda "10/30", "10-30", "10*30", üç ayrı ölçü kodu. "10-30mm" → satırda "değeri geçersiz (örn. …)".
+  5. Matris aramasında "10-30" → satır bulunur. Veri girişi rolüyle aynı ekran aynı davranır.
+  6. Public ürün sayfası ve portal varyant tablosu: başlıkta "(P-T)", değer "10/30".
+  7. Prod sırası: ÖNCE `migrate deploy` (bekleyen tüm migration'lar), SONRA `sst deploy`.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

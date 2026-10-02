@@ -86,6 +86,12 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   `AssetPreviewPanel`, `CampaignsPageClient`, `CustomerSpecialPricesPageClient` (pasifleştirme — ifade gerekmez),
   `CustomerAddressFormDialog`.
 
+### Tedarikçi varyant talebinde ölçü doğrulaması yok · kapsam: küçük *(2026-10-02, ölçü kodu işinde görüldü)*
+- `CreateSupplierVariantRequestDialog` ölçüleri `parseMeasurementInput`'tan geçirip okunamayanları SESSİZCE atıyor;
+  zorunlu ölçü (`isRequired`) hiç denetlenmiyor. Talep eksik ölçüyle onaya gidebiliyor. Matris ekranındaki kural
+  örnek: boş zorunlu ve yazılmış ama okunamayan değer satırda hata + kabul edilen biçim ipucu
+  (`productVariantMatrix/utils/buildSaveRows.ts`). Aynı kural form şemasının `superRefine`'ına taşınabilir.
+
 ### Üretim Planlama (APS + MES-lite) — Faz 1-6 · kapsam: büyük *(kullanıcı talebiyle, branch `feature/production-planning`)*
 - **Tasarım + yol haritası:** [docs/production-planning.md](docs/production-planning.md) —
   veri modeli (makine / kalıp → `ProductSize` / vardiya düzeni / üretim emri → iş → vardiya
@@ -473,6 +479,8 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
+- **Ölçü kodları P_T / W_L + 10/30, 10-30 (2026-10-02, LOG):** kubi migration'ı
+  `20261002120000_add_p_t_w_l_measurement_codes` + LOG'daki test adımları + commit; prod'da migration deploy'dan ÖNCE.
 - **Audit log** — Category: Dilim 1-2 ve görsel presign kubi'de doğrulandı; silme diyaloğu dahil main'e alındı
   (2026-10-01). Customer C1-C2 (branch `feat/audit-log-customer`): kubi migration'ı
   `20261001120000_add_audit_actor_anonymous` + LOG'daki 11 adımlık test + commit, sonra prod.

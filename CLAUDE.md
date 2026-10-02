@@ -167,6 +167,12 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `createMany` de mevcut satırı güncellemez. Doğrusu `$executeRaw` +
   `UNNEST(dizi1, dizi2, …)` ile tek ifade (+ `ON CONFLICT DO UPDATE`), 500'lük parçalar.
   Aynı ifadede aynı çakışma anahtarı iki kez bulunamaz.
+- `buildPaginationQuery`'nin `searchableFields`'ına YALNIZ metin (`String`) kolon ver: her alana
+  `contains` uygular, Prisma'da enum / sayı kolonunda `contains` yoktur ve sorgu bağlantıdan önce
+  `PrismaClientValidationError: Unknown argument contains` ile düşer. Tip `(keyof T)[]` olduğu için
+  TypeScript yakalamaz, testler yeşil kalır (yaşandı: ölçü tipleri sayfasında HER arama 500 veriyordu,
+  2026-10-02). Enum kolonu aramak için eşleşen değerleri JS'te bul, `in` ile ekle
+  (`findMeasurementCodesMatching` örneği).
 - Müşteri fiyat zinciri İKİ YERDE uygulanıyor: core
   `pricing/customerPricing.ts` (backend) ve frontend
   `customerPortal/pricing/portalDraftPricing.ts` (portal taslak/tablo). Fiyat

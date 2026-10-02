@@ -409,6 +409,17 @@ When touching product variants or their codes:
   kalıp gözlerini keeper'a taşır, ürün modeli silme 409 döner
   (`productRepository.countMoldOutputs`). Ölçü kodu ("10.5.8") da tek kaynaktan:
   `buildProductSizeCode` (`variantCode.ts`; `buildVariantFullCode` onun üzerine kurulu).
+- Ölçü TİPİ kodları (`MeasurementCode` enum'u: R, H3, R_L, P_T, W_L …) TEK KAYNAKTAN okunur:
+  `core/helpers/productVariants/measurementCodes.ts` (saf, importsuz — frontend `@core/*` ile).
+  Validator'a, filtreye, forma ya da tipe listeyi YENİDEN YAZMA (eskiden 7 kopyaydı). Yeni kod =
+  `schema.prisma` enum'u + bu liste + `ALTER TYPE … ADD VALUE` migration'ı; `measurementCodes.test.ts`
+  liste ile enum ayrışırsa düşer. Ekranda `formatMeasurementCode` (R_L → "R-L"); ölçü imzası, `?m=`,
+  sepet / özel fiyat anahtarları ve API değeri HAM kodu kullanır — gösterim biçimini anahtara koyma.
+- Bileşik ölçü değeri ("10*30", "10/30", "10-30") yalnız `parseMeasurementInput` ile ayrıştırılır
+  (`measurementValue.ts`); saklanan `rawValue` biçimi `COMPOUND_MEASUREMENT_RAW_VALUE_PATTERN` —
+  istek validator'ları ve tedarikçi talebi onayı aynı deseni kullanır. Ayraç YAZILDIĞI GİBİ
+  korunur ("x" / "×" → "*"): 10-30 ile 10*30 farklı ölçüdür, farklı ölçü kodu alır. `value` yalnız
+  sıralama sürrogatıdır (ilk sayı); ekranda / aramada `rawValue ?? value` kullan.
 
 When extending the content-entry (`content_editor`) workspace toward CRM data:
 - keep `content_editor` out of `/customers` endpoints; those carry commercial fields (discount,
