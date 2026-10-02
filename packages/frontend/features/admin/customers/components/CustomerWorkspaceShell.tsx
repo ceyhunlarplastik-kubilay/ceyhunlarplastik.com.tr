@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowLeft, BadgePercent, Building2, Boxes, CalendarDays, PackageCheck, UserRound } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { ArrowLeft, BadgePercent, Building2, Boxes, CalendarDays, History, PackageCheck, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
@@ -10,16 +11,20 @@ import { Spinner } from "@/components/ui/spinner"
 import { UserContactCard } from "@/components/ui/user-contact-card"
 import { buildCompanyContactCards, buildCustomerContactCards } from "@/lib/customers/contactCards"
 import { cn } from "@/lib/utils"
+import { canViewAuditLogs } from "@/features/admin/auditLogs/utils/canViewAuditLogs"
 import { useCustomer } from "@/features/admin/customers/hooks/useCustomer"
 import { useManagedCustomer } from "@/features/sales/customers/hooks/useManagedCustomer"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
 const navItems = [
-    { label: "Genel Bilgiler", href: "" },
-    { label: "Tanımlı Varyantlar", href: "/defined-products" },
-    { label: "Özel Fiyatlar", href: "/special-prices" },
-    { label: "Ziyaretler", href: "/visits" },
+    { label: "Genel Bilgiler", href: "", icon: Building2 },
+    { label: "Tanımlı Varyantlar", href: "/defined-products", icon: Boxes },
+    { label: "Özel Fiyatlar", href: "/special-prices", icon: BadgePercent },
+    { label: "Ziyaretler", href: "/visits", icon: CalendarDays },
 ]
+
+// Yalnız admin panelinde ve admin / owner'a (uç da öyle): satış panelinde bu yol yok.
+const historyNavItem = { label: "Değişiklik Geçmişi", href: "/history", icon: History }
 
 type Props = {
     customerId: string
@@ -35,6 +40,7 @@ export function CustomerWorkspaceShell({
     basePath,
 }: Props) {
     const pathname = usePathname()
+    const { data: session } = useSession()
     const adminCustomerQuery = useCustomer(customerId, scope === "admin")
     const salesCustomerQuery = useManagedCustomer(customerId, scope === "sales")
     const customerQuery = scope === "sales" ? salesCustomerQuery : adminCustomerQuery
@@ -42,7 +48,9 @@ export function CustomerWorkspaceShell({
     const rootPath = basePath ?? (scope === "sales" ? `/musteri-temsilcisi/musteriler/${customerId}` : `/admin/customers/${customerId}`)
     const visibleNavItems = scope === "sales"
         ? navItems.filter((item) => item.label !== "Ziyaretler")
-        : navItems
+        : scope === "admin" && canViewAuditLogs(session?.user?.groups)
+            ? [...navItems, historyNavItem]
+            : navItems
     const assignedSalesDisplayName = customer?.assignedSalesUser
         ? getUserDisplayName(customer.assignedSalesUser)
         : ""
@@ -174,10 +182,7 @@ export function CustomerWorkspaceShell({
                                             : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
                                     )}
                                 >
-                                    {item.label === "Tanımlı Varyantlar" ? <Boxes className="h-4 w-4" /> : null}
-                                    {item.label === "Özel Fiyatlar" ? <BadgePercent className="h-4 w-4" /> : null}
-                                    {item.label === "Ziyaretler" ? <CalendarDays className="h-4 w-4" /> : null}
-                                    {item.label === "Genel Bilgiler" ? <Building2 className="h-4 w-4" /> : null}
+                                    <item.icon className="h-4 w-4" />
                                     <span>{item.label}</span>
                                 </Link>
                             )

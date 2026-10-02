@@ -24,7 +24,7 @@ const ACTION_BADGE_CLASS: Record<AuditAction, string> = {
 const groupLabel = (group: string) => (GROUP_LABELS as Record<string, string>)[group] ?? group
 
 function AuditChangeRow({ change, presenter }: { change: AuditChange; presenter: AuditPresenter }) {
-    const view = buildAuditChangeView(change)
+    const view = buildAuditChangeView(change, presenter)
     const itemLabel = (item: string) => presenter.itemLabel?.(change.field, item) ?? item
 
     return (

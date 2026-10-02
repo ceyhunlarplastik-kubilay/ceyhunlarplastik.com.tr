@@ -1,9 +1,9 @@
-import type { AuditAction, AuditChange, AuditEntityType, AuditValue } from "@core/helpers/audit/types"
+import type { AuditAction, AuditActorType, AuditChange, AuditEntityType, AuditValue } from "@core/helpers/audit/types"
 
-export type { AuditAction, AuditChange, AuditEntityType, AuditValue }
+export type { AuditAction, AuditActorType, AuditChange, AuditEntityType, AuditValue }
 
 export type AuditActor = {
-    type: "USER" | "SYSTEM"
+    type: AuditActorType
     /** Kullanıcı sonradan silindiyse null; ad / e-posta olay anındaki künyeden gelir. */
     userId: string | null
     name: string | null
